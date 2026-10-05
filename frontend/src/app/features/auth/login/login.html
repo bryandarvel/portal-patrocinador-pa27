@@ -1,7 +1,7 @@
 <main class="login-page">
   <section class="festival" aria-label="Imagens do Planeta Atlântida 2027" aria-roledescription="carrossel"
     (mouseenter)="hovered.set(true)" (mouseleave)="hovered.set(false)" (focusin)="focused.set(true)" (focusout)="leaveCarousel($event)"
-    [class.motion-paused]="hovered() || focused() || hidden()">
+    [class.motion-paused]="paused() || hovered() || focused() || hidden()">
     @for (slide of slides; track slide.image; let index = $index) {
       <div class="festival-scene" [class.active]="activeSlide() === index" aria-hidden="true">
         <img class="festival-photo" [src]="slide.image" alt="" [attr.fetchpriority]="index === 0 ? 'high' : 'low'" />
@@ -20,6 +20,11 @@
         <button class="slide-indicator" type="button" (click)="selectSlide(index)" [class.selected]="activeSlide() === index"
           [attr.aria-label]="'Mostrar imagem ' + (index + 1) + ': ' + slide.title" [attr.aria-pressed]="activeSlide() === index"><span></span></button>
       }
+      <button class="carousel-pause" type="button" (click)="paused.set(!paused())"
+        [attr.aria-label]="paused() ? 'Retomar carrossel' : 'Pausar carrossel'"
+        [attr.title]="paused() ? 'Retomar carrossel' : 'Pausar carrossel'">
+        <nz-icon [nzType]="paused() ? 'caret-right' : 'pause'" aria-hidden="true" />
+      </button>
     </div>
     <div class="brand-stripe" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   </section>

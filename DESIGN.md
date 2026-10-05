@@ -105,7 +105,7 @@ A paleta PA27 aparece na ação principal, na faixa inferior, na camada magenta/
 **Character:** sans-serif de sistema, com títulos fortes e compactos e texto de apoio mais leve.
 
 ### Hierarchy
-- **Display** (800, `clamp(48px, 5.8vw, 84px)`, line-height 0.98): frase sobre a fotografia; no mobile usa `clamp(26px, 4.5svh, 38px)`.
+- **Display** (800, `clamp(48px, 5.8vw, 84px)`, line-height 0.98): frase sobre a fotografia; no mobile usa `clamp(22px, 3.7svh, 30px)`.
 - **Headline** (800, `clamp(28px, 2.8vw, 44px)`, line-height 1.1): título centralizado do formulário, reduzido a 28px em janelas baixas.
 - **Body** (400, 16px): introdução com line-height 1.5; apoio com 1.6. Em alturas até 700px, a introdução usa 14px.
 - **Label** (500, 14px): rótulos e ação principal; o botão usa 15px e peso 600.
@@ -114,7 +114,7 @@ A paleta PA27 aparece na ação principal, na faixa inferior, na camada magenta/
 
 No desktop, grid de 57%/43% com altura mínima de 100svh, sem moldura externa. Formulário de até 440px; logo, identificação magenta e título centralizados; campos e labels alinhados à esquerda. Logo do acesso escala pela altura útil e reduz a 72px em até 700px de altura. Em até 760px de largura, grid empilha, logo duplicado do acesso é ocultado e cabeçalho visual usa `clamp(116px, 17svh, 160px)`. Em até 700px de altura, espaços diminuem e cabeçalho visual ocupa 116px. Preserve rolagem natural quando zoom ou teclado virtual exigirem mais espaço.
 
-Copy vigente: “Entre na sua conta” e “Entre para acompanhar materiais e entregas do seu patrocínio.”, com identificação “Portal do Patrocinador”. O slogan oficial e a identidade PA27 vêm dos materiais fornecidos; o tom considera também as páginas História e Experiências do site oficial. Textos de apoio são redação original do portal. Fontes e medidas anteriores estão em `docs/login.md`; contrato e tarefas vigentes em `openspec/changes/refine-login-carousel/`.
+Copy vigente: “Entre na sua conta” e “Entre para acompanhar materiais e entregas do seu patrocínio.”, com identificação “Portal do Patrocinador”. O slogan oficial e a identidade PA27 vêm dos materiais fornecidos; o tom considera também as páginas História e Experiências do site oficial. Textos de apoio são redação original do portal. Fontes e medidas anteriores estão em `docs/login.md`; contrato visual em `openspec/changes/refine-login-carousel/` e correção vigente da pausa em `openspec/changes/corrigir-acessibilidade-login/`.
 
 ## Elevation & Depth
 
@@ -137,11 +137,11 @@ Campos e ação principal têm cantos suavemente arredondados (8px); o controle 
 - **Error:** borda de erro e mensagem curta associada ao campo.
 
 ### Signature Component
-- **Painel do festival:** três fotos oficiais com camada escura e cores magenta/azul, marca fixa no alto, frase branca e faixa inferior com cores PA27. Apenas três barras clicáveis com alvos de 44px, sem play/pause. No mobile, a frase fica à direita e a legenda desaparece; a frase usa `clamp(22px, 3.7svh, 30px)`.
+- **Painel do festival:** três fotos oficiais com camada escura e cores magenta/azul, marca fixa no alto, frase branca e faixa inferior com cores PA27. Três barras clicáveis e controle discreto de pausa/retomada, todos com alvos de 44px. No mobile, a frase fica à direita e a legenda desaparece; a frase usa `clamp(22px, 3.7svh, 30px)`.
 
 ## Motion
 
-Carrossel local: dissolução de 500ms, cena a cada 3s, aproximação de 3% durante a cena. Seleção manual muda a cena; ao sair do painel, o loop continua. Hover, foco no painel e aba oculta suspendem o timer. Movimento reduzido desativa autoplay, zoom e dissolução, mantendo seleção manual. Estado de formulário não depende do carrossel. Fotos e textos comerciais são materiais e redação do portal; não prometem métricas nem representam uma edição futura.
+Carrossel local: dissolução de 500ms, cena a cada 3s, aproximação de 3% durante a cena. Seleção manual muda a cena; ao sair do painel, o loop continua somente se não estiver pausado pelo usuário. O controle de pausa interrompe troca e zoom até retomada explícita. Hover, foco no painel e aba oculta suspendem o timer. Movimento reduzido desativa autoplay, zoom e dissolução, mantendo seleção manual. Estado de formulário não depende do carrossel. Fotos e textos comerciais são materiais e redação do portal; não prometem métricas nem representam uma edição futura.
 
 ## Do's and Don'ts
 
