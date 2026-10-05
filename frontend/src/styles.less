@@ -1,0 +1,43 @@
+@import 'ng-zorro-antd/ng-zorro-antd.less';
+
+@pa-magenta: #e2047d;
+@pa-pink: #ff8bda;
+@pa-blue: #009ee5;
+@pa-green: #06a883;
+@pa-orange: #e84f15;
+@pa-light-orange: #ff8617;
+@pa-yellow: #ffde03;
+
+@primary-color: @pa-magenta;
+@primary-color-hover: darken(@primary-color, 5%);
+@primary-color-active: darken(@primary-color, 10%);
+@link-color: @primary-color;
+@link-hover-color: @primary-color-hover;
+@link-active-color: @primary-color-active;
+@text-color: #242424;
+@heading-color: @text-color;
+@text-color-secondary: #595959;
+
+:root {
+  --pa-magenta: @pa-magenta;
+  --pa-pink: @pa-pink;
+  --pa-blue: @pa-blue;
+  --pa-green: @pa-green;
+  --pa-orange: @pa-orange;
+  --pa-light-orange: @pa-light-orange;
+  --pa-yellow: @pa-yellow;
+  --color-primary: @primary-color;
+  --color-text: @text-color;
+  --color-surface: #fff;
+}
+
+.ant-btn-primary:not(:disabled):hover,
+.ant-btn-primary:not(:disabled):focus {
+  background: @primary-color-hover;
+  border-color: @primary-color-hover;
+}
+
+.ant-btn-primary:not(:disabled):active {
+  background: @primary-color-active;
+  border-color: @primary-color-active;
+}

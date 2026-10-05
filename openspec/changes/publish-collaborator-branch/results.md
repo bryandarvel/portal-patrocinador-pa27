@@ -1,0 +1,13 @@
+# Publicação e portabilidade para colaboradores
+
+Validação em 04/10/2026: exportação limpa dos arquivos do índice Git, sem node_modules anterior, usando Node 24.15.0. `npm ci` passou (245 pacotes, auditoria sem vulnerabilidades); `npm run test:proxy` passou (1/1); `npm run build` passou. Avisos preservados: bundle inicial 865,78 kB acima do aviso de 500 kB, CSS do login 5,20 kB acima do aviso de 4 kB, ambos abaixo dos limites de erro.
+
+`docker compose config --quiet`, `git diff --cached --check` e `openspec validate --all --strict --no-interactive` passaram (3 changes). Índice sem PDFs, dependências, caches, arquivos .env ou chaves privadas sinalizadas pela busca. Configuração runtime usa mounts relativos, serviços Docker e assets versionados. README contém comandos de clone e execução portáveis; ferramentas de agentes não são dependências runtime.
+
+Limite: Docker Engine desligado e JDK local indisponível nesta sessão; não houve novo teste do runtime Docker/Spring/PostgreSQL. As evidências anteriores continuam datadas no README. Compose é desenvolvimento, com credenciais públicas de teste; login Angular ainda valida visualmente sem autenticação integrada.
+
+Branch publicada: `feat/portal-pa27`, com push normal e upstream em `origin/feat/portal-pa27`. Commit de implementação `140d7cf111f4737e947ed392d26a35b8c5c900dd` confirmado por `git ls-remote`, igual ao HEAD local; árvore limpa após o envio. Este registro de conclusão é enviado em commit documental posterior.
+
+Nome vigente: `feat/login-planeta-atlantida`. README atualizado. Nova branch publicada com upstream, SHA conferido com `git ls-remote` e ancestralidade do commit anterior confirmada por `git merge-base --is-ancestor`. Referência remota antiga removida com lease do SHA conhecido; ausência confirmada na consulta remota. Nenhuma mudança de runtime, portanto sem repetir build/testes já registrados.
+
+Histórico vigente após consolidação em 04/10/2026: a entrega contém um único commit após a base `967ff3b`, com título e corpo em português. Os quatro commits publicados anteriormente foram substituídos na branch; hashes e ancestralidade citados acima são evidências históricas, não o estado vigente. A comparação `git diff --cached 5e84aaf -- . :!openspec/changes/publish-collaborator-branch/` não encontrou diferenças na aplicação. O push com lease passou e a conferência remota confirmou a nova ponta e main intacta. Este registro foi incorporado por amend para manter somente um commit de entrega. Não houve mudança de runtime que exigisse repetir o build. Quem já buscou a ponta antiga precisa realinhar sua branch local, preservando qualquer trabalho próprio antes disso.
