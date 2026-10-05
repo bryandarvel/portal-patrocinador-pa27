@@ -1,3 +1,5 @@
+> A regra de ausência de play/pause e de retomada sem pausa permanente foi substituída pelo contrato acessível em [carousel-pause](../../../corrigir-acessibilidade-login/specs/carousel-pause/spec.md). Os demais requisitos continuam vigentes.
+
 ## Purpose
 
 Apresentar a identidade Planeta Atlântida no acesso visual do patrocinador, com carrossel controlável e formulário legível em notebook e celular.

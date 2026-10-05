@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { afterNextRender, Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EyeInvisibleOutline, EyeOutline, ArrowRightOutline } from '@ant-design/icons-angular/icons';
+import { EyeInvisibleOutline, EyeOutline, ArrowRightOutline, PauseOutline, CaretRightOutline } from '@ant-design/icons-angular/icons';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -11,7 +11,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule, NzAlertModule, NzButtonModule, NzFormModule, NzIconModule, NzInputModule],
-  providers: [provideNzIconsPatch([EyeOutline, EyeInvisibleOutline, ArrowRightOutline])],
+  providers: [provideNzIconsPatch([EyeOutline, EyeInvisibleOutline, ArrowRightOutline, PauseOutline, CaretRightOutline])],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -22,6 +22,7 @@ export class Login {
     { image: '/images/pa27-publico.jpg', title: 'Encontros que ficam.', caption: 'Conexões que continuam além do festival.' }
   ];
   readonly activeSlide = signal(0);
+  readonly paused = signal(false);
   readonly hovered = signal(false);
   readonly focused = signal(false);
   readonly reducedMotion = signal(true);
@@ -44,7 +45,7 @@ export class Login {
       });
     });
     effect(onCleanup => {
-      if (this.hidden() || this.reducedMotion() || this.hovered() || this.focused()) return;
+      if (this.paused() || this.hidden() || this.reducedMotion() || this.hovered() || this.focused()) return;
       const timer = setInterval(() => this.activeSlide.update(index => (index + 1) % this.slides.length), 3000);
       onCleanup(() => clearInterval(timer));
     });

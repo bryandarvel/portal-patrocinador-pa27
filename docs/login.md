@@ -99,3 +99,7 @@ NG-ZORRO 22 usa `nz-input-wrapper` e a diretiva `nzInputSuffix`; `nz-input-group
 Reutilizados os containers existentes. O dev server precisou de reinício do serviço frontend para carregar as mudanças, pois não foram observados eventos do watcher neste ambiente. Backend e banco continuam ativos e preservados. Nenhum endpoint de autenticação, armazenamento de senha ou navegação autenticada foi implementado.
 
 Guia visual final registrado em `DESIGN.md` e `.impeccable/design.json`; JSON validado pelo documentador. Origem dos dois rasters embutida e conferida: `impeccable embed-prompt --scan frontend/public/images` retornou 2 arquivos, 0 sem origem. Snippets de documentação não foram renderizados; a verificação visual cobre a tela Angular real.
+
+## Correção vigente de acessibilidade
+
+Em 05/10/2026, o controle discreto de pausa/retomada substitui a decisão anterior de retirar play/pause. A pausa permanece ao preencher o formulário e interrompe troca e zoom; indicadores continuam operáveis. Contrato e evidências: [corrigir-acessibilidade-login](../openspec/changes/corrigir-acessibilidade-login/).
