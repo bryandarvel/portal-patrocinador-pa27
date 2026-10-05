@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-02T03:24:21Z",
+  "title": "Design System: Portal do Patrocinador",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Magenta PA27",
+        "canonical": "#e2047d"
+      },
+      "pink": {
+        "role": "secondary",
+        "displayName": "Rosa PA27",
+        "canonical": "#ff8bda"
+      },
+      "blue": {
+        "role": "secondary",
+        "displayName": "Azul PA27",
+        "canonical": "#009ee5"
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Verde PA27",
+        "canonical": "#06a883"
+      },
+      "orange": {
+        "role": "secondary",
+        "displayName": "Laranja PA27",
+        "canonical": "#e84f15"
+      },
+      "light-orange": {
+        "role": "secondary",
+        "displayName": "Laranja claro PA27",
+        "canonical": "#ff8617"
+      },
+      "yellow": {
+        "role": "secondary",
+        "displayName": "Amarelo PA27",
+        "canonical": "#ffde03"
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Carvão",
+        "canonical": "#242424"
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Cinza de leitura",
+        "canonical": "#595959"
+      },
+      "placeholder": {
+        "role": "neutral",
+        "displayName": "Cinza de placeholder",
+        "canonical": "#686868"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Branco",
+        "canonical": "#ffffff"
+      },
+      "photo-base": {
+        "role": "neutral",
+        "displayName": "Azul-marinho fotográfico",
+        "canonical": "#071a23"
+      },
+      "error": {
+        "role": "error",
+        "displayName": "Vermelho de erro",
+        "canonical": "#b42318"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Frase sobre a fotografia",
+        "purpose": "Destaque visual no painel do festival."
+      },
+      "headline": {
+        "displayName": "Título de acesso",
+        "purpose": "Título principal do formulário."
+      },
+      "body": {
+        "displayName": "Texto de apoio",
+        "purpose": "Introdução e orientação do formulário."
+      },
+      "label": {
+        "displayName": "Rótulo e ação",
+        "purpose": "Rótulos de campo e controles do formulário."
+      }
+    },
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "760px"
+      },
+      {
+        "name": "compact-height",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ação principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Envio do formulário de acesso, em largura total.",
+      "html": "<button class=\"ds-primary-button\" type=\"button\">Entrar no portal</button>",
+      "css": ".ds-primary-button { width: 100%; height: 50px; display: inline-flex; align-items: center; justify-content: center; background: var(--color-primary); color: #fff; border: 1px solid var(--color-primary); border-radius: 8px; font: 600 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; cursor: pointer; } .ds-primary-button:hover { background: #c9046f; border-color: #c9046f; } .ds-primary-button:active { background: #b00361; border-color: #b00361; } .ds-primary-button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }"
+    },
+    {
+      "name": "Campo de e-mail",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo claro com rótulo visível e orientação curta.",
+      "html": "<label class=\"ds-email-field\"><span class=\"ds-email-label\">E-mail</span><input class=\"ds-email-input\" type=\"email\" placeholder=\"voce@empresa.com.br\" /></label>",
+      "css": ".ds-email-field { display: grid; gap: 8px; color: #242424; font: 500 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; } .ds-email-input { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 8px; background: #fff; color: #242424; font: 400 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; } .ds-email-input::placeholder { color: #686868; } .ds-email-input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A energia do festival, com acesso simples.",
+    "overview": "A identidade oficial Planeta Atlântida 2027 combina fotografia de palco e fogos com a marca original. A tela de entrada usa essa energia no painel visual e mantém o formulário claro, legível e direto. A tipografia segue a pilha de sistema usada pelo NG-ZORRO. As imagens vêm do material PA27 fornecido para o desafio; a fotografia ilustra a identidade visual e não deve ser apresentada como registro de uma edição futura. Esta documentação descreve a superfície de login implementada; autenticação real ainda não está integrada.",
+    "keyCharacteristics": [
+      "Marca e fotografia oficiais PA27.",
+      "Magenta na ação principal; campos claros e texto escuro.",
+      "Composição dividida no desktop e cabeçalho compacto em telas estreitas.",
+      "Carrossel de três fotos PA27: dissolução de 500ms a cada 3s, zoom de 3%, apenas três indicadores clicáveis. Movimento reduzido elimina autoplay e animação; foco, hover e aba oculta suspendem rotação. Tela cheia em 57%/43%, faixas diagonais coloridas nas bordas da foto, marca acima do formulário no desktop e título centralizado. Painel direito branco; cabeçalho móvel mínimo de 116px, sem marca duplicada do acesso."
+    ],
+    "rules": [
+      {
+        "name": "A Regra da Origem Visual",
+        "body": "Preserve a marca PA27 e trate a fotografia como imagem ilustrativa do material fornecido.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do preserve a marca e a paleta oficial PA27.",
+      "Do manter contraste alto entre formulário branco, texto escuro e ação magenta.",
+      "Do manter foco visível, rótulos e mensagens de erro próximos aos campos."
+    ],
+    "donts": [
+      "Don't apresentar a fotografia como registro da edição de 2027.",
+      "Don't sugerir que o login já autentica ou concede acesso.",
+      "Don't acrescentar cadastro ou recuperação de senha com destinos ainda inexistentes."
+    ]
+  }
+}
