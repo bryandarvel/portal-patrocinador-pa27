@@ -20,17 +20,16 @@ public class Usuario {
 
     private String senha;
 
-    // Campo que diz se o e-mail foi confirmado
     private boolean ativo = false;
 
-    // Token temporário para verificação
     private String tokenVerificacao;
 
-    // Na classe Usuario.java
     private boolean mfaEnabled = false;
 
-    @Column(length = 100)
-    private String mfaSecret; // O segredo compartilhado com o app autenticador
+    private String mfaSecret;
 
-
+    // NOVO CAMPO ADICIONADO AQUI
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 }
