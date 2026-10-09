@@ -7,7 +7,7 @@ import java.io.File;
 import java.net.InetAddress;
 
 @Service
-public class GeoLocationService {
+public class  GeoLocationService {
 
     private final DatabaseReader dbReader;
 
