@@ -1,0 +1,36 @@
+### Variáveis
+@baseUrl = http://localhost:8080
+@email = gabrielbarceloz256@gmail.com
+@senha = 123456
+
+### 1. Cadastrar um novo usuário
+POST {{baseUrl}}/api/auth/cadastro
+Content-Type: application/json
+
+{
+  "nome": "Gabriel Teste",
+  "email": "{{email}}",
+  "senha": "{{senha}}",
+  "role": "ADMIN_RBS"
+}
+
+### 2. Fazer login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "senha": "{{senha}}"
+}
+
+### 3. Verificar e-mail (Cole o token que chegou no Mailtrap)
+GET {{baseUrl}}/api/auth/verificar?token=COLE-O-TOKEN-AQUI
+
+### 4. Fazer login novamente (agora com a conta ativa)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "senha": "{{senha}}"
+}
