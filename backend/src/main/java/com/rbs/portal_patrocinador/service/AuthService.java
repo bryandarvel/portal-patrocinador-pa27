@@ -77,7 +77,7 @@ public class AuthService {
             throw new RuntimeException("E-mail já cadastrado!");
         }
 
-        // ✅ CRIPTOGRAFA A SENHA ANTES DE SALVAR
+        // CRIPTOGRAFA A SENHA ANTES DE SALVAR
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 
         String token = UUID.randomUUID().toString();
