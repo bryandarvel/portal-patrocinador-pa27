@@ -86,7 +86,7 @@ public class AuthService {
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // emailService.enviarEmailVerificacao(usuario.getEmail(), token);
+        emailService.enviarEmailVerificacao(usuario.getEmail(), token);
 
         return usuarioSalvo;
     }
