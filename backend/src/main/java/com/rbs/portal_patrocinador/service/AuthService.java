@@ -5,6 +5,7 @@ import com.rbs.portal_patrocinador.entity.Usuario;
 import com.rbs.portal_patrocinador.repository.LoginHistoryRepository;
 import com.rbs.portal_patrocinador.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +23,14 @@ public class AuthService {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private MfaService mfaService;
     @Autowired private TokenService tokenService;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     public String login(String email, String senha, String ipAddress) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
-        // 1. Validar senha (temporário — depois usaremos BCrypt)
-        if (senha == null || !senha.equals(usuario.getSenha())) {
+        // 1. Validar senha com BCrypt
+        if (senha == null || !passwordEncoder.matches(senha, usuario.getSenha())) {
             throw new RuntimeException("Senha inválida");
         }
 
@@ -47,13 +49,11 @@ public class AuthService {
                     ultimo.getLatitude(), ultimo.getLongitude(),
                     coordsAtuais[0], coordsAtuais[1]);
 
-            // Se a distância for maior que 500km e o último login foi há menos de 2 horas
             if (distancia > 500 && ultimo.getTimestamp().isAfter(LocalDateTime.now().minusHours(2))) {
                 String tokenSuspeito = UUID.randomUUID().toString();
                 usuario.setTokenVerificacao(tokenSuspeito);
                 usuarioRepository.save(usuario);
 
-                // Comentado temporariamente para testes (e-mail ainda não configurado)
                 // emailService.enviarEmailVerificacao(email, tokenSuspeito);
                 return "SUSPICIOUS_LOGIN_EMAIL_SENT";
             }
@@ -77,13 +77,15 @@ public class AuthService {
             throw new RuntimeException("E-mail já cadastrado!");
         }
 
+        // ✅ CRIPTOGRAFA A SENHA ANTES DE SALVAR
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
         String token = UUID.randomUUID().toString();
         usuario.setTokenVerificacao(token);
         usuario.setAtivo(false);
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // 4. Envia o e-mail  ← COMENTE ESTA LINHA TEMPORARIAMENTE
         // emailService.enviarEmailVerificacao(usuario.getEmail(), token);
 
         return usuarioSalvo;
