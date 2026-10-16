@@ -68,21 +68,18 @@ public class AuthService {
 
     @Transactional
     public Usuario cadastrar(Usuario usuario) {
-        // 1. Verifica se e-mail já existe
         if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             throw new RuntimeException("E-mail já cadastrado!");
         }
 
-        // 2. Gera o token único
         String token = UUID.randomUUID().toString();
         usuario.setTokenVerificacao(token);
         usuario.setAtivo(false);
 
-        // 3. Salva o usuário no banco
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // 4. Envia o e-mail
-        emailService.enviarEmailVerificacao(usuario.getEmail(), token);
+        // 4. Envia o e-mail  ← COMENTE ESTA LINHA
+        // emailService.enviarEmailVerificacao(usuario.getEmail(), token);
 
         return usuarioSalvo;
     }

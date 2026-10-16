@@ -9,5 +9,4 @@ public class PortalPatrocinadorApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PortalPatrocinadorApplication.class, args);
 	}
-
 }
