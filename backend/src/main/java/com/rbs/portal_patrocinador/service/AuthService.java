@@ -15,21 +15,26 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
-    // 1. TODAS as injeções de dependência ficam aqui no topo, uma única vez cada.
+    // Injeções de dependência
     @Autowired private GeoLocationService geoLocationService;
     @Autowired private LoginHistoryRepository loginHistoryRepository;
     @Autowired private EmailService emailService;
     @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private MfaService mfaService;
+    @Autowired private TokenService tokenService;
 
     public String login(String email, String senha, String ipAddress) {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
-        // 1. Validar senha (aqui você usaria o BCrypt)
-        // if (!passwordEncoder.matches(senha, usuario.getSenha())) throw new RuntimeException("Senha inválida");
+        // 1. Validar senha (temporário — depois usaremos BCrypt)
+        if (senha == null || !senha.equals(usuario.getSenha())) {
+            throw new RuntimeException("Senha inválida");
+        }
 
         // 2. Verificar se 2FA está ativo
         if (usuario.isMfaEnabled()) {
-            return "MFA_REQUIRED"; // O frontend deve pedir o código de 6 dígitos
+            return "MFA_REQUIRED";
         }
 
         // 3. Verificação de Distância de IP
@@ -44,17 +49,17 @@ public class AuthService {
 
             // Se a distância for maior que 500km e o último login foi há menos de 2 horas
             if (distancia > 500 && ultimo.getTimestamp().isAfter(LocalDateTime.now().minusHours(2))) {
-                // Login suspeito! Não gera o JWT final. Envia e-mail de confirmação.
                 String tokenSuspeito = UUID.randomUUID().toString();
-                usuario.setTokenVerificacao(tokenSuspeito); // Reutilizando o campo de token
+                usuario.setTokenVerificacao(tokenSuspeito);
                 usuarioRepository.save(usuario);
 
-                emailService.enviarEmailVerificacao(email, tokenSuspeito); // Adapte o texto do e-mail
+                // Comentado temporariamente para testes (e-mail ainda não configurado)
+                // emailService.enviarEmailVerificacao(email, tokenSuspeito);
                 return "SUSPICIOUS_LOGIN_EMAIL_SENT";
             }
         }
 
-        // 4. Se tudo estiver ok, salva o histórico e gera o JWT
+        // 4. Salva o histórico e gera o JWT real
         LoginHistory novoLogin = new LoginHistory();
         novoLogin.setUsuario(usuario);
         novoLogin.setIpAddress(ipAddress);
@@ -63,7 +68,7 @@ public class AuthService {
         novoLogin.setTimestamp(LocalDateTime.now());
         loginHistoryRepository.save(novoLogin);
 
-        return "JWT_GERADO_AQUI"; // Retorne o token JWT real
+        return tokenService.gerarToken(usuario);
     }
 
     @Transactional
@@ -78,7 +83,7 @@ public class AuthService {
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // 4. Envia o e-mail  ← COMENTE ESTA LINHA
+        // 4. Envia o e-mail  ← COMENTE ESTA LINHA TEMPORARIAMENTE
         // emailService.enviarEmailVerificacao(usuario.getEmail(), token);
 
         return usuarioSalvo;
@@ -86,14 +91,47 @@ public class AuthService {
 
     @Transactional
     public void verificarEmail(String token) {
-        // 1. Busca o usuário pelo token
         Usuario usuario = usuarioRepository.findByTokenVerificacao(token)
                 .orElseThrow(() -> new RuntimeException("Token inválido ou expirado."));
 
-        // 2. Ativa a conta e limpa o token
         usuario.setAtivo(true);
         usuario.setTokenVerificacao(null);
-
         usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public String confirmarLoginSuspeito(String token) {
+        Usuario usuario = usuarioRepository.findByTokenVerificacao(token)
+                .orElseThrow(() -> new RuntimeException("Token de confirmação inválido ou expirado."));
+
+        usuario.setTokenVerificacao(null);
+        usuarioRepository.save(usuario);
+
+        return tokenService.gerarToken(usuario);
+    }
+
+    @Transactional
+    public String validarMfa(String email, String codigo, String ipAddress) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        if (usuario.getMfaSecret() == null) {
+            throw new RuntimeException("MFA não configurado para este usuário.");
+        }
+
+        if (!mfaService.verifyCode(usuario.getMfaSecret(), codigo)) {
+            throw new RuntimeException("Código 2FA inválido.");
+        }
+
+        double[] coords = geoLocationService.getCoordinates(ipAddress);
+        LoginHistory novoLogin = new LoginHistory();
+        novoLogin.setUsuario(usuario);
+        novoLogin.setIpAddress(ipAddress);
+        novoLogin.setLatitude(coords[0]);
+        novoLogin.setLongitude(coords[1]);
+        novoLogin.setTimestamp(LocalDateTime.now());
+        loginHistoryRepository.save(novoLogin);
+
+        return tokenService.gerarToken(usuario);
     }
 }
