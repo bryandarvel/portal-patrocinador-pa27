@@ -1,4 +1,4 @@
-# Portal do Patrocinador — Planeta Atlântida
+# Portal do Patrocinador - Planeta Atlântida
 
 Projeto do **Desafio GC 2026**, desenvolvido pelas trilhas **Java** e **IA & Dados** para o **Grupo RBS**.
 
