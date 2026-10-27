@@ -1,0 +1,74 @@
+.profile-page { height: 100svh; background: var(--color-paper); display: flex; flex-direction: column; }
+.portal-header { height: 92px; flex: 0 0 92px; padding: 14px 20px; display: grid; grid-template-columns: 64px minmax(220px, 540px) 306px 200px 76px; align-items: center; gap: 24px; background: var(--color-dark); color: #fff; }
+.portal-logo { width: 64px; height: 64px; object-fit: contain; }
+.portal-brand { display: flex; flex-direction: column; gap: 4px; }
+.portal-brand p { font-family: var(--font-brand); font-size: 20px; font-weight: 800; line-height: 24px; text-transform: uppercase; }
+.portal-brand span { color: var(--pa-pink); font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+.header-actions { display: flex; gap: 24px; }
+.account { display: flex; flex-direction: column; gap: 4px; }
+.account p { font-size: 14px; font-weight: 500; line-height: 20px; }
+.account span { font-size: 12px; line-height: 18px; }
+.faq-button { width: 162px; }
+.notifications-button { width: 120px; }
+.exit-button { width: 76px; }
+.portal-body { min-height: 0; flex: 1; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+.partnership-sidebar { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--color-nav); overflow-y: auto; }
+.partnership-identity { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: #fff; border-radius: 8px; }
+.partnership-identity p { font-size: 20px; line-height: 28px; font-weight: 700; }
+.quota { width: 150px; max-width: 100%; padding: 4px; border-radius: 4px; background: var(--pa-yellow); font-size: 11px; line-height: 16px; font-weight: 700; text-transform: uppercase; }
+.deliveries-button { width: 100%; flex-shrink: 0; }
+/* NG-ZORRO define padding-top com !important em a.ant-btn. */
+.pill.deliveries-button, .pill.faq-button { padding-top: 11px !important; }
+nav { display: flex; flex-direction: column; gap: 8px; }
+.area-link { width: 100%; padding: 12px; border: 0; border-radius: 8px; background: transparent; color: var(--color-text); display: flex; align-items: center; gap: 12px; text-align: left; font-size: 14px; line-height: 20px; font-weight: 500; }
+.area-number { flex: 0 0 auto; font-size: 11px; font-weight: 700; line-height: 16px; color: var(--color-muted); }
+.area-link.active { background: var(--color-text); color: #fff; }
+.area-link.active .area-number { color: var(--pa-pink); }
+.festival-signature { display: flex; flex-direction: column; gap: 8px; }
+.checker { width: 96px; height: 12px; background: repeating-linear-gradient(90deg, var(--color-text) 0 12px, #fff 12px 24px); }
+.festival-signature p { color: var(--color-muted); font-size: 11px; font-weight: 700; line-height: 16px; text-transform: uppercase; }
+.profile-scroll { min-width: 0; overflow-y: auto; }
+.profile-content { padding: 40px; display: flex; flex-direction: column; gap: 24px; }
+.page-heading { display: flex; flex-direction: column; gap: 12px; }
+.context-row { display: grid; grid-template-columns: max-content minmax(0, 450px) 170px; align-items: center; gap: 16px; }
+.report-button { grid-column: 3; width: 170px; }
+h1 { font-family: var(--font-display); font-size: 48px; line-height: 50px; font-weight: 700; text-transform: uppercase; }
+.page-intro { font-size: 16px; line-height: 24px; color: var(--color-muted); }
+.festival-stripe { display: grid; grid-template-columns: 536fr 300fr 180fr 96fr; height: 4px; }
+.festival-stripe span:nth-child(1) { background: var(--pa-blue); }
+.festival-stripe span:nth-child(2) { background: var(--pa-green); }
+.festival-stripe span:nth-child(3) { background: var(--pa-magenta); }
+.festival-stripe span:nth-child(4) { background: var(--pa-yellow); }
+.portal-header :focus-visible { outline-color: var(--pa-pink); }
+.skip-link { position: fixed; top: -80px; left: 16px; z-index: 1001; padding: 12px; background: #fff; color: var(--color-text); }
+.skip-link:focus { top: 16px; }
+.notification-preview { width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; background: #fff0ee; color: #a62b30; }
+.notification-preview h3 { color: inherit; font-size: 20px; line-height: 28px; font-weight: 700; }
+.report-unavailable { display: flex; flex-direction: column; gap: 16px; }
+.report-unavailable p:first-child { font-size: 16px; line-height: 24px; color: var(--color-text); }
+@media (max-width: 1199px) {
+  .portal-header { grid-template-columns: 64px minmax(180px, 1fr) auto 76px; gap: 16px; }
+  .header-actions { gap: 12px; }
+  .account { display: none; }
+  .profile-content { padding: 24px; }
+}
+@media (max-width: 760px) {
+  .profile-page { height: auto; min-height: 100svh; }
+  .portal-header { height: auto; flex-basis: auto; grid-template-columns: 48px minmax(0, 1fr) 64px; padding: 16px; gap: 12px; }
+  .portal-logo { width: 48px; height: 48px; }
+  .portal-brand p { font-size: 14px; line-height: 18px; }
+  .portal-brand span { font-size: 9px; line-height: 14px; letter-spacing: .6px; }
+  .exit-button { width: 64px; grid-column: 3; grid-row: 1; }
+  .header-actions { grid-column: 1 / -1; grid-row: 2; flex-wrap: wrap; }
+  .portal-body { display: block; }
+  .partnership-sidebar { overflow: visible; }
+  .partnership-identity { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .quota { width: auto; }
+  nav { flex-direction: row; overflow-x: auto; padding: 4px; }
+  .area-link { width: auto; flex: 0 0 auto; }
+  .festival-signature { display: none; }
+  .profile-scroll { overflow: visible; }
+  .profile-content { padding: 24px 16px; }
+  .context-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  h1 { font-size: 36px; line-height: 38px; }
+}

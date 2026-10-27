@@ -1,0 +1,24 @@
+<nz-modal #reportModal="nzModal" [nzVisible]="open()" (nzOnCancel)="open.set(false)"
+  (nzAfterOpen)="labelDialog(reportModal)" [nzTitle]="reportTitle" [nzFooter]="null"
+  [nzCentered]="true" [nzWidth]="840" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #reportTitle><h2 id="delivery-report-title" class="dialog-title">Prévia do relatório</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content report-content">
+      <p>Registros da entrega organizados para a consolidação pós-evento.</p>
+      <p class="eyebrow">{{ partnership.sponsorName }} / Aplicações de marca</p>
+      <h3 class="report-delivery-title">{{ preview.summary().title }}</h3>
+      <dl class="report-status">
+        <div><dt class="eyebrow">Material</dt><dd>{{ preview.summary().material }}</dd></div>
+        <div><dt class="eyebrow">Entrega</dt><dd>{{ preview.summary().execution }}</dd></div>
+      </dl>
+      <p>{{ preview.summary().owner }}</p>
+      @if (preview.current(); as file) { <p class="report-file">{{ file.name }}</p> }
+      <hr />
+      <h3 class="proof-title">Comprovação da execução</h3>
+      <p>A comprovação ainda não foi registrada.</p>
+      <p>O relatório final será disponibilizado pela equipe RBS.</p>
+      <button nz-button class="pill dark-button return-button" type="button" (click)="open.set(false)">Voltar à parceria</button>
+    </div>
+  </ng-container>
+</nz-modal>

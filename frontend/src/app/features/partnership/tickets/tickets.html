@@ -1,0 +1,29 @@
+<app-partnership-shell activeArea="04" title="Cortesias"
+  description="Confira as cortesias disponibilizadas para sua parceria, separadas por tipo e setor."
+  pageUrl="/previa/cortesias">
+  <section class="courtesies" aria-labelledby="courtesies-title">
+    <h2 id="courtesies-title">Cortesias da parceria</h2>
+    <ul class="courtesy-list">
+      @for (courtesy of courtesies; track courtesy.id) {
+        <li class="courtesy-item">
+          <article class="courtesy-card" [attr.aria-label]="'Cortesia: ' + courtesy.type + ' · ' + courtesy.sector">
+            <p class="eyebrow">Quantidade disponibilizada</p>
+            <p class="quantity">{{ courtesy.quantity }}</p>
+            <dl class="courtesy-details">
+              <div><dt class="eyebrow">Tipo</dt><dd>{{ courtesy.type }}</dd></div>
+              <div><dt class="eyebrow">Setor</dt><dd>{{ courtesy.sector }}</dd></div>
+            </dl>
+          </article>
+          <button nz-button class="pill destination-button" type="button" disabled aria-disabled="true"
+            [attr.aria-label]="'Destinar cortesias: ' + courtesy.type + ' · ' + courtesy.sector"
+            aria-describedby="tickets-destination-help">Destinar</button>
+        </li>
+      }
+    </ul>
+  </section>
+  <section class="destination-guidance" aria-labelledby="tickets-destination-title">
+    <h2 id="tickets-destination-title">Destinação de ingressos</h2>
+    <p id="tickets-destination-help">A destinação pelo portal ainda não está disponível. Consulte a equipe RBS sobre o procedimento para indicar os destinatários.</p>
+  </section>
+  <p class="preview-note">Prévia com dados fictícios. As quantidades, os tipos e os setores são exemplos do protótipo e não representam direitos confirmados da cota.</p>
+</app-partnership-shell>

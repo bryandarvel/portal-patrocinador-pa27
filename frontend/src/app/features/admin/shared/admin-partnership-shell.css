@@ -1,0 +1,8 @@
+.back-button { width: 100%; flex-shrink: 0; padding-top: 11px !important; }
+.exit-button { padding-top: 11px !important; }
+a.pending-button { padding-top: 11px !important; }
+.partnership-identity p, .quota { overflow-wrap: anywhere; }
+.quota { width: 150px; max-width: 100%; }
+.publish-report { background: var(--pa-magenta); border-color: var(--pa-magenta); color: #fff; }
+hr { width: 100%; border: 0; border-top: 1px solid var(--color-border); margin: 0; }
+@media (max-width: 760px) { .dialog-content .pill { max-width: 100%; height: auto; min-height: 44px; white-space: normal; } }

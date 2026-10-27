@@ -1,0 +1,12 @@
+.submission-control { flex-direction: row; gap: 16px; align-items: flex-start; }
+.submission-copy { display: flex; flex-direction: column; gap: 4px; flex: 0 1 720px; }
+.submission-copy p:first-child { color: var(--color-success); font-weight: 500; }
+.submission-copy p:last-child { color: var(--color-muted); }
+.is-closed .submission-copy p:first-child { color: var(--color-error); }
+.submission-button { width: 130px; flex-shrink: 0; }
+.proof-button { width: 167px; }
+@media (max-width: 760px) {
+  .submission-control { flex-wrap: wrap; }
+  .submission-copy { flex-basis: 100%; }
+  .dialog-actions .pill { max-width: 100%; height: auto; min-height: 44px; white-space: normal; }
+}

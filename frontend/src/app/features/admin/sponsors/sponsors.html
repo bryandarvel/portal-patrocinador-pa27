@@ -1,0 +1,114 @@
+<div class="admin-page">
+  <a class="skip-link" href="/previa/rbs/patrocinadores#sponsors-content" (click)="$event.preventDefault(); mainContent.focus()">Ir para o conteúdo</a>
+  <header class="admin-header">
+    <img src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="64" height="64" />
+    <p class="portal-brand">Portal do Patrocinador</p>
+    <span class="role-label">Admin RBS</span>
+    <button nz-button class="pill notifications-button" (click)="dialog.set('notifications')">Notificações</button>
+    <a nz-button class="pill exit-button" routerLink="/login">Sair</a>
+  </header>
+
+  <main #mainContent id="sponsors-content" tabindex="-1">
+    <div class="introduction">
+      <div class="heading-copy">
+        <p class="eyebrow">Gestão RBS / Planeta Atlântida 2027</p>
+        <h1>Patrocinadores</h1>
+        <p class="intro-text">Encontre uma parceria para acompanhar materiais, entregas e documentos.</p>
+      </div>
+      <div class="festival-card" aria-hidden="true"><p>Juntos, fazemos<br />o Planeta acontecer.</p><div class="checker"></div></div>
+    </div>
+
+    <div class="search-and-register">
+      <form class="search-form field" role="search" aria-label="Patrocinadores" (submit)="$event.preventDefault(); search()">
+        <label for="sponsor-query">Buscar patrocinador</label>
+        <input nz-input id="sponsor-query" type="search" [formControl]="searchField" placeholder="Nome do patrocinador ou cota" enterkeyhint="search" aria-describedby="search-help" />
+        <span id="search-help" class="visually-hidden">Digite o nome ou a cota e pressione Enter.</span>
+      </form>
+      <button nz-button class="pill dark-button register-button" (click)="openRegistration()">Cadastrar patrocinador</button>
+    </div>
+
+    <div class="table-scroll" role="region" aria-label="Lista de patrocinadores" tabindex="0">
+      <table>
+        <thead><tr><th scope="col">Patrocinador</th><th scope="col">Cota</th><th scope="col">Documentos</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
+        <tbody>
+          @for (sponsor of preview.sponsors(); track sponsor.id) {
+            <tr>
+              <th scope="row"><div class="sponsor-identity"><span [class]="'initial ' + sponsor.color" aria-hidden="true">{{ sponsor.initial }}</span><span>{{ sponsor.name }}</span></div></th>
+              <td class="quota-cell">{{ sponsor.quota }}</td>
+              <td [class.pending]="sponsor.id === 'amarelo' && !preview.mivReceived()" [class.received]="sponsor.createdLocally || (sponsor.id === 'amarelo' && preview.mivReceived())">
+                @if (sponsor.createdLocally) { Acesso cadastrado }
+                @else if (sponsor.id === 'amarelo') { {{ preview.mivReceived() ? 'Documentação recebida' : 'MIV pendente' }} }
+                @else { Nenhum documento informado }
+              </td>
+              <td>
+                @if (sponsor.createdLocally) {
+                  <button nz-button class="pill open-button" (click)="showAccess(sponsor)" [attr.aria-label]="'Ver acesso de ' + sponsor.name">Ver acesso</button>
+                } @else if (sponsor.id === 'amarelo') {
+                  <a nz-button class="pill open-button" routerLink="/previa/rbs/amarelo/perfil" [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</a>
+                } @else {
+                  <button nz-button class="pill open-button" aria-disabled="true" title="A página administrativa desta parceria será construída em uma próxima etapa." [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="preview-note">Prévia com dados fictícios. Cadastros ficam somente em memória, sem criar contas ou enviar e-mails. Recarregar apaga os cadastros. O perfil administrativo do Cliente Amarelo está disponível; as demais parcerias serão disponibilizadas nas próximas etapas.</p>
+  </main>
+</div>
+
+<nz-modal #sponsorsModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="closeDialog()" (nzAfterOpen)="labelDialog(sponsorsModal)"
+  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #dialogTitle><h2 #dialogHeading id="sponsors-dialog-title" class="dialog-title" tabindex="-1">{{ title() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @switch (dialog()) {
+        @case ('search') {
+          <p>{{ query() ? 'Resultado para “' + query() + '”' : 'Todos os patrocinadores' }}</p>
+          @for (sponsor of results(); track sponsor.id) {
+            @if (sponsor.createdLocally) {
+              <button nz-button class="pill dark-button" (click)="showAccess(sponsor)">Ver acesso de {{ sponsor.name }}</button>
+            } @else if (sponsor.id === 'amarelo') {
+              <a nz-button class="pill dark-button open-result" routerLink="/previa/rbs/amarelo/perfil" (click)="closeDialog()">Abrir {{ sponsor.name }}</a>
+            } @else {
+              <button nz-button class="pill dark-button" aria-disabled="true" title="Página administrativa disponível em uma próxima etapa">Abrir {{ sponsor.name }}</button>
+            }
+          } @empty { <p role="status">Nenhum patrocinador encontrado. Tente outro nome ou cota.</p> }
+          @if (results().length) { <p class="preview-note">O perfil do Cliente Amarelo está disponível. As demais parcerias dependem das próximas telas administrativas.</p> }
+          <button nz-button class="pill dark-button" (click)="closeDialog()">Voltar à lista</button>
+        }
+        @case ('register') {
+          <p>Associe a parceria e os dados de acesso.</p>
+          <form class="registration-form" [formGroup]="registration" (ngSubmit)="register()">
+            <div class="field"><label for="sponsor-name">Nome do patrocinador</label><input nz-input id="sponsor-name" formControlName="name" placeholder="Cliente Coral" autocomplete="off" [attr.aria-invalid]="invalid('name')" [attr.aria-describedby]="invalid('name') ? 'name-error' : null" />
+              @if (invalid('name')) { <p class="field-error" id="name-error">Informe o nome do patrocinador.</p> }</div>
+            <div class="field"><label for="sponsor-quota">Cota / plano</label><input nz-input id="sponsor-quota" formControlName="quota" placeholder="Master" [attr.aria-invalid]="invalid('quota')" [attr.aria-describedby]="invalid('quota') ? 'quota-error' : null" />
+              @if (invalid('quota')) { <p class="field-error" id="quota-error">Informe a cota ou o plano.</p> }</div>
+            <div class="field"><label for="sponsor-email">E-mail de acesso</label><input nz-input id="sponsor-email" formControlName="email" type="email" placeholder="coral@example.com" autocomplete="off" [attr.aria-invalid]="invalid('email')" [attr.aria-describedby]="invalid('email') ? 'email-error' : null" />
+              @if (invalid('email')) { <p class="field-error" id="email-error">Informe um e-mail válido.</p> }</div>
+            <div class="field"><label for="sponsor-password">Senha inicial</label><input nz-input id="sponsor-password" formControlName="password" type="password" autocomplete="new-password" placeholder="••••••••••••" [attr.aria-invalid]="invalid('password')" [attr.aria-describedby]="invalid('password') ? 'password-error' : 'registration-note'" />
+              @if (invalid('password')) { <p class="field-error" id="password-error">Informe uma senha fictícia para testar.</p> }</div>
+            <p>O acesso será fornecido diretamente pela equipe RBS.</p>
+            <p id="registration-note" class="preview-note">Simulação: use dados fictícios. A senha é descartada ao concluir ou fechar; nenhuma conta será criada.</p>
+            <button nz-button type="submit" class="pill dark-button">Cadastrar patrocinador</button>
+          </form>
+        }
+        @case ('registered') {
+          <p>{{ registered()?.name }} · Cota {{ registered()?.quota }}</p>
+          <span class="success-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Acesso simulado</span>
+          <p class="access-email">{{ registered()?.email }}</p>
+          <p>Cadastro demonstrativo concluído. Nenhuma conta ou credencial real foi criada.</p>
+          <button nz-button class="pill dark-button" (click)="closeDialog()">Voltar à lista</button>
+        }
+        @case ('notifications') {
+          @if (!preview.mivReceived()) {
+            <div class="notification-preview"><h3>Manual de identidade visual pendente</h3><p>Cliente Amarelo · Envie o MIV em Aplicações de marca.</p><a nz-button class="pill open-result" routerLink="/previa/rbs/amarelo/aplicacoes-de-marca" (click)="closeDialog()">Ver pendência</a></div>
+          } @else { <p>A pendência do manual de identidade visual foi resolvida.</p> }
+          <button nz-button class="pill dark-button" (click)="closeDialog()">Concluir</button>
+        }
+      }
+    </div>
+  </ng-container>
+</nz-modal>
