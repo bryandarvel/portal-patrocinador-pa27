@@ -8,7 +8,7 @@ import { PartnershipShell } from '../shared/partnership-shell';
 import { labelPartnershipDialog } from '../shared/modal-accessibility';
 import { ContractPreviewService } from './contract-preview.service';
 
-type ContractDialog = 'document' | 'history' | 'approve' | 'adjust' | 'saved';
+type ContractDialog = 'document' | 'history' | 'approve' | 'adjust' | 'saved' | 'signed';
 
 @Component({
   selector: 'app-partnership-contract',
@@ -24,14 +24,15 @@ export class PartnershipContract {
     nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/)]
   });
   readonly adjustmentForm = new FormGroup({ comment: this.commentControl });
-  readonly commentInput = viewChild<ElementRef<HTMLTextAreaElement>>('commentInput');
+  readonly commentInput = viewChild<unknown, ElementRef<HTMLTextAreaElement>>('commentInput', { read: ElementRef });
   readonly documentButton = viewChild<ElementRef<HTMLButtonElement>>('documentButton');
   readonly modal = viewChild<NzModalComponent>('contractModal');
   readonly dialogTitle = computed(() => {
     switch (this.dialog()) {
       case 'document': return 'Contrato para validação';
       case 'history': return 'Histórico do contrato';
-      case 'approve': return `Aprovar versão ${this.preview.version.number}?`;
+      case 'signed': return 'Contrato final assinado';
+      case 'approve': return `Aprovar versão ${this.preview.version().number}?`;
       case 'adjust': return this.adjustError() ? 'Inclua um comentário' : 'Solicitar ajustes';
       default: return 'Alterações salvas';
     }

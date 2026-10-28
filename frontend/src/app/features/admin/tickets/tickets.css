@@ -1,0 +1,18 @@
+.courtesies-heading { display: grid; grid-template-columns: minmax(0, 808px) 155px; gap: 24px; align-items: center; }
+.courtesies-heading h2 { text-transform: uppercase; }
+.add-button { width: 155px; }.edit-button { width: 131px; }
+.add-button, .save-button { background: var(--pa-magenta); border-color: var(--pa-magenta); color: #fff; }
+.add-button:not([aria-disabled]):hover, .save-button:not([aria-disabled]):hover { background: var(--color-accent-text); border-color: var(--color-accent-text); color: #fff; }
+.courtesy-form { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; width: 100%; }
+.courtesy-field { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.courtesy-field label { font-size: 14px; line-height: 20px; color: var(--color-text); font-weight: 500; }
+.courtesy-field input { height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; font-size: 16px; line-height: 24px; color: var(--color-text); }
+.courtesy-field input::placeholder { color: var(--color-muted); }
+.courtesy-field input[aria-invalid="true"] { border-color: var(--color-error); }
+.field-error { color: var(--color-error); }
+.courtesy-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.save-button { width: 131px; }.save-button.editing { width: 148px; }.cancel-button { width: 100px; }
+@media (max-width: 760px) { .courtesies-heading { grid-template-columns: 1fr; gap: 16px; } }
+.courtesy-empty { margin-top: 24px; padding: 24px; background: #fff; border: 1px solid var(--color-border); border-radius: 12px; display: flex; flex-direction: column; gap: 16px; }
+.courtesy-empty p { font-size: 14px; line-height: 20px; color: var(--color-muted); }
+.courtesy-list:empty { min-height: 276px; }

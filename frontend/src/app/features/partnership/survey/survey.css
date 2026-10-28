@@ -9,6 +9,8 @@ form { display: flex; flex-direction: column; align-items: flex-start; gap: 16px
 .question-field textarea[aria-invalid="true"] { border-color: var(--color-error); }
 .file-error { font-size: 14px; line-height: 20px; }
 .send-questions-button { width: 146px; }
+.submission-status.is-closed > p:first-child { color: var(--color-error); }
+.question-field textarea[readonly] { background: var(--color-paper); }
 @media (max-width: 1199px) { .survey-panels { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) {
   .survey-card { padding: 20px; }

@@ -15,12 +15,29 @@ export class SurveyPreviewService {
     question3: 'O que mais chamou sua atenção?'
   });
   readonly questions = this.savedQuestions.asReadonly();
+  private readonly submissionsOpenState = signal(true);
+  private readonly resultsPublishedState = signal(false);
+  readonly submissionsOpen = this.submissionsOpenState.asReadonly();
+  readonly resultsPublished = this.resultsPublishedState.asReadonly();
+  readonly resultsFileName = 'resultados_ativacao_amarelo.pdf';
 
-  saveQuestions(questions: SurveyQuestions): void {
-    this.savedQuestions.set({
+  setSubmissionsOpen(open: boolean): void {
+    this.submissionsOpenState.set(open);
+  }
+
+  publishExample(): void {
+    this.resultsPublishedState.set(true);
+  }
+
+  saveQuestions(questions: SurveyQuestions): boolean {
+    if (!this.submissionsOpen()) return false;
+    const normalized = {
       question1: questions.question1.trim(),
       question2: questions.question2.trim(),
       question3: questions.question3.trim()
-    });
+    };
+    if (!Object.values(normalized).some(value => value.length > 0)) return false;
+    this.savedQuestions.set(normalized);
+    return true;
   }
 }

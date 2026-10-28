@@ -1,0 +1,54 @@
+<app-admin-partnership-shell [sponsorId]="sponsorId" [logoSrc]="sponsorId === 'amarelo' ? '/images/pa27-logo.png' : '/images/pa27-logo-figma.png'" activeArea="04" title="Cortesias" description="Organize as cortesias desta parceria por quantidade, tipo de ingresso e setor.">
+  <section class="courtesies" aria-labelledby="rbs-courtesies-title">
+    <div class="courtesies-heading"><h2 id="rbs-courtesies-title">Cortesias da parceria</h2><button nz-button class="pill add-button" type="button" (click)="openAdd()">Adicionar cortesia</button></div>
+    <ul class="courtesy-list">
+      @for (courtesy of preview.courtesies(); track courtesy.id) {
+        <li class="courtesy-item">
+          <article class="courtesy-card" [attr.aria-label]="'Cortesia: ' + courtesy.type + ' · ' + courtesy.sector">
+            <p class="eyebrow">Quantidade disponibilizada</p><p class="quantity">{{ courtesy.quantity }}</p>
+            <dl class="courtesy-details"><div><dt class="eyebrow">Tipo</dt><dd>{{ courtesy.type }}</dd></div><div><dt class="eyebrow">Setor</dt><dd>{{ courtesy.sector }}</dd></div></dl>
+          </article>
+          <button nz-button class="pill edit-button" type="button" (click)="openEdit(courtesy)" [attr.aria-label]="'Editar cortesia: ' + courtesy.type + ' · ' + courtesy.sector">Editar cortesia</button>
+        </li>
+      }
+    </ul>
+    @if (!preview.courtesies().length) {
+      <section class="courtesy-empty" aria-labelledby="courtesy-empty-heading"><h2 id="courtesy-empty-heading">Nenhuma cortesia cadastrada</h2><p>Adicione a quantidade, o tipo de ingresso e o setor previstos para esta parceria.</p></section>
+    }
+  </section>
+  <section class="destination-guidance" aria-labelledby="rbs-destination-title"><h2 id="rbs-destination-title">Destinação de ingressos</h2><p>A destinação pelo portal ainda não está disponível. Consulte a equipe RBS sobre o procedimento para indicar os destinatários.</p></section>
+  <p class="preview-note">Prévia RBS com dados fictícios. Os registros ficam somente em memória e são apagados ao recarregar. Quantidades, tipos e setores não representam direitos confirmados da cota.</p>
+</app-admin-partnership-shell>
+
+<nz-modal #ticketsModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()" (nzAfterOpen)="labelDialog(ticketsModal)"
+  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="720" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #dialogTitle><h2 #dialogHeading id="rbs-tickets-dialog-title" class="dialog-title" tabindex="-1">{{ title() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (dialog() === 'add' || dialog() === 'edit') {
+        <p>{{ profile().name }} · {{ dialog() === 'add' ? 'Uma combinação de quantidade, tipo e setor por card.' : 'Confira os dados antes de salvar.' }}</p>
+        <form #formElement class="courtesy-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <div class="courtesy-field"><label for="rbs-courtesy-quantity">Quantidade</label><input nz-input id="rbs-courtesy-quantity" type="number" inputmode="numeric" min="0" step="1" required formControlName="quantity" placeholder="20" [attr.aria-invalid]="invalid('quantity')" [attr.aria-describedby]="invalid('quantity') ? 'rbs-quantity-error' : null" />
+            @if (invalid('quantity')) { <p class="field-error" id="rbs-quantity-error">Informe uma quantidade inteira, igual ou maior que zero.</p> }
+          </div>
+          <div class="courtesy-field"><label for="rbs-courtesy-type">Tipo de ingresso</label><input nz-input id="rbs-courtesy-type" formControlName="type" required placeholder="Diária" [attr.aria-invalid]="invalid('type')" [attr.aria-describedby]="invalid('type') ? 'rbs-type-error' : null" />
+            @if (invalid('type')) { <p class="field-error" id="rbs-type-error">Informe o tipo de ingresso.</p> }
+          </div>
+          <div class="courtesy-field"><label for="rbs-courtesy-sector">Setor</label><input nz-input id="rbs-courtesy-sector" formControlName="sector" required placeholder="Pista" [attr.aria-invalid]="invalid('sector')" [attr.aria-describedby]="invalid('sector') ? 'rbs-sector-error' : null" />
+            @if (invalid('sector')) { <p class="field-error" id="rbs-sector-error">Informe o setor.</p> }
+          </div>
+          @if (formError()) { <p class="field-error" role="alert">{{ formError() }}</p> }
+          <div class="courtesy-actions"><button nz-button class="pill save-button" [class.editing]="dialog() === 'edit'" type="submit">{{ dialog() === 'add' ? 'Adicionar card' : 'Salvar alterações' }}</button><button nz-button class="pill cancel-button" type="button" (click)="close()">Cancelar</button></div>
+        </form>
+        <p class="preview-note">Simulação local. Os exemplos não definem limites ou direitos por cota.</p>
+      }
+      @if (dialog() === 'saved') {
+        <p>As informações já estão disponíveis para consulta.</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Atualizado</span>
+        <p class="preview-note">Registro salvo somente nesta simulação. Nenhuma cortesia real foi emitida ou alterada.</p>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+    </div>
+  </ng-container>
+</nz-modal>

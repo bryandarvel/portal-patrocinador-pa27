@@ -15,7 +15,7 @@
   </div>
 
   <section class="faq-list" aria-label="Perguntas e respostas">
-    @for (entry of preview.entries; track entry.id) {
+    @for (entry of preview.entries(); track entry.id) {
       <ng-container [ngTemplateOutlet]="faqCard" [ngTemplateOutletContext]="{ $implicit: entry, inDialog: false }" />
     }
   </section>

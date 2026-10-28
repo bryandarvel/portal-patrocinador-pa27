@@ -1,5 +1,10 @@
 # Frontend do Portal do Patrocinador
 
+> Estado atual das prévias Roxo/Verde e verificações do lote:
+> [checkpoint dos clientes](docs/checkpoint-clientes.md). As seções abaixo também
+> preservam o registro de ciclos anteriores; o checkpoint distingue código escrito
+> de tela efetivamente conferida no navegador.
+
 Angular 22 e NG-ZORRO. A raiz redireciona para `/login`, com identidade PA27, carrossel e validação visual. A autenticação ainda não está integrada.
 
 ## Prévia do perfil
@@ -113,9 +118,10 @@ consulta prévia a Bryan sobre o andamento do backend.
 `/previa/contrato` reproduz `PAT · Amarelo · Contrato` (`10:527`). O exemplo começa
 com a versão 1 aguardando validação e os signatários já informados, como no frame.
 O visualizador (`14:1494`) é demonstrativo e não contém um PDF real; download fica
-desabilitado com orientação. O contrato final assinado permanece indisponível.
+desabilitado com orientação. O contrato final começa indisponível; a publicação
+administrativa simulada é descrita adiante.
 
-`ContractPreviewService` mantém uma decisão em memória vinculada à versão 1:
+`ContractPreviewService` mantém uma decisão em memória vinculada à versão atual:
 aprovação confirmada (`14:1539`) ou solicitação de ajustes com comentário obrigatório
 (`14:1561`, `14:1573`, `14:1585`). Texto vazio ou só espaços não é aceito. Fechar ou
 voltar antes de confirmar não registra decisão; comentários não enviados são
@@ -128,8 +134,8 @@ O comentário aparece vinculado à versão (`10:622`). Registros iniciais são m
 como exemplo, e decisões locais usam a data do navegador. Navegar preserva a decisão;
 recarregar restaura o estado inicial para testar o outro fluxo.
 
-Não há assinatura, transmissão à RBS, persistência real, publicação de outra versão
-ou arquivo final. A nova versão depende da futura etapa administrativa. Integração
+Não há assinatura, transmissão à RBS ou persistência real. Novas versões e arquivo
+final podem ser simulados na perspectiva administrativa. Integração
 depende de etapa própria e consulta a Bryan sobre o andamento do backend.
 
 ## Prévia de entregas da parceria
@@ -169,8 +175,8 @@ estado do material acompanham o mesmo serviço. MIV e logo são registros indepe
 Navegar mantém o envio; recarregar reinicia a demonstração.
 
 Depois do recebimento, o fluxo aguarda a RBS. A substituição no protótipo só aparece
-mediante solicitação de correção; análise, correções, encerramento e comprovação
-serão conectados na etapa administrativa. Não há controles de RBS na conta do
+mediante solicitação de correção; análise, correções e comprovação compartilham
+agora o serviço da prévia administrativa descrita adiante. Não há controles de RBS na conta do
 patrocinador nem geração automática de comprovação.
 
 ## Prévia de dúvidas frequentes
@@ -187,8 +193,37 @@ suas próprias listas, independentemente do texto digitado, conforme os modais
 `14:1213`, `14:1221`, `14:1229` e `14:1237`. A busca sem correspondência oferece
 orientação para tentar outra palavra. Fechar ou voltar preserva o texto digitado.
 
-O conteúdo é somente leitura para o patrocinador. Não há cadastro, edição,
-chatbot, chamadas HTTP ou integração com a futura gestão de FAQ pela RBS.
+O conteúdo é somente leitura para o patrocinador. A gestão RBS abaixo compartilha
+o serviço em memória na mesma instância Angular; outra aba ou recarga reinicia
+os dados. Não há chatbot, chamadas HTTP ou publicação real.
+
+## Prévia administrativa de dúvidas frequentes
+
+`/previa/rbs/amarelo/duvidas-frequentes` reproduz o frame RBS `11:1345`, com
+acesso pelo cabeçalho das áreas administrativas do Amarelo. Mantém as quatro
+dúvidas iniciais, busca com Enter e categorias em modais de resultados (`14:1462`,
+`14:1470`, `14:1478`, `14:1486`). A busca ignora caixa/acentos e exige todos os
+termos no mesmo registro. Consulta vazia lista todas as dúvidas; categoria
+independe da busca digitada. Não encontrar resultados oferece orientação.
+
+Nova dúvida e Editar usam o formulário reativo de pergunta, resposta e categoria
+(`76:2176`, `76:2198`, `76:2061`). Os três campos são obrigatórios, pergunta e
+resposta não aceitam somente espaços, e Salvar fica desabilitado enquanto houver
+campos inválidos. As categorias disponíveis nesta prévia são Materiais e Parceria,
+sem gestão de novas categorias, exclusão ou limites de texto inventados.
+
+Cancelar, fechar ou Escape descartam o rascunho. Ao editar a partir da busca ou
+de uma categoria, o retorno preserva a consulta e atualiza os resultados, incluindo
+mudanças de categoria; o foco retorna à ação de origem ou ao título se o item
+deixou de corresponder. A confirmação segue `76:1776`. Salvar adiciona ou atualiza
+o registro pelo ID em `FaqPreviewService`, mantendo as versões do formulário
+separadas dos registros até a confirmação. Conteúdo é interpolado como texto.
+
+A lista, a busca e as categorias do patrocinador usam o mesmo serviço somente
+para leitura. Os dados ficam na instância da aplicação; não são persistidos no
+navegador nem enviados a APIs. Recarregar restaura os quatro exemplos. A quinta
+dúvida sobre cortesias só aparece se cadastrada, sem publicar o item oculto do
+Figma automaticamente. Não há integração, autorização real ou alteração do backend.
 
 ## Prévia administrativa de patrocinadores
 
@@ -207,7 +242,7 @@ Fechar antes de concluir não adiciona linha. Recarregar restaura os três exemp
 Não há conta real, envio de e-mail, persistência ou chamadas HTTP.
 
 “Abrir parceria” do Cliente Amarelo, na lista e na busca, abre seu perfil RBS.
-Roxo e Verde permanecem indisponíveis até as respectivas telas administrativas.
+Roxo agora abre seu perfil administrativo próprio; Verde aguarda seu ciclo.
 “Ver pendência” abre Aplicações de marca RBS. Não direcionam para telas de patrocinador.
 O login comum e todas as telas aprovadas do patrocinador foram preservados.
 
@@ -230,10 +265,82 @@ do Figma: confirma a publicação apenas em memória, sem seleção, upload ou P
 Não adiciona documentos duplicados nem disponibiliza conteúdo ao patrocinador.
 
 `AdminPartnershipShell` reutiliza os estilos da navegação aprovada, com identidade
-RBS e retorno à lista. Perfil e Aplicações de marca têm navegação entre si.
-As demais áreas, FAQ administrativo, publicação de relatório
-e organização de planilhas aguardam seus próprios ciclos; seus controles ficam
-indisponíveis. Esta etapa não contém chamadas HTTP nem integração real.
+RBS e retorno à lista. As sete áreas da parceria têm navegação entre si.
+A FAQ administrativa já tem acesso pelo cabeçalho. O relatório da parceria e a
+organização de planilhas possuem a simulação descrita abaixo. As prévias não
+contêm chamadas HTTP nem integração real.
+
+## Prévia administrativa do perfil Roxo
+
+`/previa/rbs/roxo/perfil` reproduz o frame `16:1136`. A lista e os resultados de
+busca abrem a parceria pelo ID estável `roxo`. A página segue a composição própria
+do frame: dados em bloco de largura total, campos de até 680 px, identificação
+Subcota G e documentos inicialmente vazios, sem acrescentar gerenciamento de acesso.
+
+`RbsRoxoProfilePreviewService` mantém nome, cota, e-mail e publicação do exemplo
+separados dos estados do Amarelo e do patrocinador. Salvar valida campos obrigatórios,
+espaços em branco e formato de e-mail no formulário reativo; a confirmação (`16:1950`)
+atualiza somente o perfil Roxo, sua identificação na navegação e a linha da lista.
+Alterações não salvas permanecem apenas no formulário; a publicação não as confirma.
+
+Disponibilizar material (`16:1239`) apresenta o exemplo `roxo_profile.pdf` do Figma.
+Voltar ou Escape antes de salvar preserva a lista vazia. Confirmar disponibiliza
+somente o registro ilustrativo, sem duplicar o card em confirmações repetidas; o
+visualizador segue `16:1965`, sem PDF ou download. Não há seletor ou upload real.
+Esse registro também atualiza a indicação de documentação do Roxo na lista.
+
+`AdminPartnershipShell` recebe `sponsorId`, com padrão Amarelo preservado. No Roxo,
+usa a identificação, a cor do selo e o perfil próprios. Notificações reproduzem o
+estado sem pendências (`16:1955`), sem aproveitar a pendência de MIV do Amarelo.
+O resumo de relatório mostra o Roxo (`16:1970`) e sinaliza seus controles futuros.
+As outras áreas, entregas e FAQ do Roxo ficam indisponíveis por ainda aguardarem
+implementação, sem inferir restrições de cota ou encaminhar para telas do Amarelo.
+
+Tudo fica somente em memória na instância Angular. Recarregar restaura o perfil
+fictício e os documentos vazios. Não altera credenciais, permissões, cota contratual
+ou dados reais, nem contém integração HTTP. O serviço existente do Amarelo foi
+preservado, e a rota não representa autorização real ou sessão autenticada.
+
+## Prévia administrativa de relatório da parceria
+
+`/previa/rbs/amarelo/relatorio-da-parceria` reproduz `77:1831`, com retorno ao
+perfil do Amarelo, seção de planilhas de origem e gestão do relatório final.
+O cabeçalho das áreas RBS abre o diálogo `14:842`; “Organizar planilhas de origem”
+leva à página. “Gerenciar relatório final” abre o mesmo diálogo.
+
+Simulação autorizada em memória: “Selecionar planilhas” usa somente os metadados
+dos dois exemplos do Figma, `midia_amarelo.xlsx` e `ativacoes_amarelo.xlsx`, sem
+abrir seletor, ler ou transmitir arquivos do dispositivo. Conferir, escolher outros,
+andamento e sucesso seguem `77:1951` a `77:1997`; os cards abrem os detalhes
+administrativos de `77:2021`. Fechar durante o andamento cancela o temporizador
+e não adiciona registros. Repetir a adição preserva os dois exemplos sem duplicar.
+Esses nomes e a quantidade são dados demonstrativos, não limites do produto.
+
+O link `/previa/rbs/amarelo/relatorio-da-parceria?exemplo=falha-planilhas` simula
+falha apenas na primeira tentativa de adição (`77:2008`). O rascunho é preservado;
+“Tentar novamente” retorna à conferência. A falha é um cenário de demonstração,
+sem rede ou aleatoriedade. Recarregar reinicia o cenário.
+
+“Gerar relatório” continua desabilitado antes e depois da adição. A página não
+interpreta planilhas, calcula indicadores ou gera PDF. As fontes ficam isoladas
+em `SourceSheetsPreviewService`, usado apenas pela página administrativa; não
+são apresentadas no diálogo do patrocinador.
+
+Disponibilizar relatório usa o exemplo `relatorio_cliente_amarelo.pdf` já
+selecionado no Figma (`14:1902`). Somente “Publicar arquivo” altera o estado;
+fechar antes descarta a intenção. A confirmação segue `14:979`. A publicação
+repetida mantém o mesmo registro e data, sem inventar versões ou substituição.
+Ela não depende das planilhas nem as modifica. `PartnershipReportPreviewService`
+contém apenas o registro de publicação, sem PDF, arquivo binário ou chamada HTTP.
+
+O componente `PartnershipReport` é reutilizado pelos cabeçalhos RBS e patrocinador.
+Após a publicação simulada, oferece consulta e visualizador ilustrativo (`14:865`,
+`14:668`); “Baixar relatório/arquivo” fica desabilitado e explica que não existe
+arquivo real. O patrocinador conserva somente leitura, sem controles de publicação
+ou organização de planilhas. Isso é apresentação da prévia, não autorização no
+backend. A prévia de uma entrega (`DeliveryReport`) permanece separada do relatório
+final. Os estados valem apenas para a mesma instância Angular; outra aba ou
+recarga reinicia os dados. Integração e contratos ficam para alinhamento posterior.
 
 ## Prévia administrativa de aplicações de marca
 
@@ -255,9 +362,178 @@ transmitido. Arquivo vazio é recusado; fechar durante a transição de um segun
 ou sair da tela cancela o registro pendente. Histórico diferencia Admin RBS
 de Admin Patrocinador; o visualizador não contém arquivo ou download real.
 
-O cartão da logo, Acompanhar entrega e Registrar na entrega aguardam o detalhe
-administrativo de Logo no telão (`11:1167`), em um ciclo próprio. Não abrem a
-perspectiva do patrocinador nem registram execução ou comprovação automaticamente.
+O cartão da logo, Acompanhar entrega e Registrar na entrega abrem o detalhe
+administrativo de Logo no telão (`11:1167`). A navegação não registra execução
+ou comprovação automaticamente.
+
+## Prévia administrativa de mídia e conteúdo
+
+`/previa/rbs/amarelo/midia-e-conteudo` reproduz `10:902`, com diálogos de envio
+(`14:1380`, `14:1392`, `14:1410`), briefing (`14:1439`), histórico (`15:1209`),
+controle de envio (`14:1862`/`14:1872`), publicação (`14:1932`) e veiculações (`14:2066`).
+
+`MediaPreviewService` compartilha metadados, briefing, estado de envio e quantidade
+exibida de Stories na mesma instância da aplicação. Navegar entre as rotas Angular
+preserva esses dados; recarregar ou abrir outra aba restaura os exemplos do Figma.
+O controle de mídia é independente do controle de marca. Encerrar exige confirmação
+e oculta envio de arquivos e briefing nas duas perspectivas, preservando histórico
+e visualizadores. Os métodos também verificam o estado antes de registrar dados.
+
+Adicionar material recebido guarda somente nome, tamanho, versão, data e autoria.
+O conteúdo não é lido ou transmitido. Arquivos vazios são recusados; fechar durante
+o progresso ou sair da tela cancela o registro pendente. O exemplo inicial é
+identificado no histórico, sem transformar datas do protótipo em registros reais.
+
+Atualizar veiculações edita somente Stories exibidos. O campo começa na quantidade
+atual e exige um inteiro não negativo representável com segurança em JavaScript.
+Não impõe o número previsto como limite nem altera os direitos da parceria.
+Cancelar descarta o rascunho; salvar atualiza a tabela e a leitura do patrocinador.
+
+Publicar arquivo ou link abre o PDF ilustrativo pré-selecionado do Figma. Confirmar
+registra apenas um indicador de publicação simulada, sem duplicar cartões, gerar
+relatório, criar link, upload ou download real. O modal do post não inventa URL.
+Esta etapa não inclui chamadas HTTP nem autorização ou bloqueio real no backend.
+
+## Prévia administrativa de cortesias
+
+`/previa/rbs/amarelo/cortesias` reproduz o frame `10:1040` com os refinamentos
+de inclusão (`76:1787`), edição individual (`76:1810`, `80:2037`, `80:2060`)
+e confirmação (`76:1776`). Os formulários têm 720 px no desktop e se adaptam
+à largura disponível. Cada card mantém quantidade, tipo de ingresso e setor.
+
+`TicketsPreviewService` mantém uma lista reativa em memória, compartilhada com
+a leitura do patrocinador na mesma instância da aplicação. Adicionar cria um
+novo identificador local; editar preserva esse identificador e altera somente
+o registro escolhido. As combinações não são deduplicadas ou consolidadas.
+Navegar preserva os registros; recarregar ou abrir outra aba reinicia a prévia.
+
+Adicionar abre campos vazios com exemplos como placeholders; editar carrega
+os valores atuais, sem aplicar automaticamente os números de demonstração
+do Figma. Campos são obrigatórios, textos de espaços são recusados e a quantidade
+deve ser um inteiro não negativo representável com segurança em JavaScript.
+Não há teto por cota nem catálogo fechado de tipos ou setores. Zero é aceito
+na simulação; as regras reais dependerão da etapa de contrato e integração.
+
+Cancelar, Escape ou fechar descartam o rascunho. Salvar exige dados válidos
+e mostra a confirmação de alteração local. A consulta do patrocinador continua
+somente leitura. A destinação segue indisponível; não há emissão, QR code,
+bilheteria, exclusão, chamadas HTTP ou alteração no backend nesta etapa.
+
+## Prévia administrativa de credenciamento
+
+`/previa/rbs/amarelo/credenciamento` reproduz `10:1131`, com edição de quantidade
+e setor (`14:2050`) e confirmação (`14:979`). O tipo permanece somente leitura,
+como no frame. Não adiciona cadastros de pessoas, emissão ou integração Open Staff.
+
+`StaffPreviewService` mantém os valores em um signal, compartilhado pela leitura
+do patrocinador na mesma instância da aplicação. Navegar preserva a edição;
+recarregar ou abrir outra aba restaura os exemplos (12 / Equipe de ativação /
+Área de ativação). Os formulários começam nos valores atuais. Fechar ou Escape
+descarta o rascunho; salvar atualiza apenas quantidade e setor.
+
+Quantidade exige inteiro não negativo representável com segurança em JavaScript;
+setor exige texto além de espaços e é salvo sem espaços nas extremidades.
+Zero é aceito nesta simulação, sem definir limites por cota ou regras reais.
+O modal tem 640 px no desktop e se adapta à largura disponível.
+O endereço externo continua pendente; a tela RBS contém somente as orientações
+e a ação de edição previstas no frame. Não há chamadas HTTP ou alterações no backend.
+
+## Prévia administrativa de pesquisa da ativação
+
+`/previa/rbs/amarelo/pesquisa-da-ativacao` reproduz `10:1222`: perguntas recebidas
+somente leitura, controle de envio (`14:1882`, `14:1892`) e publicação ilustrativa
+de resultados (`14:1917`). Confirmação e visualizador usam `14:979` e `14:957`.
+
+`SurveyPreviewService` guarda perguntas, disponibilidade de envio e publicação
+em memória. O controle é próprio da pesquisa, independente de Marca e Mídia.
+Encerrar/reabrir exige confirmação e preserva as perguntas recebidas. Cancelar,
+Escape ou fechar não altera o estado. Na perspectiva do patrocinador, encerrar
+mantém os textos consultáveis, como somente leitura, e oculta o envio. O serviço
+também recusa alterações enquanto fechado e conjuntos de perguntas vazias.
+
+Publicar arquivo confirma o PDF de exemplo pré-selecionado no Figma e revela
+um único card de resultados; repetir a ação não duplica o card. O visualizador
+é ilustrativo e o download permanece indisponível, pois nenhum arquivo é lido,
+enviado ou armazenado. Não foram criadas seleção de arquivos, URLs ou análise
+de resultados. O direito a três perguntas é um exemplo do Cliente Amarelo,
+sem inferir direitos de outras cotas. Navegar preserva os dados nesta instância;
+recarregar ou abrir outra aba restaura os exemplos. Não há integração HTTP,
+persistência real ou alterações no backend.
+
+## Prévia administrativa de contrato
+
+`/previa/rbs/amarelo/contrato` reproduz `10:1335`, com documento (`14:1607`),
+histórico (`14:1623`), versão corrigida (`14:1667`), publicação do assinado
+(`14:1682`) e consulta final (`14:1642`). A versão 1 começa disponibilizada e
+aguardando validação, como no frame. Por isso a ação inicial de disponibilização
+(`14:1652`) não aparece neste cenário. A RBS não aprova nem solicita ajustes em
+nome do patrocinador, nem edita os signatários recebidos.
+
+O serviço compartilha versão atual, decisões e histórico em memória. Uma solicitação
+de ajustes habilita publicar a versão corrigida. Confirmar cria a próxima versão,
+preserva comentário/decisão da anterior e aguarda nova decisão do patrocinador.
+Cancelar não cria versão. A aprovação habilita publicar o arquivo assinado, cuja
+base permanece vinculada à versão aprovada. Repetir a publicação é recusado pelo
+serviço. A aprovação por si só não cria arquivo final nem equivale a assinatura.
+
+Os diálogos mostram PDFs de exemplo pré-selecionados, sem seleção, leitura, upload,
+download real ou assinatura digital. Datas iniciais são identificadas como exemplo;
+registros simulados usam a data da sessão. Navegar preserva dados apenas nesta
+instância; recarregar ou abrir outra aba restaura o cenário inicial. Não há seletor
+de perfil ou cenários, chamadas HTTP, persistência real ou alteração no backend.
+As transições dependentes da decisão do patrocinador podem ser verificadas no
+serviço, sem criar ações administrativas para simular decisões de outro perfil.
+
+## Prévia administrativa de entregas da parceria
+
+`/previa/rbs/amarelo/entregas` reproduz `11:1040`, com resumo, totais ilustrativos,
+links para áreas administrativas, pendência de MIV e prévia de relatório (`14:877`).
+O cabeçalho e a navegação usam `AdminPartnershipShell`; os estilos do resumo e o
+componente `DeliveryReport` são reutilizados. O relatório aceita o nome da parceria
+como input, mantendo o valor padrão da consulta do patrocinador.
+
+Organizar entrega (`14:1790`) abre com o responsável atual. Selecionar Ana ou Bruno
+mostra a confirmação (`17:1668`/`17:1676`); somente Salvar responsável aplica a
+escolha. Cancelar, Escape ou fechar descarta o rascunho. Os dois nomes são exemplos
+do Figma, sem representar um cadastro de pessoas ou permissões reais.
+`LogoDeliveryPreviewService` compartilha o responsável com o resumo e a prévia do
+relatório na mesma instância. Navegar preserva a escolha; recarregar restaura Ana.
+
+Os totais começam em 1/1/1 e acompanham somente as transições ilustrativas da logo
+no Figma (0/2/1 durante execução e 0/1/2 após realização), sem matriz de direitos
+ou mecanismo real de consolidação. A pendência do MIV acompanha a prévia
+existente. Mídia, Pesquisa e Ver pendência levam somente à perspectiva RBS.
+Acompanhar entrega abre Logo no telão administrativo. Não há envio de arquivos
+ou geração/publicação real de relatório, HTTP ou alteração no backend.
+
+## Prévia administrativa de Logo no telão
+
+`/previa/rbs/amarelo/entregas/logo-no-telao` reproduz `11:1167`. Começa aguardando
+o patrocinador, sem botão RBS para enviar a logo em seu lugar. Para testar a jornada
+isoladamente, `?exemplo=material-recebido` inclui um único registro fictício do Figma
+somente quando a sessão ainda está vazia. Ele é identificado como exemplo, sem
+conteúdo ou tamanho real, e não substitui dados de uma sessão em andamento.
+
+A sequência é recebimento → análise → aprovação ou ajuste → execução → realização
+→ comprovação. O serviço recusa transições fora de ordem. Aprovação, ajuste e
+realização têm confirmação (`14:1805`, `14:1813`, `14:1821`); cancelar não altera
+o estado. A solicitação usa o texto ilustrativo fixo do Figma. Uma nova versão só
+pode ser enviada pelo patrocinador após ajuste e com envio de marca aberto.
+O histórico preserva versão, autoria/data de envio e decisão/comentário anteriores.
+
+Registrar comprovação (`14:1829`) permite editar a descrição de exemplo e exige
+texto além de espaços. Publicar registra descrição, responsável atual, data local
+e versão do material, e bloqueia publicação duplicada. A consulta (`14:933`) e o
+relatório mostram esse registro simulado, sem mídia, arquivo ou evidência real.
+A realização da ação é separada da publicação de comprovação. Os downloads dos
+visualizadores (`14:946`, `14:919`) permanecem indisponíveis.
+
+O componente `DeliveryOrganizer` reaproveita o diálogo de responsável no resumo
+e no detalhe; o `DeliveryReport` continua compartilhado. Os acessos por Entregas,
+Aplicações de marca e Todas as entregas permanecem na perspectiva RBS. A consulta
+do patrocinador acompanha o mesmo serviço na mesma instância Angular, sem seletor
+de perfil nem sessão autenticada. Recarregar reinicia tudo; não há backend,
+persistência, notificações enviadas ou execução real de qualquer ação.
 
 Na pasta `frontend/`, com Node 24.15.0 (ou versão compatível indicada no README da raiz):
 

@@ -48,7 +48,7 @@
         <div class="page-heading">
           <div class="context-row">
             <p class="eyebrow">Parceria / {{ partnership.sponsorContext }} / PA27</p>
-            <button nz-button class="pill report-button" type="button" (click)="dialog.set('report')">Relatório da parceria</button>
+            <button nz-button class="pill report-button" type="button" (click)="reportOpen.set(true)">Relatório da parceria</button>
           </div>
           <h1>{{ title() }}</h1>
           <p class="page-intro">{{ description() }}</p>
@@ -64,7 +64,7 @@
 <nz-modal #shellModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="dialog.set(null)"
   (nzAfterOpen)="labelDialog(shellModal)" [nzTitle]="dialogTitle" [nzFooter]="null"
   [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #dialogTitle><h2 id="shell-dialog-title" class="dialog-title">{{ dialog() === 'report' ? 'Relatório da parceria' : 'Notificações' }}</h2></ng-template>
+  <ng-template #dialogTitle><h2 id="shell-dialog-title" class="dialog-title">Notificações</h2></ng-template>
   <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
@@ -81,14 +81,9 @@
           }
           <button nz-button class="pill dark-button finish-button" type="button" (click)="dialog.set(null)">Concluir</button>
         }
-        @case ('report') {
-          <p>{{ partnership.sponsorName }} · Planeta Atlântida 2027</p>
-          <div class="report-unavailable">
-            <p>O relatório ainda não foi disponibilizado.</p>
-            <p>Você poderá consultar o arquivo assim que a RBS o publicar.</p>
-          </div>
-        }
       }
     </div>
   </ng-container>
 </nz-modal>
+
+<app-partnership-report [(open)]="reportOpen" [sponsorName]="partnership.sponsorName" />

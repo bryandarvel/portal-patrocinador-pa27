@@ -25,8 +25,9 @@ export class PartnershipSurvey {
   readonly preview = inject(SurveyPreviewService);
   readonly submitted = signal(false);
   readonly confirmationOpen = signal(false);
+  readonly documentOpen = signal(false);
   readonly sentCount = signal(0);
-  readonly firstQuestion = viewChild<ElementRef<HTMLTextAreaElement>>('firstQuestion');
+  readonly firstQuestion = viewChild<unknown, ElementRef<HTMLTextAreaElement>>('firstQuestion', { read: ElementRef });
   readonly form = new FormGroup({
     question1: new FormControl(this.preview.questions().question1, { nonNullable: true }),
     question2: new FormControl(this.preview.questions().question2, { nonNullable: true }),
@@ -34,17 +35,23 @@ export class PartnershipSurvey {
   }, { validators: atLeastOneQuestion });
 
   sendQuestions(): void {
+    if (!this.preview.submissionsOpen()) return;
     this.submitted.set(true);
     if (this.form.invalid) {
       this.firstQuestion()?.nativeElement.focus();
       return;
     }
-    this.preview.saveQuestions(this.form.getRawValue());
+    if (!this.preview.saveQuestions(this.form.getRawValue())) return;
     const saved = this.preview.questions();
     this.form.reset(saved);
     this.sentCount.set(Object.values(saved).filter(value => value.length > 0).length);
     this.submitted.set(false);
     this.confirmationOpen.set(true);
+  }
+
+  closeDialog(): void {
+    this.confirmationOpen.set(false);
+    this.documentOpen.set(false);
   }
 
   labelDialog(modal: NzModalComponent): void {

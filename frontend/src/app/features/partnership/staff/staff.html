@@ -5,10 +5,10 @@
     <section class="staff-card" aria-labelledby="staff-credentials-title">
       <h2 id="staff-credentials-title">Credenciais previstas</h2>
       <p class="eyebrow">Quantidade informada pela RBS</p>
-      <p class="quantity">{{ accreditation.quantity }}</p>
+      <p class="quantity">{{ accreditation().quantity }}</p>
       <dl class="staff-details">
-        <div><dt class="eyebrow">Tipo</dt><dd>{{ accreditation.type }}</dd></div>
-        <div><dt class="eyebrow">Setor</dt><dd>{{ accreditation.sector }}</dd></div>
+        <div><dt class="eyebrow">Tipo</dt><dd>{{ accreditation().type }}</dd></div>
+        <div><dt class="eyebrow">Setor</dt><dd>{{ accreditation().sector }}</dd></div>
       </dl>
       <button nz-button class="pill dark-button open-staff-button" type="button"
         aria-haspopup="dialog" (click)="openStaffDialog.set(true)">Acessar Open Staff</button>

@@ -1,0 +1,92 @@
+<app-admin-partnership-shell
+  [sponsorId]="sponsorId"
+  [activeArea]="config.number"
+  logoSrc="/images/pa27-logo-figma.png"
+  [title]="config.title"
+  [description]="'Cliente ' + clientName + ' · Informações e materiais desta parceria.'"
+>
+  <section class="profile-card" aria-labelledby="client-area-heading">
+    <h2 id="client-area-heading">{{ config.title }}</h2>
+    @if (published()) {
+      <button
+        class="document-card"
+        type="button"
+        [attr.aria-label]="'Abrir ' + exampleName"
+        (click)="dialog.set('view')"
+      >
+        <span class="document-icon" aria-hidden="true">▤</span
+        ><span class="document-description"
+          ><strong>{{ exampleName }}</strong
+          ><span>Publicado para {{ profile().name }}</span></span
+        ><span class="document-action" aria-hidden="true">Abrir →</span>
+      </button>
+    } @else {
+      <p>{{ config.empty }}</p>
+    }
+    <button nz-button class="pill publish-material" type="button" (click)="dialog.set('publish')">
+      Disponibilizar material
+    </button>
+  </section>
+  <p class="preview-note">
+    Prévia com dados fictícios. Publicação somente em memória, sem arquivo, upload ou integração
+    real.
+  </p>
+</app-admin-partnership-shell>
+<nz-modal
+  #modal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="dialog.set(null)"
+  (nzAfterOpen)="labelDialog(modal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  [nzClosable]="false"
+  nzClassName="pa-profile-dialog"
+>
+  <ng-template #dialogTitle
+    ><h2 #heading id="client-material-title" class="dialog-title" tabindex="-1">
+      {{ title() }}
+    </h2></ng-template
+  >
+  <ng-container *nzModalContent
+    ><div class="dialog-content">
+      @if (dialog() === 'publish') {
+        <p>{{ profile().name }}</p>
+        <button nz-button class="pill finish-button" type="button" (click)="dialog.set(null)">
+          Voltar
+        </button>
+        <div class="document-card selected-file">
+          <span class="document-icon" aria-hidden="true">▤</span
+          ><span class="document-description"
+            ><strong>{{ exampleName }}</strong
+            ><span>Selecionado para {{ profile().name }}</span></span
+          ><span class="document-action">Abrir →</span>
+        </div>
+        <button
+          nz-button
+          class="pill dark-button publish-confirm"
+          type="button"
+          (click)="publish()"
+        >
+          Salvar para esta parceria
+        </button>
+      } @else {
+        <p>
+          {{
+            dialog() === 'view'
+              ? 'Arquivo disponibilizado pela RBS para esta parceria.'
+              : 'As informações foram atualizadas somente para o Cliente ' + clientName
+          }}
+        </p>
+        <button nz-button class="pill finish-button" type="button" (click)="dialog.set(null)">
+          Voltar
+        </button>
+      }
+      <p class="preview-note">
+        Exemplo do Figma, sem PDF ou download real. Recarregar reinicia a simulação.
+      </p>
+    </div></ng-container
+  >
+</nz-modal>

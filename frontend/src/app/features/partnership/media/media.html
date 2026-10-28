@@ -1,9 +1,9 @@
 <app-partnership-shell activeArea="03" title="Mídia e conteúdo"
   description="Materiais, veiculações e comprovações reunidos no mesmo lugar."
   pageUrl="/previa/midia-e-conteudo">
-  <section class="submission-status" aria-label="Disponibilidade de envio">
-    <p>Envio de materiais aberto</p>
-    <p>Os materiais podem ser enviados ou substituídos.</p>
+  <section class="submission-status" [class.is-closed]="!preview.submissionsOpen()" aria-label="Disponibilidade de envio" role="status">
+    <p>{{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}</p>
+    <p>{{ preview.submissionsOpen() ? 'Os materiais podem ser enviados ou substituídos.' : 'A equipe RBS pode reabrir o envio para correção.' }}</p>
   </section>
 
   <div class="media-panels">
@@ -11,15 +11,17 @@
       <h2 id="media-materials-title">Materiais e textos</h2>
       <button class="document-card" type="button" (click)="openDocument(preview.currentFile().name)" [attr.aria-label]="'Abrir ' + preview.currentFile().name">
         <span class="document-icon" aria-hidden="true">▤</span>
-        <span class="document-description"><strong>{{ preview.currentFile().name }}</strong><span>Recebido do patrocinador · Histórico disponível</span></span>
+        <span class="document-description"><strong>{{ preview.currentFile().name }}</strong><span>{{ preview.currentFile().sender === 'Admin RBS' ? 'Registrado pela RBS' : 'Recebido do patrocinador' }} · Histórico disponível</span></span>
         <span class="document-action" aria-hidden="true">Abrir →</span>
       </button>
+      @if (preview.submissionsOpen()) {
       <button class="upload-zone" type="button" (click)="openUpload()" aria-label="Enviar arquivo de mídia">
         <span class="upload-arrow" aria-hidden="true">↑</span>
         <strong>Enviar arquivo de mídia</strong>
         <span>Clique para selecionar um arquivo</span>
       </button>
       <button nz-button class="pill briefing-button" type="button" (click)="openBriefing()">Enviar texto / briefing</button>
+      } @else { <button nz-button class="pill closed-button" type="button" aria-disabled="true">Envio encerrado</button> }
       <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">Histórico de versões</button>
     </section>
 
@@ -44,7 +46,7 @@
       <thead><tr><th scope="col">Formato</th><th scope="col">Previsto</th><th scope="col">Exibido</th></tr></thead>
       <tbody>
         <tr><th scope="row">Post carrossel</th><td>1 publicação</td><td>1 publicação</td></tr>
-        <tr><th scope="row">Story</th><td>2 inserções</td><td>1 inserção</td></tr>
+        <tr><th scope="row">Story</th><td>2 inserções</td><td>{{ preview.displayedStoriesLabel() }}</td></tr>
       </tbody>
     </table>
   </section>
@@ -118,7 +120,7 @@
         @for (version of preview.versions(); track version.version) {
           <div class="history-version">
             <strong>{{ version.name }}</strong>
-            <p>Versão {{ version.version }} · Admin Patrocinador · {{ version.receivedAt ? (version.receivedAt | date:'dd/MM/yyyy') : 'Exemplo do protótipo' }}</p>
+            <p>Versão {{ version.version }} · {{ version.sender ?? 'Admin Patrocinador' }} · {{ version.receivedAt ? (version.receivedAt | date:'dd/MM/yyyy') : 'Exemplo do protótipo' }}</p>
           </div>
         }
         <p class="preview-note">Histórico de arquivos desta simulação, mantido somente em memória.</p>

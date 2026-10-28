@@ -1,0 +1,33 @@
+.dialog-title {
+  padding-right: 0;
+}
+.dialog-title:focus {
+  outline: none;
+}
+.publish-report {
+  width: 182px;
+}
+.publish-file {
+  width: 142px;
+}
+.organize-sheets {
+  width: 228px;
+  padding-top: 11px !important;
+}
+.selected-file {
+  cursor: default;
+}
+hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+.document-description {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .dialog-content .pill {
+    max-width: 100%;
+  }
+}

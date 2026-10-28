@@ -1,21 +1,24 @@
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Component, DestroyRef, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 import { MaterialSelection, PartnershipPreviewService } from '../../partnership/shared/partnership-preview.service';
 import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
+import { LogoDeliveryPreviewService } from '../../partnership/delivery-detail/logo-delivery-preview.service';
 
 type BrandDialog = 'upload' | 'replace' | 'progress' | 'received' | 'cancelled' | 'history' | 'document' | 'close' | 'reopen' | 'saved';
 
 @Component({
   selector: 'app-rbs-brand-applications',
-  imports: [AdminPartnershipShell, NzButtonModule, NzModalModule, DatePipe],
+  imports: [AdminPartnershipShell, RouterLink, NzButtonModule, NzModalModule, DatePipe],
   templateUrl: './brand.html',
   styleUrls: ['../../partnership/shared/partnership-ui.css', '../../partnership/shared/material-ui.css', '../../partnership/brand/brand.css', './brand.css']
 })
 export class RbsBrandApplications {
   readonly preview = inject(PartnershipPreviewService);
+  readonly logo = inject(LogoDeliveryPreviewService);
   readonly dialog = signal<BrandDialog | null>(null);
   readonly selected = signal<MaterialSelection | null>(null);
   readonly inputError = signal('');

@@ -16,7 +16,7 @@
     <section class="delivery-summary" aria-labelledby="summary-title">
       <h2 id="summary-title">Entregas selecionadas</h2>
       <dl class="delivery-totals">
-        @for (total of preview.totals; track total.state) {
+        @for (total of preview.totals(); track total.state) {
           <div [class]="total.state"><dt>{{ total.label }}</dt><dd>{{ total.value }}</dd></div>
         }
       </dl>

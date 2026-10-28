@@ -1,6 +1,8 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { PartnershipPreviewService } from '../../partnership/shared/partnership-preview.service';
 import { RbsProfilePreviewService } from '../profile/profile-preview.service';
+import { RbsRoxoProfilePreviewService } from '../profile/roxo-profile-preview.service';
+import { ClientPreviewService } from '../shared/client-preview.service';
 
 export interface SponsorPreview {
   readonly id: string;
@@ -22,15 +24,22 @@ export interface SponsorRegistration {
 export class SponsorsPreviewService {
   private readonly partnership = inject(PartnershipPreviewService);
   private readonly amarelo = inject(RbsProfilePreviewService).profile;
+  private readonly roxo = inject(RbsRoxoProfilePreviewService);
+  readonly roxoDocumentPublished = this.roxo.publicationConfirmed;
+  private readonly clients = inject(ClientPreviewService);
+  readonly verdeDocumentPublished = computed(() => this.clients.published('verde', 'profile'));
   readonly mivReceived = computed(() => this.partnership.currentMiv() !== null);
   private readonly records = signal<readonly SponsorPreview[]>([
     { id: 'amarelo', name: 'Cliente Amarelo', initial: 'A', quota: 'Master', color: 'yellow', createdLocally: false },
     { id: 'roxo', name: 'Cliente Roxo', initial: 'R', quota: 'Subcota G', color: 'pink', createdLocally: false },
     { id: 'verde', name: 'Cliente Verde', initial: 'V', quota: 'Subcota', color: 'green', createdLocally: false }
   ]);
-  readonly sponsors = computed(() => this.records().map(sponsor => sponsor.id === 'amarelo'
-    ? { ...sponsor, name: this.amarelo().name, quota: this.amarelo().quota, email: this.amarelo().email }
-    : sponsor));
+  readonly sponsors = computed(() => this.records().map(sponsor => {
+    if (sponsor.id === 'amarelo') return { ...sponsor, ...this.amarelo() };
+    if (sponsor.id === 'roxo') return { ...sponsor, ...this.roxo.profile() };
+    if (sponsor.id === 'verde') return { ...sponsor, ...this.clients.profile('verde') };
+    return sponsor;
+  }));
 
   search(query: string): readonly SponsorPreview[] {
     const terms = this.normalize(query).split(/\s+/).filter(Boolean);

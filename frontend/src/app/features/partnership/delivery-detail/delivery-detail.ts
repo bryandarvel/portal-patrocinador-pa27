@@ -9,7 +9,7 @@ import { labelPartnershipDialog } from '../shared/modal-accessibility';
 import { DeliveryReport } from '../shared/delivery-report';
 import { LogoDeliveryPreviewService } from './logo-delivery-preview.service';
 
-type MaterialDialog = 'upload' | 'progress' | 'received' | 'cancelled' | 'history' | 'document';
+type MaterialDialog = 'upload' | 'progress' | 'received' | 'cancelled' | 'history' | 'document' | 'proof';
 
 @Component({
   selector: 'app-delivery-detail',
@@ -29,7 +29,8 @@ export class DeliveryDetail {
   readonly steps = ['Material do patrocinador', 'Análise pela RBS', 'Execução da ação', 'Comprovação e relatório'];
   readonly dialogTitle = computed(() => {
     switch (this.dialog()) {
-      case 'upload': return 'Enviar logo da entrega';
+      case 'upload': return this.preview.current() ? 'Substituir logo da entrega' : 'Enviar logo da entrega';
+      case 'proof': return 'Comprovação da entrega';
       case 'progress': return 'Enviando material';
       case 'cancelled': return 'Operação cancelada';
       case 'history': return 'Histórico do material';
@@ -44,7 +45,7 @@ export class DeliveryDetail {
   }
 
   openUpload(): void {
-    if (this.preview.current() || !this.partnership.brandSubmissionsOpen()) return;
+    if (!this.preview.canUpload()) return;
     this.selected.set(null);
     this.inputError.set('');
     this.dialog.set('upload');
@@ -53,7 +54,7 @@ export class DeliveryDetail {
   selectFile(input: HTMLInputElement): void {
     const file = input.files?.item(0);
     input.value = '';
-    if (!file || this.dialog() !== 'upload' || !this.partnership.brandSubmissionsOpen()) return;
+    if (!file || this.dialog() !== 'upload' || !this.preview.canUpload()) return;
     if (file.size === 0) {
       this.selected.set(null);
       this.inputError.set('O arquivo está vazio. Selecione um arquivo com conteúdo.');
@@ -72,7 +73,7 @@ export class DeliveryDetail {
 
   send(): void {
     const selection = this.selected();
-    if (this.dialog() !== 'upload' || !selection || this.preview.current() || !this.partnership.brandSubmissionsOpen()) return;
+    if (this.dialog() !== 'upload' || !selection || !this.preview.canUpload()) return;
     this.dialog.set('progress');
     this.focusDialogTitle();
     // Transição de um segundo do Figma; somente metadados permanecem em memória.

@@ -35,9 +35,10 @@
             <tr>
               <th scope="row"><div class="sponsor-identity"><span [class]="'initial ' + sponsor.color" aria-hidden="true">{{ sponsor.initial }}</span><span>{{ sponsor.name }}</span></div></th>
               <td class="quota-cell">{{ sponsor.quota }}</td>
-              <td [class.pending]="sponsor.id === 'amarelo' && !preview.mivReceived()" [class.received]="sponsor.createdLocally || (sponsor.id === 'amarelo' && preview.mivReceived())">
+              <td [class.pending]="sponsor.id === 'amarelo' && !preview.mivReceived()" [class.received]="sponsor.createdLocally || (sponsor.id === 'amarelo' && preview.mivReceived()) || (sponsor.id === 'roxo' && preview.roxoDocumentPublished()) || (sponsor.id === 'verde' && preview.verdeDocumentPublished())">
                 @if (sponsor.createdLocally) { Acesso cadastrado }
                 @else if (sponsor.id === 'amarelo') { {{ preview.mivReceived() ? 'Documentação recebida' : 'MIV pendente' }} }
+                @else if ((sponsor.id === 'roxo' && preview.roxoDocumentPublished()) || (sponsor.id === 'verde' && preview.verdeDocumentPublished())) { Documentação recebida }
                 @else { Nenhum documento informado }
               </td>
               <td>
@@ -45,6 +46,8 @@
                   <button nz-button class="pill open-button" (click)="showAccess(sponsor)" [attr.aria-label]="'Ver acesso de ' + sponsor.name">Ver acesso</button>
                 } @else if (sponsor.id === 'amarelo') {
                   <a nz-button class="pill open-button" routerLink="/previa/rbs/amarelo/perfil" [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</a>
+                } @else if (sponsor.id === 'roxo' || sponsor.id === 'verde') {
+                  <a nz-button class="pill open-button" [routerLink]="'/previa/rbs/' + sponsor.id + '/perfil'" [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</a>
                 } @else {
                   <button nz-button class="pill open-button" aria-disabled="true" title="A página administrativa desta parceria será construída em uma próxima etapa." [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</button>
                 }
@@ -54,7 +57,7 @@
         </tbody>
       </table>
     </div>
-    <p class="preview-note">Prévia com dados fictícios. Cadastros ficam somente em memória, sem criar contas ou enviar e-mails. Recarregar apaga os cadastros. O perfil administrativo do Cliente Amarelo está disponível; as demais parcerias serão disponibilizadas nas próximas etapas.</p>
+    <p class="preview-note">Prévia com dados fictícios. Cadastros ficam somente em memória, sem criar contas ou enviar e-mails. Recarregar restaura os exemplos. Os perfis administrativos dos três exemplos estão disponíveis.</p>
   </main>
 </div>
 
@@ -72,11 +75,13 @@
               <button nz-button class="pill dark-button" (click)="showAccess(sponsor)">Ver acesso de {{ sponsor.name }}</button>
             } @else if (sponsor.id === 'amarelo') {
               <a nz-button class="pill dark-button open-result" routerLink="/previa/rbs/amarelo/perfil" (click)="closeDialog()">Abrir {{ sponsor.name }}</a>
+            } @else if (sponsor.id === 'roxo' || sponsor.id === 'verde') {
+              <a nz-button class="pill dark-button open-result" [routerLink]="'/previa/rbs/' + sponsor.id + '/perfil'" (click)="closeDialog()">Abrir {{ sponsor.name }}</a>
             } @else {
               <button nz-button class="pill dark-button" aria-disabled="true" title="Página administrativa disponível em uma próxima etapa">Abrir {{ sponsor.name }}</button>
             }
           } @empty { <p role="status">Nenhum patrocinador encontrado. Tente outro nome ou cota.</p> }
-          @if (results().length) { <p class="preview-note">O perfil do Cliente Amarelo está disponível. As demais parcerias dependem das próximas telas administrativas.</p> }
+          @if (results().length) { <p class="preview-note">Os três exemplos têm páginas administrativas próprias.</p> }
           <button nz-button class="pill dark-button" (click)="closeDialog()">Voltar à lista</button>
         }
         @case ('register') {

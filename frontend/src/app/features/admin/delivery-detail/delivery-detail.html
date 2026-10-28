@@ -1,0 +1,320 @@
+<app-admin-partnership-shell
+  activeArea="delivery-detail"
+  title="Logo no telão"
+  description="Aplicações de marca · Da preparação do material à comprovação da entrega."
+>
+  <a nz-button class="pill back-button" routerLink="/previa/rbs/amarelo/entregas"
+    >← Todas as entregas</a
+  >
+  <div class="delivery-panels">
+    <section class="delivery-card" aria-labelledby="rbs-logo-material-title">
+      <h2 #materialHeading id="rbs-logo-material-title" tabindex="-1">Material da entrega</h2>
+      <p [class]="'material-badge ' + preview.tone()" role="status">
+        <img [src]="preview.icon()" alt="" width="6" height="6" />{{ preview.badge() }}
+      </p>
+      <p>{{ preview.guidance() }}</p>
+      @switch (preview.stage()) {
+        @case ('received') {
+          <button
+            nz-button
+            class="pill dark-button analysis-button"
+            type="button"
+            (click)="startAnalysis()"
+          >
+            Iniciar análise
+          </button>
+        }
+        @case ('analysis') {
+          <div class="dialog-actions">
+            <button
+              nz-button
+              class="pill dark-button approve-button"
+              type="button"
+              (click)="dialog.set('approve')"
+            >
+              Aprovar material</button
+            ><button
+              nz-button
+              class="pill adjust-button"
+              type="button"
+              (click)="dialog.set('adjust')"
+            >
+              Solicitar ajuste
+            </button>
+          </div>
+        }
+        @case ('approved') {
+          <button
+            nz-button
+            class="pill dark-button execution-button"
+            type="button"
+            (click)="startExecution()"
+          >
+            Iniciar execução
+          </button>
+        }
+        @case ('executing') {
+          <button
+            nz-button
+            class="pill dark-button realize-button"
+            type="button"
+            (click)="dialog.set('realize')"
+          >
+            Registrar realização
+          </button>
+        }
+        @case ('realized') {
+          <button
+            nz-button
+            class="pill dark-button add-proof-button"
+            type="button"
+            (click)="openProofForm()"
+          >
+            Adicionar comprovação
+          </button>
+        }
+        @case ('proof') {
+          <button
+            nz-button
+            class="pill view-proof-button"
+            type="button"
+            (click)="dialog.set('proof')"
+          >
+            Visualizar comprovação
+          </button>
+        }
+      }
+      @if (preview.current(); as material) {
+        <div class="received-material">
+          <button
+            type="button"
+            class="document-card"
+            (click)="dialog.set('document')"
+            [attr.aria-label]="'Abrir ' + material.name"
+          >
+            <span class="document-icon" aria-hidden="true">▤</span
+            ><span class="document-description"
+              ><strong>{{ material.name }}</strong
+              ><span>Arquivo enviado pelo patrocinador</span></span
+            ><span class="document-action">Abrir →</span></button
+          ><button
+            nz-button
+            class="pill history-button"
+            type="button"
+            (click)="dialog.set('history')"
+          >
+            Histórico do material
+          </button>
+        </div>
+      }
+      @if (preview.stage() === 'adjustment') {
+        <div class="correction-note">
+          <strong>COMENTÁRIO DA RBS</strong>
+          <p>{{ preview.current()?.correction }}</p>
+        </div>
+      }
+      @if (preview.proof(); as proof) {
+        <div class="execution-record">
+          <strong>Comprovação publicada</strong>
+          <p class="proof-description">{{ proof.description }}</p>
+          <button nz-button class="pill record-button" type="button" (click)="dialog.set('proof')">
+            Consultar registro
+          </button>
+        </div>
+      }
+      @if (!partnership.brandSubmissionsOpen()) {
+        <div class="closed-submission" role="status">
+          <p>Envio encerrado pela RBS</p>
+          <p>A RBS pode reabrir o envio caso seja necessária uma correção.</p>
+        </div>
+      }
+    </section>
+    <section class="delivery-card" aria-labelledby="rbs-logo-journey-title">
+      <h2 id="rbs-logo-journey-title">Jornada da entrega</h2>
+      <ol class="journey">
+        @for (step of steps; track step; let index = $index) {
+          <li [attr.aria-current]="index === preview.journeyStep() ? 'step' : null">
+            <span class="step-number" aria-hidden="true">0{{ index + 1 }}</span
+            ><span>{{ step }}</span>
+          </li>
+        }
+      </ol>
+      <p class="eyebrow">Responsável pela entrega</p>
+      <p>{{ preview.owner() }}</p>
+      <button nz-button class="pill preview-button" type="button" (click)="reportOpen.set(true)">
+        Prévia do relatório
+      </button>
+      <button nz-button class="pill preview-button" type="button" (click)="organizerOpen.set(true)">
+        Organizar entrega
+      </button>
+    </section>
+  </div>
+  <p class="preview-note">
+    Prévia RBS com dados fictícios. Ações e comprovações ficam somente em memória, sem envio ou
+    publicação real. O link com exemplo de material recebido contém apenas metadados ilustrativos;
+    nenhum conteúdo de arquivo é lido. Recarregar reinicia a simulação.
+  </p>
+</app-admin-partnership-shell>
+<app-delivery-report [(open)]="reportOpen" [sponsorName]="profile().name" />
+<app-delivery-organizer [(open)]="organizerOpen" />
+
+<nz-modal
+  #logoModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(logoModal)"
+  (nzAfterClose)="afterClose()"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+>
+  <ng-template #dialogTitle
+    ><h2 #dialogHeading id="rbs-logo-dialog-title" class="dialog-title" tabindex="-1">
+      {{ title() }}
+    </h2></ng-template
+  ><ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent
+    ><div class="dialog-content">
+      @if (dialog() === 'approve' || dialog() === 'adjust' || dialog() === 'realize') {
+        <p>
+          {{
+            dialog() === 'approve'
+              ? 'A aprovação libera a preparação da ação. A entrega continua programada.'
+              : dialog() === 'adjust'
+                ? preview.correctionText
+                : 'Confirme que a aplicação da logo no telão foi realizada. A comprovação poderá ser adicionada na sequência.'
+          }}
+        </p>
+        <button
+          nz-button
+          class="pill dark-button"
+          [class.approve-button]="dialog() === 'approve'"
+          [class.request-button]="dialog() === 'adjust'"
+          [class.confirm-realize-button]="dialog() === 'realize'"
+          type="button"
+          (click)="confirm()"
+        >
+          {{
+            dialog() === 'approve'
+              ? 'Aprovar material'
+              : dialog() === 'adjust'
+                ? 'Enviar solicitação'
+                : 'Confirmar realização'
+          }}
+        </button>
+        <p class="preview-note">Confirmação apenas desta simulação.</p>
+      }
+      @if (dialog() === 'add-proof') {
+        <p>Logo no telão · Registro da execução</p>
+        <form class="proof-form" [formGroup]="proofForm" (ngSubmit)="publishProof()" novalidate>
+          <div class="proof-field">
+            <label for="rbs-proof-description">Descrição da execução</label
+            ><textarea
+              #proofInput
+              nz-input
+              id="rbs-proof-description"
+              formControlName="description"
+              rows="2"
+              required
+              [attr.aria-invalid]="proofControl.touched && proofControl.invalid"
+              [attr.aria-describedby]="
+                proofControl.touched && proofControl.invalid ? 'rbs-proof-error' : null
+              "
+            ></textarea>
+            @if (proofControl.touched && proofControl.invalid) {
+              <p id="rbs-proof-error" class="file-error" role="alert">
+                Descreva a execução antes de publicar.
+              </p>
+            }
+          </div>
+          <p>{{ preview.owner() }} · {{ sessionDate | date: 'dd/MM/yyyy' }} · Simulação</p>
+          <button nz-button class="pill dark-button publish-proof-button" type="submit">
+            Publicar comprovação
+          </button>
+        </form>
+        <p class="preview-note">
+          O texto será registrado apenas em memória; não comprova uma execução real.
+        </p>
+      }
+      @if (dialog() === 'proof') {
+        @if (preview.proof(); as proof) {
+          <p>Logo no telão · {{ profile().name }}</p>
+          <span class="material-badge info"
+            ><img src="/images/status-disponivel.svg" width="6" height="6" alt="" />Comprovação
+            disponível</span
+          >
+          <p class="proof-description">{{ proof.description }}</p>
+          <p>
+            Registro publicado por {{ proof.author }} ·
+            {{ proof.publishedAt | date: 'dd/MM/yyyy HH:mm' }} · Simulação
+          </p>
+          <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+            Concluir
+          </button>
+        }
+      }
+      @if (dialog() === 'document') {
+        <h3 class="file-name">{{ preview.current()?.name }}</h3>
+        <div class="logo-placeholder" aria-label="Marca fictícia de demonstração">
+          <p>Cliente<br />Amarelo</p>
+        </div>
+        <p>Enviado pelo patrocinador · Histórico disponível na entrega.</p>
+        <button nz-button class="pill download-button" type="button" disabled>
+          Baixar arquivo
+        </button>
+        <p class="preview-note">
+          Marca ilustrativa do Figma, sem representar o conteúdo do arquivo enviado. Download
+          indisponível.
+        </p>
+      }
+      @if (dialog() === 'history') {
+        <p>Logo no telão · {{ profile().name }}</p>
+        @for (version of preview.versions(); track version.version) {
+          <div class="history-version">
+            <strong>Versão {{ version.version }} · {{ version.name }}</strong>
+            <p>
+              Enviado por Admin Patrocinador ·
+              {{
+                version.example
+                  ? 'Exemplo do protótipo'
+                  : (version.receivedAt | date: 'dd/MM/yyyy HH:mm')
+              }}
+            </p>
+            @if (version.reviewedAt) {
+              <p>
+                {{ version.reviewedBy }} · {{ version.reviewedAt | date: 'dd/MM/yyyy HH:mm' }} ·
+                {{
+                  version.review === 'approved'
+                    ? 'Aprovado'
+                    : version.review === 'adjustment'
+                      ? 'Ajuste solicitado'
+                      : 'Em análise'
+                }}
+              </p>
+            }
+            @if (version.correction) {
+              <p>{{ version.correction }}</p>
+            }
+          </div>
+        }
+        <p>A substituição mantém o registro anterior, o responsável e a data.</p>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+          Concluir
+        </button>
+      }
+      @if (dialog() === 'saved') {
+        <p>As informações foram atualizadas na parceria.</p>
+        <span class="done-badge"
+          ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span
+        ><button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+          Concluir
+        </button>
+        <p class="preview-note">Registro salvo somente em memória, sem ação real no evento.</p>
+      }
+    </div></ng-container
+  >
+</nz-modal>

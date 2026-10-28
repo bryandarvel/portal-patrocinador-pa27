@@ -4,7 +4,7 @@
   <section class="courtesies" aria-labelledby="courtesies-title">
     <h2 id="courtesies-title">Cortesias da parceria</h2>
     <ul class="courtesy-list">
-      @for (courtesy of courtesies; track courtesy.id) {
+      @for (courtesy of courtesies(); track courtesy.id) {
         <li class="courtesy-item">
           <article class="courtesy-card" [attr.aria-label]="'Cortesia: ' + courtesy.type + ' · ' + courtesy.sector">
             <p class="eyebrow">Quantidade disponibilizada</p>

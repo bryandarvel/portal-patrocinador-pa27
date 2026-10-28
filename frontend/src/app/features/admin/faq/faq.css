@@ -1,0 +1,154 @@
+.search-management {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  width: 100%;
+}
+.search-management .faq-search {
+  flex: 0 1 800px;
+  min-width: 0;
+}
+.new-button {
+  width: 240px;
+  flex: 0 0 240px;
+}
+.brand-button {
+  background: var(--pa-magenta);
+  border-color: var(--pa-magenta);
+  color: #fff;
+}
+.brand-button:not(:disabled):hover {
+  background: #bf0068;
+  border-color: #bf0068;
+  color: #fff;
+}
+.brand-button:disabled {
+  background: #e9e8e4;
+  border-color: #e9e8e4;
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+.category-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+.category-actions .faq-category {
+  flex: 1;
+  min-width: 0;
+}
+.edit-button {
+  width: 100px;
+  margin-right: 66px;
+  flex-shrink: 0;
+}
+.faq-answer {
+  white-space: pre-wrap;
+}
+.faq-editor {
+  width: 100%;
+}
+.editor-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.editor-field label {
+  color: var(--color-text);
+  font-weight: 500;
+}
+.editor-field input,
+.editor-field textarea,
+.editor-field select {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  box-shadow: none;
+}
+.editor-field input,
+.editor-field select {
+  height: 58px;
+}
+.editor-field textarea {
+  resize: vertical;
+  min-height: 58px;
+}
+.editor-field input::placeholder,
+.editor-field textarea::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+.editor-field [aria-invalid='true'] {
+  border-color: #b42318;
+}
+.editor-field textarea:focus-visible,
+.editor-field select:focus-visible {
+  outline: 2px solid var(--color-accent-text);
+  outline-offset: 3px;
+}
+.field-error {
+  color: #b42318;
+}
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.editor-actions.empty-actions {
+  flex-direction: column;
+  gap: 20px;
+}
+.save-new {
+  width: 125px;
+}
+.save-edit {
+  width: 148px;
+}
+.saved-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 212px;
+  padding: 8px;
+  border-radius: 999px;
+  background: #e6f5ed;
+  color: #08674c;
+  font-size: 12px;
+  line-height: 18px;
+}
+.saved-badge img {
+  flex-shrink: 0;
+}
+.preview-note {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+.dialog-title:focus {
+  outline: none;
+}
+@media (max-width: 1100px) {
+  .search-management {
+    flex-wrap: wrap;
+  }
+  .search-management .faq-search {
+    flex: 1 1 100%;
+  }
+}
+@media (max-width: 760px) {
+  .new-button {
+    width: 100%;
+    flex-basis: 100%;
+  }
+  .edit-button {
+    margin-right: 0;
+  }
+}

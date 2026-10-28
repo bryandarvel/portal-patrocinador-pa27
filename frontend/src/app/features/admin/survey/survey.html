@@ -1,0 +1,63 @@
+<app-admin-partnership-shell activeArea="06" title="Pesquisa da ativação" description="Perguntas personalizadas e resultados da pesquisa da ativação.">
+  <section class="submission-status submission-control" [class.is-closed]="!preview.submissionsOpen()" aria-label="Disponibilidade de envio">
+    <div class="submission-copy" role="status">
+      <p>{{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}</p>
+      <p>{{ preview.submissionsOpen() ? 'Os materiais podem ser enviados ou substituídos.' : 'A equipe RBS pode reabrir o envio para correção.' }}</p>
+    </div>
+    <button nz-button class="pill submission-button" type="button" aria-haspopup="dialog" (click)="dialog.set(preview.submissionsOpen() ? 'close' : 'reopen')">{{ preview.submissionsOpen() ? 'Encerrar envio' : 'Reabrir envio' }}</button>
+  </section>
+  <div class="survey-panels">
+    <section class="survey-card" aria-labelledby="rbs-survey-questions-title">
+      <h2 id="rbs-survey-questions-title">Perguntas personalizadas</h2>
+      <p>Sua cota permite até três perguntas personalizadas para a pesquisa da ativação.</p>
+      <div class="received-question"><h3>Pergunta 01</h3><p>{{ preview.questions().question1 }}</p></div>
+      <div class="received-question"><h3>Pergunta 02</h3><p>{{ preview.questions().question2 }}</p></div>
+      <div class="received-question"><h3>Pergunta 03</h3><p>{{ preview.questions().question3 }}</p></div>
+      <p>Perguntas recebidas · Pesquisa RBS</p>
+    </section>
+    <section class="survey-card" aria-labelledby="rbs-survey-results-title">
+      <h2 id="rbs-survey-results-title">Resultados da pesquisa</h2>
+      @if (preview.resultsPublished()) {
+        <button class="document-card" type="button" (click)="dialog.set('document')" aria-label="Abrir Resultados da ativação">
+          <span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>Resultados da ativação</strong><span>Arquivo publicado pela RBS</span></span><span class="document-action">Abrir →</span>
+        </button>
+      } @else { <p>A RBS ainda não disponibilizou os resultados desta parceria.</p> }
+      <button nz-button class="pill dark-button publish-button" type="button" aria-haspopup="dialog" (click)="dialog.set('publish')">Publicar resultados</button>
+    </section>
+  </div>
+  <p class="preview-note">Prévia RBS do Cliente Amarelo com dados fictícios. A disponibilidade de perguntas é um exemplo desta parceria. Alterações e publicação ficam somente em memória e são reiniciadas ao recarregar. Nenhum resultado real é disponibilizado.</p>
+</app-admin-partnership-shell>
+
+<nz-modal #surveyModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()" (nzAfterOpen)="labelDialog(surveyModal)"
+  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #dialogTitle><h2 #dialogHeading id="rbs-survey-dialog-title" class="dialog-title" tabindex="-1">{{ title() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (dialog() === 'close' || dialog() === 'reopen') {
+        <p>{{ dialog() === 'close' ? 'Novos envios e substituições pelo patrocinador ficarão indisponíveis.' : 'O patrocinador poderá enviar e substituir seus materiais novamente.' }}</p>
+        <button nz-button class="pill dark-button submission-button" type="button" (click)="confirmSubmissionChange()">{{ dialog() === 'close' ? 'Encerrar envio' : 'Reabrir envio' }}</button>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Voltar</button>
+        <p class="preview-note">O controle afeta somente a pesquisa nesta simulação local.</p>
+      }
+      @if (dialog() === 'publish') {
+        <p>O arquivo ficará disponível para o {{ profile().name }}.</p>
+        <div class="document-card example-file"><span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>{{ preview.resultsFileName }}</strong><span>Selecionado para publicação</span></span><span class="document-action" aria-disabled="true" title="Arquivo ilustrativo sem conteúdo real">Abrir →</span></div>
+        <button nz-button class="pill dark-button publish-file-button" type="button" (click)="publish()">Publicar arquivo</button>
+        <p class="preview-note">PDF pré-selecionado de exemplo do Figma. Não há seleção, upload ou arquivo real nesta simulação.</p>
+      }
+      @if (dialog() === 'saved') {
+        <p>As informações foram atualizadas na parceria.</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+        <p class="preview-note">{{ confirmationNote() }}</p>
+      }
+      @if (dialog() === 'document') {
+        <p>Arquivo disponibilizado no contexto desta parceria.</p>
+        <div class="document-preview"><h3>Documento</h3><p>O conteúdo será exibido conforme o formato do arquivo.</p></div>
+        <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta simulação">Baixar arquivo</button>
+        <p class="preview-note">{{ preview.resultsFileName }} · Publicação ilustrativa, sem arquivo real para baixar.</p>
+      }
+    </div>
+  </ng-container>
+</nz-modal>

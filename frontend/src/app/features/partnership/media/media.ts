@@ -47,6 +47,7 @@ export class PartnershipMedia {
   }
 
   openUpload(): void {
+    if (!this.preview.submissionsOpen()) return;
     this.selected.set(null);
     this.inputError.set('');
     this.dialog.set('upload');
@@ -58,11 +59,13 @@ export class PartnershipMedia {
   }
 
   openBriefing(): void {
+    if (!this.preview.submissionsOpen()) return;
     this.briefingControl.reset(this.preview.briefing());
     this.dialog.set('briefing');
   }
 
   sendBriefing(): void {
+    if (this.dialog() !== 'briefing' || !this.preview.submissionsOpen()) return;
     this.briefingControl.markAsTouched();
     if (this.briefingControl.invalid) {
       this.briefingInput()?.nativeElement.focus();
@@ -76,8 +79,9 @@ export class PartnershipMedia {
   selectFile(input: HTMLInputElement): void {
     const file = input.files?.item(0);
     input.value = '';
-    if (!file) return;
+    if (!file || this.dialog() !== 'upload' || !this.preview.submissionsOpen()) return;
     if (file.size === 0) {
+      this.selected.set(null);
       this.inputError.set('O arquivo está vazio. Selecione um arquivo com conteúdo.');
       return;
     }
@@ -94,12 +98,13 @@ export class PartnershipMedia {
 
   send(): void {
     const selection = this.selected();
-    if (!selection || this.dialog() !== 'upload') return;
+    if (!selection || this.dialog() !== 'upload' || !this.preview.submissionsOpen()) return;
     this.dialog.set('progress');
     this.focusDialogTitle();
     // Transição demonstrativa de um segundo, conforme o Figma; não mede upload.
     this.pendingUpload = setTimeout(() => {
       this.pendingUpload = undefined;
+      if (!this.preview.submissionsOpen()) { this.close(); return; }
       this.preview.recordFile(selection);
       this.dialog.set('received');
       this.focusDialogTitle();

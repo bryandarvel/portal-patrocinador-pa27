@@ -5,12 +5,11 @@
   <div class="delivery-panels">
     <section class="delivery-card" aria-labelledby="delivery-material-title">
       <h2 #materialHeading id="delivery-material-title" tabindex="-1">Material da entrega</h2>
-      <p class="material-badge" [class.received]="preview.current() !== null" role="status">
-        <img [src]="preview.current() ? '/images/status-em-andamento.svg' : '/images/status-aguardando.svg'" alt="" width="6" height="6" />
-        {{ preview.current() ? 'Material recebido' : 'Aguardando material' }}
+      <p [class]="'material-badge ' + preview.tone()" role="status">
+        <img [src]="preview.icon()" alt="" width="6" height="6" />{{ preview.badge() }}
       </p>
       @if (preview.current(); as material) {
-        <p>RBS · Confira o arquivo enviado pelo patrocinador.</p>
+        <p>{{ preview.guidance() }}</p>
         <div class="received-material">
           <button type="button" class="document-card" (click)="dialog.set('document')" [attr.aria-label]="'Abrir ' + material.name">
             <span class="document-icon" aria-hidden="true">▤</span>
@@ -18,11 +17,13 @@
             <span class="document-action" aria-hidden="true">Abrir →</span>
           </button>
           <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">Histórico do material</button>
+          @if (preview.stage() === 'adjustment') { <div class="correction-note"><strong>COMENTÁRIO DA RBS</strong><p>{{ material.correction }}</p></div>@if (preview.canUpload()) { <button nz-button class="pill brand-button replace-logo-button" type="button" (click)="openUpload()">Substituir logo</button> } }
         </div>
       } @else {
         <p>Patrocinador · Envie a logo da sua marca.</p>
         @if (partnership.brandSubmissionsOpen()) { <button nz-button class="pill brand-button upload-button" type="button" (click)="openUpload()">Enviar logo</button> }
       }
+      @if (preview.proof(); as proof) { <div class="execution-record"><strong>Comprovação publicada</strong><p class="proof-description">{{ proof.description }}</p><button nz-button class="pill record-button" type="button" (click)="dialog.set('proof')">Consultar registro</button></div> }
       @if (!partnership.brandSubmissionsOpen()) {
         <div class="closed-submission" role="status"><p>Envio encerrado pela RBS</p><p>A RBS pode reabrir o envio caso seja necessária uma correção.</p></div>
       }
@@ -31,7 +32,7 @@
       <h2 id="journey-title">Jornada da entrega</h2>
       <ol class="journey">
         @for (step of steps; track step; let index = $index) {
-          <li [attr.aria-current]="index === 0 ? 'step' : null">
+          <li [attr.aria-current]="index === preview.journeyStep() ? 'step' : null">
             <span class="step-number" aria-hidden="true">0{{ index + 1 }}</span><span>{{ step }}</span>
           </li>
         }
@@ -96,7 +97,8 @@
         @for (version of preview.versions(); track version.version) {
           <div class="history-version">
             <strong>Versão {{ version.version }} · {{ version.name }}</strong>
-            <p>Enviado por Admin Patrocinador · {{ version.receivedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            <p>Enviado por Admin Patrocinador · {{ version.example ? 'Exemplo do protótipo' : (version.receivedAt | date:'dd/MM/yyyy HH:mm') }}</p>
+            @if (version.correction) { <p>{{ version.correction }}</p> }
           </div>
         }
         <p>A substituição mantém o registro anterior, o responsável e a data.</p>
@@ -110,6 +112,7 @@
         <button nz-button class="pill download-button" type="button" disabled aria-describedby="logo-preview-note">Baixar arquivo</button>
         <p class="preview-note" id="logo-preview-note">A marca acima é o exemplo do protótipo, não o conteúdo do arquivo selecionado. Somente os metadados foram registrados; download indisponível.</p>
       }
+      @if (dialog() === 'proof') { @if (preview.proof(); as proof) { <p>Logo no telão · Cliente Amarelo</p><span class="material-badge info"><img src="/images/status-disponivel.svg" width="6" height="6" alt="" />Comprovação disponível</span><p class="proof-description">{{ proof.description }}</p><p>Registro publicado por {{ proof.author }} · {{ proof.publishedAt | date:'dd/MM/yyyy HH:mm' }} · Simulação</p><button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button> } }
     </div>
   </ng-container>
 </nz-modal>

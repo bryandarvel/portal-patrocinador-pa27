@@ -1,0 +1,19 @@
+.submission-control { flex-direction: row; align-items: flex-start; gap: 16px; }
+.submission-copy { display: flex; flex-direction: column; gap: 4px; flex: 0 1 720px; }
+.submission-copy p:first-child { color: var(--color-success); font-weight: 500; }
+.submission-copy p:last-child { color: var(--color-muted); }
+.is-closed .submission-copy p:first-child { color: var(--color-error); }
+.submission-button { width: 130px; flex-shrink: 0; }
+.publish-button { width: 187px; }.publish-file-button { width: 142px; }.edit-button { width: 174px; }.save-info-button { width: 162px; }
+.closed-button { background: var(--color-disabled, #e9e8e4); color: var(--color-muted); border-color: var(--color-disabled, #e9e8e4); }
+.stories-form { width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.stories-field { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.stories-field label { color: var(--color-text); font-weight: 500; }
+.stories-field input { height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; font-size: 16px; line-height: 24px; }
+.stories-field input[aria-invalid="true"] { border-color: var(--color-error); }
+.example-file { cursor: default; }.example-file:hover { border-color: var(--color-border); }
+.publication-feedback { color: var(--color-success); font-size: 12px; line-height: 18px; }
+@media (max-width: 760px) {
+  .submission-control { flex-wrap: wrap; }.submission-copy { flex-basis: 100%; }
+  .dialog-actions .pill { max-width: 100%; height: auto; min-height: 44px; white-space: normal; }
+}

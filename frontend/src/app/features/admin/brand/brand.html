@@ -11,11 +11,11 @@
   <div class="brand-panels">
     <section class="brand-card" aria-labelledby="brand-materials-title">
       <h2 #materialsHeading id="brand-materials-title" tabindex="-1">Materiais da marca</h2>
-      <button class="document-card" type="button" aria-disabled="true" title="Detalhe administrativo da entrega disponível em uma próxima etapa" aria-label="Abrir Logo para o telão">
+      <a class="document-card" routerLink="/previa/rbs/amarelo/entregas/logo-no-telao" aria-label="Abrir Logo para o telão">
         <span class="document-icon" aria-hidden="true">▤</span>
         <span class="document-description"><strong>Logo para o telão</strong><span>Vinculada à entrega Logo no telão</span></span>
         <span class="document-action" aria-hidden="true">Abrir →</span>
-      </button>
+      </a>
 
       @if (preview.currentMiv(); as miv) {
         <div class="received-material">
@@ -47,16 +47,16 @@
       <p class="eyebrow">Entrega em destaque</p>
       <h3>Logo no telão</h3>
       <p>Acompanhe o material enviado, o andamento da ação e a comprovação.</p>
-      <button nz-button class="pill dark-button follow-button" type="button" aria-disabled="true" title="Detalhe administrativo da entrega disponível em uma próxima etapa">Acompanhar entrega</button>
+      <a nz-button class="pill dark-button follow-button" routerLink="/previa/rbs/amarelo/entregas/logo-no-telao">Acompanhar entrega</a>
     </section>
   </div>
 
   <section class="brand-card evidence-card" aria-labelledby="evidence-title">
     <h2 id="evidence-title">Comprovações das aplicações</h2>
-    <p>A comprovação desta entrega ainda não foi publicada.</p>
-    <button nz-button class="pill proof-button" type="button" aria-disabled="true" title="Registro da execução disponível na etapa de detalhe administrativo da entrega">Registrar na entrega</button>
+    @if (logo.proof(); as proof) { <p>{{ proof.description }}</p> } @else { <p>A comprovação desta entrega ainda não foi publicada.</p> }
+    <a nz-button class="pill proof-button" routerLink="/previa/rbs/amarelo/entregas/logo-no-telao">Registrar na entrega</a>
   </section>
-  <p class="preview-note">Prévia RBS com dados fictícios. Controle de envio e metadados ficam somente em memória nesta sessão. Nenhum arquivo é transmitido; recarregar reinicia a simulação. O detalhe administrativo da entrega será desenvolvido em uma próxima etapa.</p>
+  <p class="preview-note">Prévia RBS com dados fictícios. Controle de envio e metadados ficam somente em memória nesta sessão. Nenhum arquivo é transmitido; recarregar reinicia a simulação.</p>
 </app-admin-partnership-shell>
 
 <nz-modal #brandModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()"

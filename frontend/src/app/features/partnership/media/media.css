@@ -4,6 +4,8 @@
 .history-button { width: 169px; }
 .send-text-button { width: 114px; }
 .back-button { width: 127px; }
+.submission-status.is-closed p:first-child { color: var(--color-error); }
+.closed-button { background: var(--color-disabled, #e9e8e4); color: var(--color-muted); border-color: var(--color-disabled, #e9e8e4); }
 table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; line-height: 20px; }
 th, td { padding: 12px; text-align: left; font-weight: 400; vertical-align: top; overflow-wrap: anywhere; }
 thead { background: var(--color-paper); }

@@ -10,3 +10,5 @@
   .submission-copy { flex-basis: 100%; }
   .dialog-actions .pill { max-width: 100%; height: auto; min-height: 44px; white-space: normal; }
 }
+.document-card { color: var(--color-text); }
+a.pill { padding-top: 11px !important; }

@@ -1,0 +1,8 @@
+.edit-button { width: 197px; max-width: 100%; }
+.staff-form { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; width: 100%; }
+.staff-field { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.staff-field label { color: var(--color-text); font-size: 14px; font-weight: 500; line-height: 20px; }
+.staff-field input { height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-muted); font-size: 16px; line-height: 24px; }
+.staff-field input[aria-invalid="true"] { border-color: var(--color-error); }
+.field-error { color: var(--color-error); }
+.save-button { width: 162px; max-width: 100%; }

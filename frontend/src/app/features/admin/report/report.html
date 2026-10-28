@@ -1,0 +1,193 @@
+<app-admin-partnership-shell
+  [sponsorId]="sponsorId"
+  #shell
+  activeArea="report"
+  logoSrc="/images/pa27-logo-figma.png"
+  title="Relatório da parceria"
+  description="Reúna as planilhas de origem e disponibilize o relatório final deste patrocinador."
+>
+  <section class="report-panel" aria-labelledby="source-sheets-heading">
+    <h2 id="source-sheets-heading">Planilhas de origem</h2>
+    <div class="sheets-management">
+      <p>Arquivos de trabalho da RBS para preparar o relatório desta parceria.</p>
+      <button
+        nz-button
+        type="button"
+        class="pill brand-button add-sheets"
+        (click)="openSelection()"
+      >
+        Adicionar planilhas
+      </button>
+    </div>
+    @if (sheets.sheets().length) {
+      <div class="sheets-list">
+        @for (sheet of sheets.sheets(); track sheet.id) {
+          <button
+            type="button"
+            class="document-card"
+            [attr.aria-label]="'Abrir ' + sheet.name"
+            (click)="showDetails()"
+          >
+            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-description"
+              ><strong>{{ sheet.name }}</strong
+              ><span>Origem: {{ sheet.origin }} · Adicionado pela equipe RBS</span></span
+            >
+            <span class="document-action" aria-hidden="true">Abrir →</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="sheets-empty">
+        <h3>Nenhuma planilha adicionada</h3>
+        <p>Adicione as planilhas exportadas pelas ferramentas utilizadas pela RBS.</p>
+      </div>
+    }
+    <div class="generation-row">
+      <button
+        nz-button
+        type="button"
+        class="pill generate-report"
+        disabled
+        aria-describedby="generation-help"
+      >
+        Gerar relatório
+      </button>
+      <p id="generation-help">
+        Geração automática ainda indisponível. As planilhas ficam reunidas aqui para apoiar a
+        preparação do relatório.
+      </p>
+    </div>
+  </section>
+  <section class="report-panel" aria-labelledby="final-report-heading">
+    <h2 id="final-report-heading">Relatório final</h2>
+    <p>
+      Publique o arquivo preparado pela RBS para consulta do patrocinador. As planilhas de origem
+      permanecem na área administrativa.
+    </p>
+    <button nz-button type="button" class="pill manage-final" (click)="shell.openReport()">
+      Gerenciar relatório final
+    </button>
+  </section>
+  <p class="preview-note">
+    Prévia RBS em memória. Planilhas e relatório são exemplos do Figma, sem seleção de arquivos
+    reais, upload, processamento ou publicação. Recarregar reinicia a simulação.
+  </p>
+</app-admin-partnership-shell>
+
+<nz-modal
+  #sheetsModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(sheetsModal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="720"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+>
+  <ng-template #dialogTitle
+    ><h2 #dialogHeading tabindex="-1" class="dialog-title" id="source-sheets-title">
+      {{ title() }}
+    </h2></ng-template
+  >
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @switch (dialog()) {
+        @case ('select') {
+          <p>{{ profile().name }} · Arquivos de origem para preparar o relatório.</p>
+          <button type="button" class="upload-zone" (click)="selectExamples()">
+            <span class="upload-arrow" aria-hidden="true">↑</span
+            ><strong>Selecionar planilhas</strong
+            ><span>Escolha os arquivos no seu dispositivo</span>
+          </button>
+          <button nz-button type="button" class="pill finish-button" (click)="close()">
+            Cancelar
+          </button>
+        }
+        @case ('selected') {
+          <p>{{ profile().name }} · Dois arquivos selecionados.</p>
+          @for (sheet of sheets.examples; track sheet.id) {
+            <div class="document-card selected-file">
+              <span class="document-icon" aria-hidden="true">▤</span
+              ><span class="document-description"
+                ><strong>{{ sheet.name }}</strong
+                ><span>Selecionado · Origem: {{ sheet.origin }}</span></span
+              ><span class="document-action">Selecionado</span>
+            </div>
+          }
+          <div class="dialog-actions">
+            <button nz-button type="button" class="pill brand-button add-files" (click)="add()">
+              Adicionar arquivos</button
+            ><button nz-button type="button" class="pill choose-others" (click)="chooseOthers()">
+              Escolher outros
+            </button>
+          </div>
+        }
+        @case ('progress') {
+          <p>Aguarde a conclusão do envio.</p>
+          <div
+            class="upload-progress"
+            role="progressbar"
+            aria-label="Adição simulada de planilhas"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="67"
+          >
+            <span></span>
+          </div>
+          <p class="upload-count" role="status">2 arquivos · Envio em andamento</p>
+        }
+        @case ('success') {
+          <p>Os arquivos estão organizados na área interna desta parceria.</p>
+          <span class="done-badge"
+            ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />2 planilhas
+            disponíveis</span
+          >
+          <button nz-button type="button" class="pill dark-button back-report" (click)="close()">
+            Voltar ao relatório
+          </button>
+        }
+        @case ('error') {
+          <p>Os arquivos selecionados foram preservados para uma nova tentativa.</p>
+          <span class="error-badge" role="alert"
+            ><img src="/images/status-aguardando.svg" width="6" height="6" alt="" />Falha no
+            envio</span
+          >
+          <button nz-button type="button" class="pill dark-button retry-button" (click)="retry()">
+            Tentar novamente
+          </button>
+          <button nz-button type="button" class="pill finish-button" (click)="close()">
+            Cancelar
+          </button>
+        }
+        @case ('details') {
+          <p>{{ profile().name }} · Acesso administrativo da RBS.</p>
+          @for (sheet of sheets.sheets(); track sheet.id) {
+            <div class="document-card selected-file">
+              <span class="document-icon" aria-hidden="true">▤</span
+              ><span class="document-description"
+                ><strong>{{ sheet.name }}</strong
+                ><span>Origem: {{ sheet.origin }} · Adicionado pela equipe RBS</span></span
+              ><span class="document-action">Adicionado</span>
+            </div>
+          }
+          <p>
+            Os arquivos foram reunidos para apoiar a preparação do relatório. A leitura automática e
+            a consolidação dos dados ainda não estão disponíveis.
+          </p>
+          <button nz-button type="button" class="pill finish-button" (click)="close()">
+            Voltar
+          </button>
+        }
+      }
+      <p class="preview-note">
+        Simulação com os dois exemplos do Figma. Nenhum arquivo do dispositivo é selecionado, lido
+        ou enviado.
+      </p>
+    </div>
+  </ng-container>
+</nz-modal>

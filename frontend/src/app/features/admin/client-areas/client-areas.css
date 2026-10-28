@@ -1,0 +1,81 @@
+.profile-card {
+  align-items: flex-start;
+}
+.profile-card > p {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+.publish-material {
+  width: 181px;
+}
+.publish-confirm {
+  width: 196px;
+}
+.staff-button {
+  width: 215px;
+}
+.consult-profile {
+  width: 137px;
+  padding-top: 11px !important;
+}
+.contract-button {
+  width: 182px;
+}
+.selected-file {
+  cursor: default;
+}
+.dialog-title {
+  padding-right: 0;
+}
+.dialog-title:focus {
+  outline: none;
+}
+.document-description,
+.dialog-content {
+  overflow-wrap: anywhere;
+}
+.staff-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+}
+.staff-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.staff-field label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.staff-field input {
+  height: 58px;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.staff-field input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+.field-error {
+  color: var(--color-error);
+  font-size: 14px;
+  line-height: 20px;
+}
+.staff-quantity {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 48px;
+  line-height: 50px;
+  font-weight: 700;
+}
+@media (max-width: 760px) {
+  .pill {
+    max-width: 100%;
+  }
+}

@@ -4,10 +4,11 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PartnershipPreviewService } from './partnership-preview.service';
 import { labelPartnershipDialog } from './modal-accessibility';
+import { PartnershipReport } from './partnership-report';
 
 @Component({
   selector: 'app-partnership-shell',
-  imports: [RouterLink, NzButtonModule, NzModalModule],
+  imports: [RouterLink, NzButtonModule, NzModalModule, PartnershipReport],
   templateUrl: './partnership-shell.html',
   styleUrls: ['./partnership-ui.css', './partnership-shell.css']
 })
@@ -18,7 +19,8 @@ export class PartnershipShell {
   readonly pageUrl = input.required<string>();
   readonly preview = inject(PartnershipPreviewService);
   readonly partnership = this.preview.partnership;
-  readonly dialog = signal<'notifications' | 'report' | null>(null);
+  readonly dialog = signal<'notifications' | null>(null);
+  readonly reportOpen = signal(false);
   readonly areas = [
     { number: '01', label: 'Perfil do cliente', path: '/previa/perfil' },
     { number: '02', label: 'Aplicações de marca', path: '/previa/aplicacoes-de-marca' },
