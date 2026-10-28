@@ -13,6 +13,7 @@
 .courtesy-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .save-button { width: 131px; }.save-button.editing { width: 148px; }.cancel-button { width: 100px; }
 @media (max-width: 760px) { .courtesies-heading { grid-template-columns: 1fr; gap: 16px; } }
-.courtesy-empty { margin-top: 24px; padding: 24px; background: #fff; border: 1px solid var(--color-border); border-radius: 12px; display: flex; flex-direction: column; gap: 16px; }
+.courtesy-empty { padding: 24px; background: #fff; border: 1px solid var(--color-border); border-radius: 12px; display: flex; flex-direction: column; gap: 16px; }
 .courtesy-empty p { font-size: 14px; line-height: 20px; color: var(--color-muted); }
 .courtesy-list:empty { min-height: 276px; }
+@media (max-width: 760px) { .courtesy-list:empty { display: none; min-height: 0; } }

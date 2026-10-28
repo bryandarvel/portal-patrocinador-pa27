@@ -5,6 +5,10 @@
 > preservam o registro de ciclos anteriores; o checkpoint distingue código escrito
 > de tela efetivamente conferida no navegador.
 
+As 43 páginas principais do inventário estão pré-aprovadas por Bryan como
+interfaces demonstrativas. Consulte [todos os links das telas](docs/telas-portal.md).
+Pré-aprovação visual não representa integração real ou autorização de API.
+
 Angular 22 e NG-ZORRO. A raiz redireciona para `/login`, com identidade PA27, carrossel e validação visual. A autenticação ainda não está integrada.
 
 ## Prévia do perfil
@@ -292,9 +296,11 @@ Esse registro também atualiza a indicação de documentação do Roxo na lista.
 `AdminPartnershipShell` recebe `sponsorId`, com padrão Amarelo preservado. No Roxo,
 usa a identificação, a cor do selo e o perfil próprios. Notificações reproduzem o
 estado sem pendências (`16:1955`), sem aproveitar a pendência de MIV do Amarelo.
-O resumo de relatório mostra o Roxo (`16:1970`) e sinaliza seus controles futuros.
-As outras áreas, entregas e FAQ do Roxo ficam indisponíveis por ainda aguardarem
-implementação, sem inferir restrições de cota ou encaminhar para telas do Amarelo.
+O resumo de relatório do Roxo (`16:1970`) permite publicar o exemplo e acessar
+as planilhas de origem. As sete áreas, entregas, FAQ e relatório estão disponíveis
+para Roxo e Verde. Os componentes são reutilizados por ID da parceria, com
+estados separados e sem inferir restrições de cota. O resultado das verificações
+do lote está no [checkpoint dos clientes](docs/checkpoint-clientes.md).
 
 Tudo fica somente em memória na instância Angular. Recarregar restaura o perfil
 fictício e os documentos vazios. Não altera credenciais, permissões, cota contratual

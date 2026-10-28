@@ -22,6 +22,17 @@
 .contract-button {
   width: 182px;
 }
+.contract-button:disabled {
+  background: #e9e8e4;
+  border-color: #e9e8e4;
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+.preview-note {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
 .selected-file {
   cursor: default;
 }
@@ -69,7 +80,7 @@
   line-height: 20px;
 }
 .staff-quantity {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-display);
   font-size: 48px;
   line-height: 50px;
   font-weight: 700;
