@@ -38,7 +38,7 @@ Abra uma Issue antes de começar. Se o repositório oferecer um modelo adequado,
 
 Anote o número da Issue. Ele será usado na branch e no PR.
 
-Antes de implementar uma mudança, consulte `openspec/changes/` e atualize o change relacionado ou crie o registro pertinente. Um change reúne requisitos, decisões e tarefas; ele complementa a Issue. A configuração desse fluxo fica em [openspec/config.yaml](openspec/config.yaml).
+Antes de implementar uma mudança não trivial, reutilize a documentação vigente em `docs/` com objetivo, escopo, critérios e tarefas. Para esta implementação, a fonte é [integração do backend](docs/integracao-backend.md), apoiada pelo [TAP e planos comerciais](docs/regras-negocio/README.md). OpenSpec deixou de ser usado em 22/10/2026; os arquivos antigos permanecem como histórico.
 
 Registre decisões confirmadas, propostas e dúvidas de forma explícita. Hipóteses sobre cotas, permissões ou relatórios precisam ser validadas antes de virar regras do sistema.
 
@@ -108,7 +108,7 @@ Frontend e banco são trabalhos conjuntos. Coordene dependências entre as trilh
 | `CONTRIBUTING.md` | Colaboração, padrões, commits, PRs e verificações. |
 | `PRODUCT.md` | Contexto e limites do produto. |
 | `DESIGN.md` | Identidade visual e decisões de interface. |
-| `docs/` e `openspec/changes/` | Requisitos específicos, decisões, tarefas e evidências datadas. |
+| `docs/` | Requisitos específicos, decisões, tarefas e evidências datadas. `openspec/` permanece como histórico. |
 
 Atualize a documentação afetada pela tarefa. Registre resultados de verificações com data e limites, distinguindo leitura de código, compilação, testes e validação da aplicação em execução.
 
@@ -118,7 +118,7 @@ Execute as verificações pertinentes à mudança e registre o resultado. Os com
 
 ### Backend
 
-O backend depende de um banco configurado corretamente. Confira a pendência H2/PostgreSQL descrita no [README.md](README.md) antes de interpretar falhas de inicialização.
+O backend usa PostgreSQL no Compose, migrações Flyway e configuração local em `.env`. Consulte o [guia da API](docs/backend-api.md) para as variáveis e os limites das verificações.
 
 Para evitar execuções simultâneas de Maven na mesma pasta:
 
@@ -127,7 +127,7 @@ docker compose stop backend
 docker compose run --rm backend sh ./mvnw test
 ```
 
-O serviço de banco é dependência do backend. O comando não substitui a correção das configurações necessárias. Se o backend estava ativo e for necessário retomá-lo após a verificação:
+O serviço de banco é dependência do backend. H2 cobre somente o teste de contexto; a validação de negócio com PostgreSQL é feita pelo smoke HTTP. Se o backend estava ativo e for necessário retomá-lo após a verificação:
 
 ```powershell
 docker compose up -d backend
@@ -141,7 +141,7 @@ cd backend
 cd ..
 ```
 
-A base analisada contém um teste `contextLoads`. Ele verifica a inicialização do contexto Spring e não comprova o funcionamento de cadastro, autenticação ou permissões.
+A suíte inclui contexto, autenticação e regras de domínio. Com backend, banco e Mailpit ativos, execute também `python3 backend/scripts/check-portal-api.py` na raiz para validar os fluxos reais de API. O smoke usa contas sintéticas e adiciona registros identificados por `Smoke`, sem apagar dados anteriores. Essas verificações locais não substituem a homologação com serviços externos.
 
 ### Frontend
 

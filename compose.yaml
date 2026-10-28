@@ -1,6 +1,11 @@
 name: desafio-gc-rbs-local
 
 services:
+  mailpit:
+    image: axllent/mailpit:v1.30.3
+    ports:
+      - "127.0.0.1:8025:8025"
+
   db:
     image: postgres:17-alpine
     environment:
@@ -23,16 +28,30 @@ services:
       - "127.0.0.1:8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/portal
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       SPRING_DATASOURCE_USERNAME: portal
       SPRING_DATASOURCE_PASSWORD: portal-local
-      SPRING_SECURITY_USER_NAME: local
-      SPRING_SECURITY_USER_PASSWORD: local-dev
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      PORTAL_JWT_SECRET: ${PORTAL_JWT_SECRET:?Configure PORTAL_JWT_SECRET no arquivo .env}
+      PORTAL_BASELINE_ON_MIGRATE: "true"
+      PORTAL_BOOTSTRAP_ENABLED: ${PORTAL_BOOTSTRAP_ENABLED:-false}
+      PORTAL_BOOTSTRAP_NAME: ${PORTAL_BOOTSTRAP_NAME:-}
+      PORTAL_BOOTSTRAP_EMAIL: ${PORTAL_BOOTSTRAP_EMAIL:-}
+      PORTAL_BOOTSTRAP_PASSWORD: ${PORTAL_BOOTSTRAP_PASSWORD:-}
+      PORTAL_MAIL_ENABLED: "true"
+      PORTAL_SMTP_HOST: mailpit
+      PORTAL_SMTP_PORT: "1025"
+      PORTAL_FRONTEND_URL: http://localhost:4200
+      PORTAL_STORAGE_DIRECTORY: /data/arquivos
     volumes:
       - ./backend:/workspace
       - maven-cache:/root/.m2
+      - portal-files:/data/arquivos
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
   frontend:
     image: node:24.15.0-bookworm-slim
@@ -51,6 +70,7 @@ services:
       - backend
 
 volumes:
+  portal-files:
   postgres-data:
   maven-cache:
   frontend-node-modules:

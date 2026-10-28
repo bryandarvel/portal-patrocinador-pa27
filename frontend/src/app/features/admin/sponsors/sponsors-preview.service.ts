@@ -1,69 +1,107 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { PartnershipPreviewService } from '../../partnership/shared/partnership-preview.service';
-import { RbsProfilePreviewService } from '../profile/profile-preview.service';
-import { RbsRoxoProfilePreviewService } from '../profile/roxo-profile-preview.service';
-import { ClientPreviewService } from '../shared/client-preview.service';
+import { inject, Injectable, signal } from '@angular/core';
+import { PortalApi } from '../../../core/portal-api.service';
 
 export interface SponsorPreview {
   readonly id: string;
   readonly name: string;
-  readonly initial: string;
   readonly quota: string;
-  readonly email?: string;
-  readonly color: 'yellow' | 'pink' | 'green';
-  readonly createdLocally: boolean;
+  readonly edition: string;
 }
-
-export interface SponsorRegistration {
-  readonly name: string;
-  readonly quota: string;
-  readonly email: string;
+export interface QuotaBenefit {
+  natureza: 'CORTESIA' | 'CREDENCIAL';
+  tipo: string;
+  setor: string;
+  publico: string;
+  quantidade: number;
+}
+export interface QuotaDelivery {
+  area: string;
+  titulo: string;
+  descricao: string;
+}
+export interface Quota {
+  id: string;
+  nome: string;
+  versao: number;
+  areas: string[];
+  entregas: QuotaDelivery[];
+  beneficios: QuotaBenefit[];
+}
+interface SponsorPage {
+  itens: { id: string; nome: string; cota: string; edicao: string }[];
+  total: number;
+  pagina: number;
+}
+export interface PortalAccess {
+  id: string;
+  nome: string;
+  email: string;
+  role: string;
+  ativo: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
 export class SponsorsPreviewService {
-  private readonly partnership = inject(PartnershipPreviewService);
-  private readonly amarelo = inject(RbsProfilePreviewService).profile;
-  private readonly roxo = inject(RbsRoxoProfilePreviewService);
-  readonly roxoDocumentPublished = this.roxo.publicationConfirmed;
-  private readonly clients = inject(ClientPreviewService);
-  readonly verdeDocumentPublished = computed(() => this.clients.published('verde', 'profile'));
-  readonly mivReceived = computed(() => this.partnership.currentMiv() !== null);
-  private readonly records = signal<readonly SponsorPreview[]>([
-    { id: 'amarelo', name: 'Cliente Amarelo', initial: 'A', quota: 'Master', color: 'yellow', createdLocally: false },
-    { id: 'roxo', name: 'Cliente Roxo', initial: 'R', quota: 'Subcota G', color: 'pink', createdLocally: false },
-    { id: 'verde', name: 'Cliente Verde', initial: 'V', quota: 'Subcota', color: 'green', createdLocally: false }
-  ]);
-  readonly sponsors = computed(() => this.records().map(sponsor => {
-    if (sponsor.id === 'amarelo') return { ...sponsor, ...this.amarelo() };
-    if (sponsor.id === 'roxo') return { ...sponsor, ...this.roxo.profile() };
-    if (sponsor.id === 'verde') return { ...sponsor, ...this.clients.profile('verde') };
-    return sponsor;
-  }));
-
-  search(query: string): readonly SponsorPreview[] {
-    const terms = this.normalize(query).split(/\s+/).filter(Boolean);
-    return this.sponsors().filter(sponsor => {
-      const text = this.normalize(`${sponsor.name} ${sponsor.quota}`);
-      return terms.every(term => text.includes(term));
+  private readonly api = inject(PortalApi);
+  private requestVersion = 0;
+  readonly sponsors = signal<readonly SponsorPreview[]>([]);
+  readonly total = signal(0);
+  readonly page = signal(0);
+  readonly quotas = signal<readonly Quota[]>([]);
+  async load(query = '', page = 0): Promise<void> {
+    const version = ++this.requestVersion;
+    const result = await this.api.get<SponsorPage>(
+      `/api/parcerias?busca=${encodeURIComponent(query)}&pagina=${page}`,
+    );
+    if (version !== this.requestVersion) return;
+    this.sponsors.set(
+      result.itens.map((item) => ({
+        id: item.id,
+        name: item.nome,
+        quota: item.cota,
+        edition: item.edicao,
+      })),
+    );
+    this.total.set(result.total);
+    this.page.set(result.pagina);
+  }
+  async loadQuotas(): Promise<void> {
+    this.quotas.set(await this.api.get<Quota[]>('/api/cotas'));
+  }
+  async saveQuota(input: Omit<Quota, 'id'>, id?: string): Promise<void> {
+    if (id) await this.api.patch(`/api/cotas/${id}`, input);
+    else await this.api.post('/api/cotas', input);
+    await this.loadQuotas();
+  }
+  async findUser(email: string): Promise<PortalAccess | null> {
+    const users = await this.api.get<PortalAccess[]>(
+      `/api/admin/usuarios?busca=${encodeURIComponent(email)}`,
+    );
+    return users.find((user) => user.email.toLowerCase() === email.toLowerCase()) ?? null;
+  }
+  async invite(
+    name: string,
+    email: string,
+    password: string,
+    role: 'ADMIN_PATROCINADOR' | 'ADMIN_RBS',
+  ): Promise<void> {
+    await this.api.post(role === 'ADMIN_RBS' ? '/api/admin/usuarios' : '/api/auth/cadastro', {
+      nome: name,
+      email,
+      senha: password,
+      role,
     });
   }
-
-  // Recebe apenas dados de apresentação: senha nunca entra neste serviço.
-  register(registration: SponsorRegistration): SponsorPreview | null {
-    const name = registration.name.trim();
-    const quota = registration.quota.trim();
-    const email = registration.email.trim();
-    if (!name || !quota || !email) return null;
-    const sponsor: SponsorPreview = {
-      id: `local-${this.sponsors().length + 1}`, name, initial: name.charAt(0).toLocaleUpperCase('pt-BR'), quota, email,
-      color: 'green', createdLocally: true
-    };
-    this.records.update(records => [...records, sponsor]);
-    return sponsor;
-  }
-
-  private normalize(text: string): string {
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR');
+  async createPartnership(
+    name: string,
+    edition: string,
+    quotaId: string,
+    userId: string,
+  ): Promise<SponsorPreview> {
+    const data = await this.api.post<{ id: string; nome: string; cota: string; edicao: string }>(
+      '/api/parcerias',
+      { nome: name, edicao: edition, cotaId: quotaId, usuarioIds: [userId] },
+    );
+    return { id: data.id, name: data.nome, quota: data.cota, edition: data.edicao };
   }
 }

@@ -1,3 +1,28 @@
 {
-  "buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "frontend/src/app/features/auth/login/login.html"
+        ],
+        "createdAt": "2026-10-28T19:52:30.888Z",
+        "reason": "Agent verified carousel JPEG assets in Playwright baseline screenshots; Angular bound src is resolved at runtime."
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "frontend/src/app/features/admin/delivery-detail/delivery-detail.html",
+          "frontend/src/app/features/partnership/delivery-detail/delivery-detail.html"
+        ],
+        "createdAt": "2026-10-28T20:12:42.730Z",
+        "reason": "Agent verified dynamic Angular status SVGs decode in the 78-check browser E2E and final delivery screenshots on 2026-10-28."
+      }
+    ]
+  }
 }

@@ -1,2 +1,27 @@
-.organize-button { width: 100%; }
-.follow-button { width: 189px; max-width: 100%; }
+.organize-button {
+  width: 100%;
+}
+.follow-button {
+  width: 189px;
+  max-width: 100%;
+}
+.delivery-card input,
+.delivery-card select,
+.delivery-card textarea {
+  display: block;
+  width: 100%;
+  margin: 8px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #a9a9a9;
+  border-radius: 8px;
+  background: #fff;
+  color: #1b1b1b;
+  font: inherit;
+}
+
+.delivery-card input:focus-visible,
+.delivery-card select:focus-visible,
+.delivery-card textarea:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

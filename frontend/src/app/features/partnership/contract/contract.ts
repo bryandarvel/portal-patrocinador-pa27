@@ -1,92 +1,80 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { PortalApi } from '../../../core/portal-api.service';
 import { PartnershipShell } from '../shared/partnership-shell';
-import { labelPartnershipDialog } from '../shared/modal-accessibility';
-import { ContractPreviewService } from './contract-preview.service';
-
-type ContractDialog = 'document' | 'history' | 'approve' | 'adjust' | 'saved' | 'signed';
+import { ContractPreviewService, Signatario } from './contract-preview.service';
 
 @Component({
   selector: 'app-partnership-contract',
-  imports: [PartnershipShell, ReactiveFormsModule, NzButtonModule, NzInputModule, NzModalModule, DatePipe],
+  imports: [PartnershipShell, FormsModule, DatePipe, NzButtonModule, NzModalModule],
   templateUrl: './contract.html',
-  styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './contract.css']
+  styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './contract.css'],
 })
 export class PartnershipContract {
   readonly preview = inject(ContractPreviewService);
-  readonly dialog = signal<ContractDialog | null>(null);
-  readonly adjustError = signal(false);
-  readonly commentControl = new FormControl('', {
-    nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/)]
-  });
-  readonly adjustmentForm = new FormGroup({ comment: this.commentControl });
-  readonly commentInput = viewChild<unknown, ElementRef<HTMLTextAreaElement>>('commentInput', { read: ElementRef });
-  readonly documentButton = viewChild<ElementRef<HTMLButtonElement>>('documentButton');
-  readonly modal = viewChild<NzModalComponent>('contractModal');
-  readonly dialogTitle = computed(() => {
-    switch (this.dialog()) {
-      case 'document': return 'Contrato para validação';
-      case 'history': return 'Histórico do contrato';
-      case 'signed': return 'Contrato final assinado';
-      case 'approve': return `Aprovar versão ${this.preview.version().number}?`;
-      case 'adjust': return this.adjustError() ? 'Inclua um comentário' : 'Solicitar ajustes';
-      default: return 'Alterações salvas';
-    }
-  });
-  private restoreDocumentFocus = false;
-
-  openDecision(kind: 'approve' | 'adjust'): void {
-    if (!this.preview.canDecide()) return;
-    this.commentControl.reset();
-    this.adjustError.set(false);
-    this.dialog.set(kind);
+  readonly api = inject(PortalApi);
+  readonly dialog = signal<'history' | 'approve' | 'adjust' | 'signatories' | 'saved' | null>(null);
+  readonly signatories = signal<Signatario[]>([{ nome: '', email: '', cargo: '' }]);
+  readonly comment = signal('');
+  readonly localError = signal('');
+  readonly title = computed(
+    () =>
+      ({
+        history: 'Histórico do contrato',
+        approve: 'Aprovar contrato',
+        adjust: 'Solicitar ajustes',
+        signatories: 'Quem assina',
+        saved: 'Alterações salvas',
+      })[this.dialog() ?? 'history'],
+  );
+  openSignatories(): void {
+    this.signatories.set(
+      this.preview.signatories().length
+        ? this.preview.signatories().map(({ nome, email, cargo }) => ({ nome, email, cargo }))
+        : [{ nome: '', email: '', cargo: '' }],
+    );
+    this.dialog.set('signatories');
   }
-
-  approve(): void {
-    if (this.dialog() !== 'approve' || !this.preview.approve()) return;
-    this.showSaved();
+  addSignatory(): void {
+    this.signatories.update((items) => [...items, { nome: '', email: '', cargo: '' }]);
   }
-
-  sendAdjustment(): void {
-    if (this.dialog() !== 'adjust') return;
-    this.commentControl.markAsTouched();
-    if (this.adjustmentForm.invalid) {
-      this.adjustError.set(true);
-      this.focusComment();
+  removeSignatory(index: number): void {
+    this.signatories.update((items) => items.filter((_, i) => i !== index));
+  }
+  async saveSignatories(): Promise<void> {
+    const items = this.signatories().map((s) => ({
+      nome: s.nome.trim(),
+      email: s.email.trim(),
+      cargo: s.cargo.trim(),
+    }));
+    if (!items.length || items.some((s) => !s.nome || !s.email || !s.cargo)) {
+      this.localError.set('Informe nome, e-mail e cargo de ao menos um signatário.');
       return;
     }
-    if (this.preview.requestAdjustments(this.commentControl.value)) this.showSaved();
+    try {
+      await this.preview.saveSignatories(items);
+      this.dialog.set('saved');
+      this.localError.set('');
+    } catch {}
   }
-
-  focusComment(): void {
-    this.commentInput()?.nativeElement.focus();
+  async decide(kind: 'APROVADO' | 'AJUSTES'): Promise<void> {
+    if (kind === 'AJUSTES' && !this.comment().trim()) {
+      this.localError.set('Descreva o ajuste solicitado.');
+      return;
+    }
+    try {
+      await this.preview.decide(kind, this.comment().trim());
+      this.dialog.set('saved');
+      this.comment.set('');
+      this.localError.set('');
+    } catch {}
   }
-
-  close(): void {
-    this.restoreDocumentFocus = this.dialog() === 'saved';
-    this.dialog.set(null);
-    this.commentControl.reset();
-    this.adjustError.set(false);
-  }
-
-  afterClose(): void {
-    // A ação original desaparece depois da decisão; o documento permanece acessível.
-    if (this.restoreDocumentFocus) this.documentButton()?.nativeElement.focus();
-    this.restoreDocumentFocus = false;
-  }
-
-  labelDialog(modal: NzModalComponent): void {
-    labelPartnershipDialog(modal, 'contract-dialog-title');
-  }
-
-  private showSaved(): void {
-    this.dialog.set('saved');
-    requestAnimationFrame(() => {
-      this.modal()?.getElement()?.querySelector<HTMLElement>('#contract-dialog-title')?.focus();
-    });
+  async download(id: string, name: string): Promise<void> {
+    try {
+      await this.preview.download(id, name);
+    } catch {}
   }
 }

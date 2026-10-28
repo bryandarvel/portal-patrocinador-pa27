@@ -1,45 +1,104 @@
-import { inject, Injectable, InjectionToken, signal } from '@angular/core';
+import { effect, inject, Injectable, InjectionToken, signal } from '@angular/core';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
 
 export const EMPTY_TICKETS_PREVIEW = new InjectionToken<boolean>('EMPTY_TICKETS_PREVIEW');
-
 export interface CourtesyPreview {
-  readonly id: string;
-  readonly quantity: number;
-  readonly type: string;
-  readonly sector: string;
+  id: string;
+  quantity: number;
+  type: string;
+  sector: string;
+  version: number;
+  benefitId: string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  eventDay: string | null;
+  allocated: number;
+  destinations: { id: string; quantidade: number; destinacao: string; criadoEm: string }[];
 }
+export interface CourtesyInput {
+  quantity: number;
+  type: string;
+  sector: string;
+  benefitId: string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  eventDay: string | null;
+}
+interface CourtesyResponse {
+  id: string;
+  quantidade: number;
+  tipo: string;
+  setor: string;
+  versao: number;
+  beneficioId: string;
+  periodoInicio: string | null;
+  periodoFim: string | null;
+  diaEvento: string | null;
+  destinadas: number;
+  destinacoes: CourtesyPreview['destinations'];
+}
+const mapCourtesy = (item: CourtesyResponse): CourtesyPreview => ({
+  id: item.id,
+  quantity: item.quantidade,
+  type: item.tipo,
+  sector: item.setor,
+  version: item.versao,
+  benefitId: item.beneficioId,
+  periodStart: item.periodoInicio,
+  periodEnd: item.periodoFim,
+  eventDay: item.diaEvento,
+  allocated: item.destinadas,
+  destinations: item.destinacoes,
+});
 
-export type CourtesyInput = Omit<CourtesyPreview, 'id'>;
-
-/** Exemplos do frame 10:242; não define limites ou direitos da cota. */
 @Injectable({ providedIn: 'root' })
 export class TicketsPreviewService {
-  private readonly records = signal<readonly CourtesyPreview[]>(inject(EMPTY_TICKETS_PREVIEW, { optional: true }) ? [] : [
-    { id: 'camarote-passaporte', quantity: 50, type: 'Passaporte', sector: 'Camarote' },
-    { id: 'vip-passaporte', quantity: 30, type: 'Passaporte', sector: 'VIP' }
-  ]);
+  private readonly api = inject(PortalApi);
+  private readonly context = inject(PortalContext);
+  private readonly records = signal<readonly CourtesyPreview[]>([]);
   readonly courtesies = this.records.asReadonly();
-  private nextId = 1;
-
-  add(input: CourtesyInput): CourtesyPreview | null {
-    const data = this.normalize(input);
-    if (!data) return null;
-    const record: CourtesyPreview = { id: `courtesy-preview-${this.nextId++}`, ...data };
-    this.records.update(records => [...records, record]);
-    return record;
+  constructor() {
+    effect(() => {
+      const id = this.context.id();
+      this.records.set([]);
+      if (id) void this.load().catch(() => {});
+    });
   }
-
-  update(id: string, input: CourtesyInput): boolean {
-    const data = this.normalize(input);
-    if (!data || !this.records().some(record => record.id === id)) return false;
-    this.records.update(records => records.map(record => record.id === id ? { ...record, ...data } : record));
-    return true;
+  async load(): Promise<void> {
+    const id = this.context.id();
+    if (!id) return;
+    const data = await this.api.get<CourtesyResponse[]>(this.context.url('/cortesias'));
+    if (id === this.context.id()) this.records.set(data.map(mapCourtesy));
   }
-
-  private normalize(input: CourtesyInput): CourtesyInput | null {
-    const type = input.type.trim();
-    const sector = input.sector.trim();
-    if (!Number.isSafeInteger(input.quantity) || input.quantity < 0 || !type || !sector) return null;
-    return { quantity: input.quantity, type, sector };
+  async save(input: CourtesyInput, id: string | null = null): Promise<CourtesyPreview> {
+    const partnershipId = this.context.id();
+    const current = this.courtesies().find((item) => item.id === id);
+    const body = {
+      quantidade: input.quantity,
+      tipo: input.type,
+      setor: input.sector,
+      beneficioId: input.benefitId,
+      periodoInicio: input.periodStart,
+      periodoFim: input.periodEnd,
+      diaEvento: input.eventDay,
+      versao: current?.version ?? null,
+    };
+    const data = id
+      ? await this.api.patch<CourtesyResponse>(this.context.url(`/cortesias/${id}`), body)
+      : await this.api.post<CourtesyResponse>(this.context.url('/cortesias'), body);
+    const item = mapCourtesy(data);
+    if (partnershipId === this.context.id())
+      this.records.update((items) =>
+        id ? items.map((existing) => (existing.id === id ? item : existing)) : [...items, item],
+      );
+    return item;
+  }
+  async destine(id: string, quantity: number, destination: string): Promise<void> {
+    await this.api.post(this.context.url(`/cortesias/${id}/destinacoes`), {
+      quantidade: quantity,
+      destinacao: destination.trim(),
+    });
+    await this.load();
   }
 }

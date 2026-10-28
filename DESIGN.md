@@ -71,7 +71,7 @@ components:
 
 A identidade oficial Planeta Atlântida 2027 combina fotografia de palco e fogos com a marca original. A tela de entrada usa essa energia no painel visual e mantém o formulário claro, legível e direto. A tipografia segue a pilha de sistema usada pelo NG-ZORRO.
 
-As imagens vêm do material PA27 fornecido para o desafio. A fotografia ilustra a identidade visual e não deve ser apresentada como registro de uma edição futura. Esta documentação descreve a superfície de login implementada; autenticação real ainda não está integrada.
+As imagens vêm do material PA27 fornecido para o desafio. A fotografia ilustra a identidade visual e não deve ser apresentada como registro de uma edição futura. O login preserva essa identidade e autentica no backend, com ativação de conta e MFA.
 
 **Key Characteristics:**
 - Marca e fotografia oficiais PA27.
@@ -153,5 +153,5 @@ Carrossel local: dissolução de 500ms, cena a cada 3s, aproximação de 3% dura
 
 ### Don't:
 - **Don't** apresentar a fotografia como registro da edição de 2027.
-- **Don't** sugerir que o login já autentica ou concede acesso.
+- **Don't** mostrar confirmação de acesso antes da autenticação e consulta de identidade no backend.
 - **Don't** acrescentar cadastro ou recuperação de senha com destinos ainda inexistentes.

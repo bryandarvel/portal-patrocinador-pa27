@@ -1,20 +1,36 @@
-### Variáveis
+### Exemplos manuais. Use somente contas sintéticas no ambiente local.
 @baseUrl = http://localhost:8080
-@email = gabrielbarceloz256@gmail.com
-@senha = 123456
+@adminEmail = admin@portal.local
+@adminSenha = PREENCHA_COM_PORTAL_BOOTSTRAP_PASSWORD_DO_ENV_LOCAL
+@adminToken = COLE_O_TOKEN_DO_LOGIN_ADMINISTRATIVO
+@email = patrocinador@example.test
+@senha = DEFINA_UMA_SENHA_DE_TESTE_COM_12_A_72_BYTES
+@patrocinadorToken = COLE_O_TOKEN_DO_LOGIN_DO_PATROCINADOR
 
-### 1. Cadastrar um novo usuário
+### 1. Login do administrador criado pelo bootstrap
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "senha": "{{adminSenha}}"
+}
+
+### 2. RBS convida uma conta de patrocinador
 POST {{baseUrl}}/api/auth/cadastro
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
-  "nome": "Gabriel Teste",
+  "nome": "Patrocinador de teste",
   "email": "{{email}}",
-  "senha": "{{senha}}",
-  "role": "ADMIN_RBS"
+  "senha": "{{senha}}"
 }
 
-### 2. Fazer login
+### 3. Ativar com o token da caixa local http://localhost:8025
+GET {{baseUrl}}/api/auth/verificar?token=COLE_O_TOKEN_DA_MENSAGEM_LOCAL
+
+### 4. Login da conta ativa
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
@@ -23,14 +39,19 @@ Content-Type: application/json
   "senha": "{{senha}}"
 }
 
-### 3. Verificar e-mail (Cole o token que chegou no Mailtrap)
-GET {{baseUrl}}/api/auth/verificar?token=COLE-O-TOKEN-AQUI
+### 5. Identidade e parcerias autorizadas
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{patrocinadorToken}}
 
-### 4. Fazer login novamente (agora com a conta ativa)
-POST {{baseUrl}}/api/auth/login
+### 6. Catálogo de cotas administrado pela RBS
+GET {{baseUrl}}/api/cotas
+Authorization: Bearer {{adminToken}}
+
+### 7. Concluir MFA usando o desafio devolvido pelo login (HTTP 202)
+POST {{baseUrl}}/api/auth/validar-mfa
 Content-Type: application/json
 
 {
-  "email": "{{email}}",
-  "senha": "{{senha}}"
+  "challenge": "COLE_O_DESAFIO_DO_LOGIN",
+  "codigo": "COLE_O_CODIGO_DO_AUTENTICADOR"
 }

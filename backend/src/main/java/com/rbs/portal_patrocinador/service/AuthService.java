@@ -1,139 +1,108 @@
 package com.rbs.portal_patrocinador.service;
 
-import com.rbs.portal_patrocinador.entity.LoginHistory;
+import com.rbs.portal_patrocinador.dto.CadastroRequest;
+import com.rbs.portal_patrocinador.dto.ConviteUsuarioRequest;
+import com.rbs.portal_patrocinador.entity.Role;
 import com.rbs.portal_patrocinador.entity.Usuario;
-import com.rbs.portal_patrocinador.repository.LoginHistoryRepository;
 import com.rbs.portal_patrocinador.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.rbs.portal_patrocinador.security.CurrentUser;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
+import org.springframework.web.server.ResponseStatusException;
+import java.time.Duration;
+import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
 public class AuthService {
+    private static final String INVALID_LOGIN = "Credenciais inválidas";
+    private final UsuarioRepository usuarios;
+    private final EmailService email;
+    private final MfaService mfa;
+    private final TokenService tokens;
+    private final PasswordEncoder passwords;
+    private final CurrentUser current;
+    private final Duration verificationTtl;
 
-    // Injeções de dependência
-    @Autowired private GeoLocationService geoLocationService;
-    @Autowired private LoginHistoryRepository loginHistoryRepository;
-    @Autowired private EmailService emailService;
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private MfaService mfaService;
-    @Autowired private TokenService tokenService;
-    @Autowired private PasswordEncoder passwordEncoder;
-
-    public String login(String email, String senha, String ipAddress) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-        // 1. Validar senha com BCrypt
-        if (senha == null || !passwordEncoder.matches(senha, usuario.getSenha())) {
-            throw new RuntimeException("Senha inválida");
-        }
-
-        // 2. Verificar se 2FA está ativo
-        if (usuario.isMfaEnabled()) {
-            return "MFA_REQUIRED";
-        }
-
-        // 3. Verificação de Distância de IP
-        double[] coordsAtuais = geoLocationService.getCoordinates(ipAddress);
-        Optional<LoginHistory> ultimoLogin = loginHistoryRepository.findTopByUsuarioOrderByTimestampDesc(usuario);
-
-        if (ultimoLogin.isPresent()) {
-            LoginHistory ultimo = ultimoLogin.get();
-            double distancia = geoLocationService.calculateDistance(
-                    ultimo.getLatitude(), ultimo.getLongitude(),
-                    coordsAtuais[0], coordsAtuais[1]);
-
-            if (distancia > 500 && ultimo.getTimestamp().isAfter(LocalDateTime.now().minusHours(2))) {
-                String tokenSuspeito = UUID.randomUUID().toString();
-                usuario.setTokenVerificacao(tokenSuspeito);
-                usuarioRepository.save(usuario);
-
-                // emailService.enviarEmailVerificacao(email, tokenSuspeito);
-                return "SUSPICIOUS_LOGIN_EMAIL_SENT";
-            }
-        }
-
-        // 4. Salva o histórico e gera o JWT real
-        LoginHistory novoLogin = new LoginHistory();
-        novoLogin.setUsuario(usuario);
-        novoLogin.setIpAddress(ipAddress);
-        novoLogin.setLatitude(coordsAtuais[0]);
-        novoLogin.setLongitude(coordsAtuais[1]);
-        novoLogin.setTimestamp(LocalDateTime.now());
-        loginHistoryRepository.save(novoLogin);
-
-        return tokenService.gerarToken(usuario);
+    public AuthService(UsuarioRepository usuarios, EmailService email, MfaService mfa,
+                       TokenService tokens, PasswordEncoder passwords, CurrentUser current,
+                       @Value("${portal.verification-ttl}") Duration verificationTtl) {
+        if (verificationTtl.isNegative() || verificationTtl.isZero()) throw new IllegalArgumentException("Prazo de verificação inválido");
+        this.usuarios = usuarios;
+        this.email = email;
+        this.mfa = mfa;
+        this.tokens = tokens;
+        this.passwords = passwords;
+        this.current = current;
+        this.verificationTtl = verificationTtl;
     }
 
     @Transactional
-    public Usuario cadastrar(Usuario usuario) {
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
-            throw new RuntimeException("E-mail já cadastrado!");
-        }
+    public void cadastrar(CadastroRequest request) {
+        current.requireAdmin();
+        if (request.role() != null && request.role() != Role.ADMIN_PATROCINADOR)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Papel inválido");
+        criarUsuario(request.nome(), request.email(), request.senha(), Role.ADMIN_PATROCINADOR);
+    }
 
-        // CRIPTOGRAFA A SENHA ANTES DE SALVAR
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+    @Transactional
+    public void convidar(ConviteUsuarioRequest request) {
+        current.requireAdmin();
+        criarUsuario(request.nome(), request.email(), request.senha(), request.role());
+    }
 
-        String token = UUID.randomUUID().toString();
-        usuario.setTokenVerificacao(token);
-        usuario.setAtivo(false);
-
-        Usuario usuarioSalvo = usuarioRepository.save(usuario);
-
-        emailService.enviarEmailVerificacao(usuario.getEmail(), token);
-
-        return usuarioSalvo;
+    private void criarUsuario(String nome, String emailAddress, String senha, Role role) {
+        if (role == null || nome == null || nome.isBlank() || emailAddress == null || emailAddress.isBlank()
+                || senha == null || senha.length() < 12 || senha.getBytes(StandardCharsets.UTF_8).length > 72)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dados de convite inválidos");
+        String normalizedEmail = emailAddress.trim().toLowerCase(Locale.ROOT);
+        if (usuarios.findByEmail(normalizedEmail).isPresent())
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
+        Usuario user = new Usuario();
+        user.setNome(nome.trim());
+        user.setEmail(normalizedEmail);
+        user.setSenha(passwords.encode(senha));
+        user.setRole(role);
+        user.setAtivo(false);
+        String verificationToken = UUID.randomUUID().toString();
+        user.setTokenVerificacao(verificationToken);
+        user.setTokenVerificacaoExpiresAt(Instant.now().plus(verificationTtl));
+        usuarios.save(user);
+        email.enviarEmailVerificacao(normalizedEmail, verificationToken);
     }
 
     @Transactional
     public void verificarEmail(String token) {
-        Usuario usuario = usuarioRepository.findByTokenVerificacao(token)
-                .orElseThrow(() -> new RuntimeException("Token inválido ou expirado."));
-
-        usuario.setAtivo(true);
-        usuario.setTokenVerificacao(null);
-        usuarioRepository.save(usuario);
+        Usuario user = usuarios.findByTokenVerificacao(token).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido ou expirado"));
+        if (user.getTokenVerificacaoExpiresAt() == null || !user.getTokenVerificacaoExpiresAt().isAfter(Instant.now()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token inválido ou expirado");
+        user.setAtivo(true);
+        user.setTokenVerificacao(null);
+        user.setTokenVerificacaoExpiresAt(null);
     }
 
-    @Transactional
-    public String confirmarLoginSuspeito(String token) {
-        Usuario usuario = usuarioRepository.findByTokenVerificacao(token)
-                .orElseThrow(() -> new RuntimeException("Token de confirmação inválido ou expirado."));
-
-        usuario.setTokenVerificacao(null);
-        usuarioRepository.save(usuario);
-
-        return tokenService.gerarToken(usuario);
+    public LoginResult login(String email, String senha) {
+        Usuario user = email == null ? null : usuarios.findByEmail(email.trim().toLowerCase(Locale.ROOT)).orElse(null);
+        if (user == null || !user.isAtivo() || senha == null || senha.getBytes(StandardCharsets.UTF_8).length > 72
+                || !passwords.matches(senha, user.getSenha()))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, INVALID_LOGIN);
+        if (user.isMfaEnabled()) return new LoginResult("MFA_REQUIRED", null, tokens.gerarDesafioMfa(user));
+        return new LoginResult("AUTHENTICATED", tokens.gerarToken(user), null);
     }
 
-    @Transactional
-    public String validarMfa(String email, String codigo, String ipAddress) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-        if (usuario.getMfaSecret() == null) {
-            throw new RuntimeException("MFA não configurado para este usuário.");
-        }
-
-        if (!mfaService.verifyCode(usuario.getMfaSecret(), codigo)) {
-            throw new RuntimeException("Código 2FA inválido.");
-        }
-
-        double[] coords = geoLocationService.getCoordinates(ipAddress);
-        LoginHistory novoLogin = new LoginHistory();
-        novoLogin.setUsuario(usuario);
-        novoLogin.setIpAddress(ipAddress);
-        novoLogin.setLatitude(coords[0]);
-        novoLogin.setLongitude(coords[1]);
-        novoLogin.setTimestamp(LocalDateTime.now());
-        loginHistoryRepository.save(novoLogin);
-
-        return tokenService.gerarToken(usuario);
+    public String validarMfa(String challenge, String code) {
+        UUID userId = challenge == null ? null : tokens.validarDesafioMfa(challenge);
+        Usuario user = userId == null ? null : usuarios.findById(userId).orElse(null);
+        if (user == null || !userId.equals(user.getId()) || !user.isAtivo() || !user.isMfaEnabled() || user.getMfaSecret() == null ||
+                code == null || !mfa.verifyCode(user.getMfaSecret(), code))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, INVALID_LOGIN);
+        return tokens.gerarToken(user);
     }
+
+    public record LoginResult(String status, String token, String challenge) {}
 }

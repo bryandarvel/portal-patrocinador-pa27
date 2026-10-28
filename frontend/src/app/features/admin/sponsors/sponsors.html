@@ -1,119 +1,449 @@
 <div class="admin-page">
-  <a class="skip-link" href="/previa/rbs/patrocinadores#sponsors-content" (click)="$event.preventDefault(); mainContent.focus()">Ir para o conteúdo</a>
+  <a class="skip-link" href="#sponsors-content">Ir para o conteúdo</a>
   <header class="admin-header">
     <img src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="64" height="64" />
     <p class="portal-brand">Portal do Patrocinador</p>
-    <span class="role-label">Admin RBS</span>
-    <button nz-button class="pill notifications-button" (click)="dialog.set('notifications')">Notificações</button>
-    <a nz-button class="pill exit-button" routerLink="/login">Sair</a>
+    <a class="role-label" routerLink="/conta" aria-label="Minha conta"
+      >{{ session.user()?.nome }} · {{ admin() ? 'Admin RBS' : 'Patrocinador' }}</a
+    ><button nz-button class="pill exit-button" type="button" (click)="logout()">Sair</button>
   </header>
-
-  <main #mainContent id="sponsors-content" tabindex="-1">
+  <main id="sponsors-content">
     <div class="introduction">
       <div class="heading-copy">
-        <p class="eyebrow">Gestão RBS / Planeta Atlântida 2027</p>
-        <h1>Patrocinadores</h1>
-        <p class="intro-text">Encontre uma parceria para acompanhar materiais, entregas e documentos.</p>
+        <h1>{{ admin() ? 'Patrocinadores' : 'Parcerias' }}</h1>
+        <p class="intro-text">
+          Selecione uma parceria para acompanhar materiais, entregas e documentos.
+        </p>
       </div>
-      <div class="festival-card" aria-hidden="true"><p>Juntos, fazemos<br />o Planeta acontecer.</p><div class="checker"></div></div>
+      <div class="festival-card" aria-hidden="true">
+        <p>Juntos, fazemos<br />o Planeta acontecer.</p>
+        <div class="checker"></div>
+      </div>
     </div>
-
     <div class="search-and-register">
-      <form class="search-form field" role="search" aria-label="Patrocinadores" (submit)="$event.preventDefault(); search()">
-        <label for="sponsor-query">Buscar patrocinador</label>
-        <input nz-input id="sponsor-query" type="search" [formControl]="searchField" placeholder="Nome do patrocinador ou cota" enterkeyhint="search" aria-describedby="search-help" />
-        <span id="search-help" class="visually-hidden">Digite o nome ou a cota e pressione Enter.</span>
+      <form class="search-form field" role="search" (submit)="$event.preventDefault(); search()">
+        <label for="sponsor-query">Buscar parceria</label
+        ><input
+          nz-input
+          id="sponsor-query"
+          type="search"
+          [formControl]="searchField"
+          placeholder="Nome do patrocinador"
+        />
       </form>
-      <button nz-button class="pill dark-button register-button" (click)="openRegistration()">Cadastrar patrocinador</button>
+      @if (admin()) {
+        <button
+          nz-button
+          class="pill dark-button register-button"
+          type="button"
+          (click)="openRegistration()"
+        >
+          Cadastrar patrocinador
+        </button>
+      }
     </div>
-
-    <div class="table-scroll" role="region" aria-label="Lista de patrocinadores" tabindex="0">
+    @if (admin()) {
+      <div class="search-and-register">
+        <button nz-button class="pill" type="button" (click)="openQuotas()">
+          Cotas e benefícios</button
+        ><button nz-button class="pill" type="button" (click)="dialog.set('team')">
+          Convidar equipe
+        </button>
+      </div>
+    }
+    @if (api.error()) {
+      <p class="field-error" role="alert">{{ api.error() }}</p>
+    }
+    @if (api.pending() > 0) {
+      <p role="status">Carregando dados...</p>
+    }
+    <div
+      class="table-scroll"
+      role="region"
+      aria-label="Lista de parcerias"
+      tabindex="0"
+      [attr.aria-busy]="api.pending() > 0"
+    >
       <table>
-        <thead><tr><th scope="col">Patrocinador</th><th scope="col">Cota</th><th scope="col">Documentos</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
+        <thead>
+          <tr>
+            <th scope="col">Patrocinador</th>
+            <th scope="col">Cota</th>
+            <th scope="col">Edição</th>
+            <th scope="col">Ação</th>
+          </tr>
+        </thead>
         <tbody>
-          @for (sponsor of preview.sponsors(); track sponsor.id) {
+          @for (s of preview.sponsors(); track s.id) {
             <tr>
-              <th scope="row"><div class="sponsor-identity"><span [class]="'initial ' + sponsor.color" aria-hidden="true">{{ sponsor.initial }}</span><span>{{ sponsor.name }}</span></div></th>
-              <td class="quota-cell">{{ sponsor.quota }}</td>
-              <td [class.pending]="sponsor.id === 'amarelo' && !preview.mivReceived()" [class.received]="sponsor.createdLocally || (sponsor.id === 'amarelo' && preview.mivReceived()) || (sponsor.id === 'roxo' && preview.roxoDocumentPublished()) || (sponsor.id === 'verde' && preview.verdeDocumentPublished())">
-                @if (sponsor.createdLocally) { Acesso cadastrado }
-                @else if (sponsor.id === 'amarelo') { {{ preview.mivReceived() ? 'Documentação recebida' : 'MIV pendente' }} }
-                @else if ((sponsor.id === 'roxo' && preview.roxoDocumentPublished()) || (sponsor.id === 'verde' && preview.verdeDocumentPublished())) { Documentação recebida }
-                @else { Nenhum documento informado }
-              </td>
+              <th scope="row">
+                <div class="sponsor-identity">
+                  <span class="initial yellow" aria-hidden="true">{{
+                    s.name.charAt(0).toLocaleUpperCase('pt-BR')
+                  }}</span
+                  ><span>{{ s.name }}</span>
+                </div>
+              </th>
+              <td class="quota-cell">{{ s.quota }}</td>
+              <td>{{ s.edition }}</td>
               <td>
-                @if (sponsor.createdLocally) {
-                  <button nz-button class="pill open-button" (click)="showAccess(sponsor)" [attr.aria-label]="'Ver acesso de ' + sponsor.name">Ver acesso</button>
-                } @else if (sponsor.id === 'amarelo') {
-                  <a nz-button class="pill open-button" routerLink="/previa/rbs/amarelo/perfil" [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</a>
-                } @else if (sponsor.id === 'roxo' || sponsor.id === 'verde') {
-                  <a nz-button class="pill open-button" [routerLink]="'/previa/rbs/' + sponsor.id + '/perfil'" [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</a>
-                } @else {
-                  <button nz-button class="pill open-button" aria-disabled="true" title="A página administrativa desta parceria será construída em uma próxima etapa." [attr.aria-label]="'Abrir parceria de ' + sponsor.name">Abrir parceria</button>
-                }
+                <a
+                  nz-button
+                  class="pill open-button"
+                  [routerLink]="(admin() ? '/rbs/parcerias/' : '/parcerias/') + s.id + '/perfil'"
+                  [attr.aria-label]="'Abrir parceria de ' + s.name"
+                  >Abrir parceria</a
+                >
               </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" role="status">Nenhuma parceria encontrada.</td>
             </tr>
           }
         </tbody>
       </table>
     </div>
-    <p class="preview-note">Prévia com dados fictícios. Cadastros ficam somente em memória, sem criar contas ou enviar e-mails. Recarregar restaura os exemplos. Os perfis administrativos dos três exemplos estão disponíveis.</p>
+    @if (preview.total() > 50) {
+      <div class="search-and-register">
+        <button
+          nz-button
+          class="pill"
+          type="button"
+          (click)="search(preview.page() - 1)"
+          [disabled]="preview.page() === 0 || api.pending() > 0"
+        >
+          Anterior</button
+        ><span>Página {{ preview.page() + 1 }} · {{ preview.total() }} parcerias</span
+        ><button
+          nz-button
+          class="pill"
+          type="button"
+          (click)="search(preview.page() + 1)"
+          [disabled]="!hasMore() || api.pending() > 0"
+        >
+          Próxima
+        </button>
+      </div>
+    }
+    @if (api.notice()) {
+      <p role="status">{{ api.notice() }}</p>
+    }
   </main>
 </div>
-
-<nz-modal #sponsorsModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="closeDialog()" (nzAfterOpen)="labelDialog(sponsorsModal)"
-  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #dialogTitle><h2 #dialogHeading id="sponsors-dialog-title" class="dialog-title" tabindex="-1">{{ title() }}</h2></ng-template>
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-      @switch (dialog()) {
-        @case ('search') {
-          <p>{{ query() ? 'Resultado para “' + query() + '”' : 'Todos os patrocinadores' }}</p>
-          @for (sponsor of results(); track sponsor.id) {
-            @if (sponsor.createdLocally) {
-              <button nz-button class="pill dark-button" (click)="showAccess(sponsor)">Ver acesso de {{ sponsor.name }}</button>
-            } @else if (sponsor.id === 'amarelo') {
-              <a nz-button class="pill dark-button open-result" routerLink="/previa/rbs/amarelo/perfil" (click)="closeDialog()">Abrir {{ sponsor.name }}</a>
-            } @else if (sponsor.id === 'roxo' || sponsor.id === 'verde') {
-              <a nz-button class="pill dark-button open-result" [routerLink]="'/previa/rbs/' + sponsor.id + '/perfil'" (click)="closeDialog()">Abrir {{ sponsor.name }}</a>
-            } @else {
-              <button nz-button class="pill dark-button" aria-disabled="true" title="Página administrativa disponível em uma próxima etapa">Abrir {{ sponsor.name }}</button>
-            }
-          } @empty { <p role="status">Nenhum patrocinador encontrado. Tente outro nome ou cota.</p> }
-          @if (results().length) { <p class="preview-note">Os três exemplos têm páginas administrativas próprias.</p> }
-          <button nz-button class="pill dark-button" (click)="closeDialog()">Voltar à lista</button>
-        }
-        @case ('register') {
-          <p>Associe a parceria e os dados de acesso.</p>
-          <form class="registration-form" [formGroup]="registration" (ngSubmit)="register()">
-            <div class="field"><label for="sponsor-name">Nome do patrocinador</label><input nz-input id="sponsor-name" formControlName="name" placeholder="Cliente Coral" autocomplete="off" [attr.aria-invalid]="invalid('name')" [attr.aria-describedby]="invalid('name') ? 'name-error' : null" />
-              @if (invalid('name')) { <p class="field-error" id="name-error">Informe o nome do patrocinador.</p> }</div>
-            <div class="field"><label for="sponsor-quota">Cota / plano</label><input nz-input id="sponsor-quota" formControlName="quota" placeholder="Master" [attr.aria-invalid]="invalid('quota')" [attr.aria-describedby]="invalid('quota') ? 'quota-error' : null" />
-              @if (invalid('quota')) { <p class="field-error" id="quota-error">Informe a cota ou o plano.</p> }</div>
-            <div class="field"><label for="sponsor-email">E-mail de acesso</label><input nz-input id="sponsor-email" formControlName="email" type="email" placeholder="coral@example.com" autocomplete="off" [attr.aria-invalid]="invalid('email')" [attr.aria-describedby]="invalid('email') ? 'email-error' : null" />
-              @if (invalid('email')) { <p class="field-error" id="email-error">Informe um e-mail válido.</p> }</div>
-            <div class="field"><label for="sponsor-password">Senha inicial</label><input nz-input id="sponsor-password" formControlName="password" type="password" autocomplete="new-password" placeholder="••••••••••••" [attr.aria-invalid]="invalid('password')" [attr.aria-describedby]="invalid('password') ? 'password-error' : 'registration-note'" />
-              @if (invalid('password')) { <p class="field-error" id="password-error">Informe uma senha fictícia para testar.</p> }</div>
-            <p>O acesso será fornecido diretamente pela equipe RBS.</p>
-            <p id="registration-note" class="preview-note">Simulação: use dados fictícios. A senha é descartada ao concluir ou fechar; nenhuma conta será criada.</p>
-            <button nz-button type="submit" class="pill dark-button">Cadastrar patrocinador</button>
-          </form>
-        }
-        @case ('registered') {
-          <p>{{ registered()?.name }} · Cota {{ registered()?.quota }}</p>
-          <span class="success-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Acesso simulado</span>
-          <p class="access-email">{{ registered()?.email }}</p>
-          <p>Cadastro demonstrativo concluído. Nenhuma conta ou credencial real foi criada.</p>
-          <button nz-button class="pill dark-button" (click)="closeDialog()">Voltar à lista</button>
-        }
-        @case ('notifications') {
-          @if (!preview.mivReceived()) {
-            <div class="notification-preview"><h3>Manual de identidade visual pendente</h3><p>Cliente Amarelo · Envie o MIV em Aplicações de marca.</p><a nz-button class="pill open-result" routerLink="/previa/rbs/amarelo/aplicacoes-de-marca" (click)="closeDialog()">Ver pendência</a></div>
-          } @else { <p>A pendência do manual de identidade visual foi resolvida.</p> }
-          <button nz-button class="pill dark-button" (click)="closeDialog()">Concluir</button>
+<nz-modal
+  #sponsorsModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="closeDialog()"
+  (nzAfterOpen)="labelDialog(sponsorsModal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+  ><ng-template #dialogTitle
+    ><h2 #dialogHeading id="sponsors-dialog-title" class="dialog-title" tabindex="-1">
+      {{ title() }}
+    </h2></ng-template
+  ><ng-template #closeIcon><span aria-hidden="true">×</span></ng-template
+  ><ng-container *nzModalContent
+    ><div class="dialog-content">
+      @if (dialog() === 'register') {
+        <form class="registration-form" [formGroup]="registration" (ngSubmit)="register()">
+          <p>Associe a parceria a uma cota e um contato patrocinador.</p>
+          <div class="field">
+            <label for="sponsor-name">Nome do patrocinador</label
+            ><input
+              nz-input
+              id="sponsor-name"
+              formControlName="name"
+              required
+              maxlength="200"
+              [attr.aria-invalid]="invalid('name')"
+            />
+          </div>
+          <div class="field">
+            <label for="sponsor-edition">Edição</label
+            ><input
+              nz-input
+              id="sponsor-edition"
+              formControlName="edition"
+              required
+              maxlength="80"
+              [attr.aria-invalid]="invalid('edition')"
+            />
+          </div>
+          <div class="field">
+            <label for="sponsor-quota">Cota / plano</label
+            ><select
+              id="sponsor-quota"
+              formControlName="quotaId"
+              required
+              [attr.aria-invalid]="invalid('quotaId')"
+            >
+              <option value="">Selecione uma cota</option>
+              @for (q of preview.quotas(); track q.id) {
+                <option [value]="q.id">{{ q.nome }}</option>
+              }
+            </select>
+          </div>
+          @if (!preview.quotas().length) {
+            <p>Nenhuma cota cadastrada. Use Cotas e benefícios primeiro.</p>
+          }
+          <div class="field">
+            <label for="sponsor-contact">Nome do contato</label
+            ><input
+              nz-input
+              id="sponsor-contact"
+              formControlName="contactName"
+              required
+              maxlength="120"
+              [attr.aria-invalid]="invalid('contactName')"
+            />
+          </div>
+          <div class="field">
+            <label for="sponsor-email">E-mail do contato</label
+            ><input
+              nz-input
+              id="sponsor-email"
+              type="email"
+              formControlName="email"
+              required
+              maxlength="254"
+              [attr.aria-invalid]="invalid('email')"
+            />
+          </div>
+          <div class="field">
+            <label for="sponsor-password">Senha inicial para novo acesso</label
+            ><input
+              nz-input
+              id="sponsor-password"
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+              aria-describedby="password-help"
+            />
+            <p id="password-help">
+              12 a 128 caracteres e até 72 bytes UTF-8. Dispense se o contato já tiver acesso.
+            </p>
+          </div>
+          @if (partial()) {
+            <p role="status">{{ partial() }}</p>
+          }
+          @if (localError()) {
+            <p class="field-error" role="alert">{{ localError() }}</p>
+          }
+          <button
+            nz-button
+            class="pill dark-button"
+            type="submit"
+            [disabled]="busy() || !preview.quotas().length"
+          >
+            Cadastrar parceria
+          </button>
+        </form>
+      }
+      @if (dialog() === 'registered') {
+        <p role="status">{{ registered()?.name }} · {{ registered()?.quota }} cadastrada.</p>
+        <a
+          nz-button
+          class="pill dark-button"
+          [routerLink]="'/rbs/parcerias/' + registered()?.id + '/perfil'"
+          (click)="closeDialog()"
+          >Abrir parceria</a
+        >
+      }
+      @if (dialog() === 'quotas') {
+        <button nz-button class="pill dark-button" type="button" (click)="openQuota()">
+          Nova cota
+        </button>
+        @for (q of preview.quotas(); track q.id) {
+          <div class="history-version">
+            <strong>{{ q.nome }}</strong>
+            <p>
+              Versão {{ q.versao }} · {{ q.areas.length }} áreas ·
+              {{ q.beneficios.length }} benefícios
+            </p>
+            <button nz-button class="pill" type="button" (click)="openQuota(q)">Editar cota</button>
+          </div>
+        } @empty {
+          <p>Nenhuma cota cadastrada.</p>
         }
       }
-    </div>
-  </ng-container>
-</nz-modal>
+      @if (dialog() === 'quota') {
+        <div class="registration-form">
+          <div class="field">
+            <label for="quota-name">Nome da cota</label
+            ><input nz-input id="quota-name" [formControl]="quotaName" required maxlength="120" />
+          </div>
+          <fieldset>
+            <legend>Áreas da cota</legend>
+            @for (a of areas; track a.key) {
+              <label class="area-choice"
+                ><input
+                  type="checkbox"
+                  [checked]="quotaAreas().includes(a.key)"
+                  [disabled]="a.key === 'perfil'"
+                  (change)="toggleArea(a.key)"
+                />{{ a.label }}</label
+              >
+            }
+          </fieldset>
+          <h3>Modelos de entrega</h3>
+          @for (d of quotaDeliveries(); track $index) {
+            <fieldset>
+              <legend>Entrega {{ $index + 1 }}</legend>
+              <label [for]="'delivery-area-' + $index">Área</label
+              ><select
+                [id]="'delivery-area-' + $index"
+                [value]="d.area"
+                (change)="changeDelivery($index, 'area', $any($event.target).value)"
+              >
+                @for (a of areas; track a.key) {
+                  @if (quotaAreas().includes(a.key)) {
+                    <option [value]="a.key">{{ a.label }}</option>
+                  }
+                }</select
+              ><label [for]="'delivery-title-' + $index">Título</label
+              ><input
+                [id]="'delivery-title-' + $index"
+                [value]="d.titulo"
+                (input)="changeDelivery($index, 'titulo', $any($event.target).value)"
+                maxlength="200"
+                required
+              /><label [for]="'delivery-desc-' + $index">Descrição</label
+              ><textarea
+                [id]="'delivery-desc-' + $index"
+                [value]="d.descricao"
+                (input)="changeDelivery($index, 'descricao', $any($event.target).value)"
+                maxlength="2000"
+              ></textarea
+              ><button type="button" (click)="removeDelivery($index)">Remover entrega</button>
+            </fieldset>
+          }
+          <button nz-button class="pill" type="button" (click)="addDelivery()">
+            Adicionar entrega
+          </button>
+          <h3>Benefícios e limites</h3>
+          @for (b of quotaBenefits(); track $index) {
+            <fieldset>
+              <legend>Benefício {{ $index + 1 }}</legend>
+              <label [for]="'benefit-kind-' + $index">Natureza</label
+              ><select
+                [id]="'benefit-kind-' + $index"
+                [value]="b.natureza"
+                (change)="changeBenefit($index, 'natureza', $any($event.target).value)"
+              >
+                <option value="CORTESIA">Cortesia</option>
+                <option value="CREDENCIAL">Credencial</option></select
+              ><label [for]="'benefit-type-' + $index">Tipo</label>
+              @if (b.natureza === 'CORTESIA') {
+                <select
+                  [id]="'benefit-type-' + $index"
+                  [value]="b.tipo"
+                  (change)="changeBenefit($index, 'tipo', $any($event.target).value)"
+                >
+                  <option value="passaporte">Passaporte</option>
+                  <option value="sexta">Sexta</option>
+                  <option value="sabado">Sábado</option>
+                </select>
+              } @else {
+                <input
+                  [id]="'benefit-type-' + $index"
+                  [value]="b.tipo"
+                  (input)="changeBenefit($index, 'tipo', $any($event.target).value)"
+                  maxlength="120"
+                  required
+                />
+              }
+              <label [for]="'benefit-sector-' + $index">Setor</label
+              ><input
+                [id]="'benefit-sector-' + $index"
+                [value]="b.setor"
+                (input)="changeBenefit($index, 'setor', $any($event.target).value)"
+                maxlength="120"
+                required
+              />
+              @if (b.natureza === 'CREDENCIAL') {
+                <label [for]="'benefit-audience-' + $index">Público</label
+                ><input
+                  [id]="'benefit-audience-' + $index"
+                  [value]="b.publico"
+                  (input)="changeBenefit($index, 'publico', $any($event.target).value)"
+                  maxlength="120"
+                  required
+                />
+              }
+              <label [for]="'benefit-count-' + $index">Quantidade</label
+              ><input
+                [id]="'benefit-count-' + $index"
+                type="number"
+                min="0"
+                step="1"
+                [value]="b.quantidade"
+                (input)="changeBenefit($index, 'quantidade', $any($event.target).value)"
+                required
+              /><button type="button" (click)="removeBenefit($index)">Remover benefício</button>
+            </fieldset>
+          }
+          <button nz-button class="pill" type="button" (click)="addBenefit()">
+            Adicionar benefício
+          </button>
+          @if (localError()) {
+            <p class="field-error" role="alert">{{ localError() }}</p>
+          }
+          <button
+            nz-button
+            class="pill dark-button"
+            type="button"
+            (click)="saveQuota()"
+            [disabled]="busy()"
+          >
+            Salvar cota
+          </button>
+        </div>
+      }
+      @if (dialog() === 'team') {
+        <form class="registration-form" [formGroup]="team" (ngSubmit)="inviteTeam()">
+          <p>Convide um responsável da equipe RBS.</p>
+          <div class="field">
+            <label for="team-name">Nome</label
+            ><input nz-input id="team-name" formControlName="name" required maxlength="120" />
+          </div>
+          <div class="field">
+            <label for="team-email">E-mail</label
+            ><input
+              nz-input
+              id="team-email"
+              type="email"
+              formControlName="email"
+              required
+              maxlength="254"
+            />
+          </div>
+          <div class="field">
+            <label for="team-password">Senha inicial</label
+            ><input
+              nz-input
+              id="team-password"
+              type="password"
+              formControlName="password"
+              required
+              autocomplete="new-password"
+              aria-describedby="team-password-help"
+            />
+            <p id="team-password-help">12 a 128 caracteres e até 72 bytes UTF-8.</p>
+          </div>
+          @if (localError()) {
+            <p class="field-error" role="alert">{{ localError() }}</p>
+          }
+          <button nz-button class="pill dark-button" type="submit" [disabled]="busy()">
+            Convidar equipe
+          </button>
+        </form>
+      }
+    </div></ng-container
+  ></nz-modal
+>

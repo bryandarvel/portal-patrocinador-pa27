@@ -14,3 +14,19 @@
   width: 159px;
   max-width: 100%;
 }
+.dialog-content select {
+  display: block;
+  width: 100%;
+  margin: 8px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #a9a9a9;
+  border-radius: 8px;
+  background: #fff;
+  color: #1b1b1b;
+  font: inherit;
+}
+
+.dialog-content select:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

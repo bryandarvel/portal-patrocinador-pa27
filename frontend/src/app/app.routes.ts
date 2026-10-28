@@ -1,123 +1,151 @@
-import { Routes } from '@angular/router';
-import { clientPreviewRoutes } from './features/admin/client-areas/client-preview.routes';
+import { Route, Routes } from '@angular/router';
+import { homeGuard, partnershipGuard, sessionGuard } from './core/portal-guards';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [homeGuard],
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+  },
   {
     path: 'login',
     title: 'Entrar | Portal do Patrocinador',
-    loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
-    path: 'previa/perfil',
-    title: 'Prévia — Perfil do cliente | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/profile/profile').then(m => m.PartnershipProfile)
+    path: 'verificar',
+    title: 'Ativar conta | Portal do Patrocinador',
+    loadComponent: () => import('./features/auth/account/account').then((m) => m.VerifyAccount),
   },
   {
-    path: 'previa/aplicacoes-de-marca',
-    title: 'Prévia — Aplicações de marca | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/brand/brand').then(m => m.BrandApplications)
+    path: 'conta',
+    title: 'Minha conta | Portal do Patrocinador',
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/auth/account/account').then((m) => m.Account),
   },
   {
-    path: 'previa/midia-e-conteudo',
-    title: 'Prévia — Mídia e conteúdo | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/media/media').then(m => m.PartnershipMedia)
+    path: 'sem-acesso',
+    title: 'Acesso indisponível',
+    loadComponent: () => import('./features/auth/account/account').then((m) => m.AccessUnavailable),
   },
   {
-    path: 'previa/cortesias',
-    title: 'Prévia — Cortesias | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/tickets/tickets').then(m => m.PartnershipTickets)
+    path: 'parcerias',
+    title: 'Suas parcerias',
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/admin/sponsors/sponsors').then((m) => m.RbsSponsors),
   },
   {
-    path: 'previa/credenciamento',
-    title: 'Prévia — Credenciamento | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/staff/staff').then(m => m.PartnershipStaff)
+    path: 'rbs/patrocinadores',
+    title: 'Patrocinadores RBS',
+    data: { admin: true },
+    canActivate: [sessionGuard],
+    loadComponent: () => import('./features/admin/sponsors/sponsors').then((m) => m.RbsSponsors),
   },
+  ...partnershipRoutes(false),
+  ...partnershipRoutes(true),
   {
-    path: 'previa/pesquisa-da-ativacao',
-    title: 'Prévia — Pesquisa da ativação | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/survey/survey').then(m => m.PartnershipSurvey)
+    path: '**',
+    canActivate: [homeGuard],
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
-  {
-    path: 'previa/entregas/logo-no-telao',
-    title: 'Prévia — Logo no telão | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/delivery-detail/delivery-detail').then(m => m.DeliveryDetail)
-  },
-  {
-    path: 'previa/entregas',
-    title: 'Prévia — Entregas da parceria | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/deliveries/deliveries').then(m => m.PartnershipDeliveries)
-  },
-  {
-    path: 'previa/rbs/amarelo/entregas/logo-no-telao',
-    title: 'Prévia — Logo no telão RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/delivery-detail/delivery-detail').then(m => m.RbsLogoDelivery)
-  },
-  {
-    path: 'previa/rbs/amarelo/entregas',
-    title: 'Prévia — Entregas RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/deliveries/deliveries').then(m => m.RbsDeliveries)
-  },
-  {
-    path: 'previa/rbs/amarelo/contrato',
-    title: 'Prévia — Contrato RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/contract/contract').then(m => m.RbsContract)
-  },
-  {
-    path: 'previa/rbs/amarelo/pesquisa-da-ativacao',
-    title: 'Prévia — Pesquisa da ativação RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/survey/survey').then(m => m.RbsSurvey)
-  },
-  {
-    path: 'previa/rbs/amarelo/credenciamento',
-    title: 'Prévia — Credenciamento RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/staff/staff').then(m => m.RbsStaff)
-  },
-  {
-    path: 'previa/rbs/amarelo/cortesias',
-    title: 'Prévia — Cortesias RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/tickets/tickets').then(m => m.RbsTickets)
-  },
-  {
-    path: 'previa/rbs/amarelo/midia-e-conteudo',
-    title: 'Prévia — Mídia e conteúdo RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/media/media').then(m => m.RbsMedia)
-  },
-  {
-    path: 'previa/rbs/amarelo/aplicacoes-de-marca',
-    title: 'Prévia — Aplicações de marca RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/brand/brand').then(m => m.RbsBrandApplications)
-  },
-  {
-    path: 'previa/rbs/amarelo/perfil',
-    title: 'Prévia — Perfil do cliente RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/profile/profile').then(m => m.RbsProfile)
-  },
-  {
-    path: 'previa/rbs/patrocinadores',
-    title: 'Prévia — Patrocinadores RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/sponsors/sponsors').then(m => m.RbsSponsors)
-  },
-  ...clientPreviewRoutes('roxo'),
-  ...clientPreviewRoutes('verde'),
-  {
-    path: 'previa/rbs/amarelo/duvidas-frequentes',
-    title: 'Prévia — Dúvidas frequentes RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/faq/faq').then(m => m.RbsFaq)
-  },
-  {
-    path: 'previa/rbs/amarelo/relatorio-da-parceria',
-    title: 'Prévia — Relatório da parceria RBS | Portal do Patrocinador',
-    loadComponent: () => import('./features/admin/report/report').then(m => m.RbsReport)
-  },
-  {
-    path: 'previa/duvidas-frequentes',
-    title: 'Prévia — Dúvidas frequentes | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/faq/faq').then(m => m.PartnershipFaq)
-  },
-  {
-    path: 'previa/contrato',
-    title: 'Prévia — Contrato | Portal do Patrocinador',
-    loadComponent: () => import('./features/partnership/contract/contract').then(m => m.PartnershipContract)
-  }
 ];
+
+function partnershipRoutes(admin: boolean): Routes {
+  const base = admin ? 'rbs/parcerias/:parceriaId/' : 'parcerias/:parceriaId/';
+  const pages: Routes = [
+    {
+      path: 'perfil',
+      data: { area: 'perfil' },
+      loadComponent: admin
+        ? () => import('./features/admin/profile/profile').then((m) => m.RbsProfile)
+        : () => import('./features/partnership/profile/profile').then((m) => m.PartnershipProfile),
+    },
+    {
+      path: 'aplicacoes-de-marca',
+      data: { area: 'marca' },
+      loadComponent: admin
+        ? () => import('./features/admin/brand/brand').then((m) => m.RbsBrandApplications)
+        : () => import('./features/partnership/brand/brand').then((m) => m.BrandApplications),
+    },
+    {
+      path: 'midia-e-conteudo',
+      data: { area: 'midia' },
+      loadComponent: admin
+        ? () => import('./features/admin/media/media').then((m) => m.RbsMedia)
+        : () => import('./features/partnership/media/media').then((m) => m.PartnershipMedia),
+    },
+    {
+      path: 'cortesias',
+      data: { area: 'cortesias' },
+      loadComponent: admin
+        ? () => import('./features/admin/tickets/tickets').then((m) => m.RbsTickets)
+        : () => import('./features/partnership/tickets/tickets').then((m) => m.PartnershipTickets),
+    },
+    {
+      path: 'credenciamento',
+      data: { area: 'credenciamento' },
+      loadComponent: admin
+        ? () => import('./features/admin/staff/staff').then((m) => m.RbsStaff)
+        : () => import('./features/partnership/staff/staff').then((m) => m.PartnershipStaff),
+    },
+    {
+      path: 'pesquisa-da-ativacao',
+      data: { area: 'pesquisa' },
+      loadComponent: admin
+        ? () => import('./features/admin/survey/survey').then((m) => m.RbsSurvey)
+        : () => import('./features/partnership/survey/survey').then((m) => m.PartnershipSurvey),
+    },
+    {
+      path: 'contrato',
+      data: { area: 'contrato' },
+      loadComponent: admin
+        ? () => import('./features/admin/contract/contract').then((m) => m.RbsContract)
+        : () =>
+            import('./features/partnership/contract/contract').then((m) => m.PartnershipContract),
+    },
+    {
+      path: 'entregas',
+      loadComponent: admin
+        ? () => import('./features/admin/deliveries/deliveries').then((m) => m.RbsDeliveries)
+        : () =>
+            import('./features/partnership/deliveries/deliveries').then(
+              (m) => m.PartnershipDeliveries,
+            ),
+    },
+    {
+      path: 'entregas/:entregaId',
+      loadComponent: admin
+        ? () =>
+            import('./features/admin/delivery-detail/delivery-detail').then(
+              (m) => m.RbsLogoDelivery,
+            )
+        : () =>
+            import('./features/partnership/delivery-detail/delivery-detail').then(
+              (m) => m.DeliveryDetail,
+            ),
+    },
+    {
+      path: 'duvidas-frequentes',
+      loadComponent: admin
+        ? () => import('./features/admin/faq/faq').then((m) => m.RbsFaq)
+        : () => import('./features/partnership/faq/faq').then((m) => m.PartnershipFaq),
+    },
+    ...(admin
+      ? [
+          {
+            path: 'relatorio-da-parceria',
+            loadComponent: () => import('./features/admin/report/report').then((m) => m.RbsReport),
+          },
+        ]
+      : []),
+  ];
+  return pages.map((route): Route => ({
+    ...route,
+    path: base + route.path,
+    data: { ...route.data, admin },
+    canActivate: [partnershipGuard],
+    runGuardsAndResolvers: 'always',
+    title: 'Parceria | Portal do Patrocinador',
+  }));
+}

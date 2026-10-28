@@ -1,24 +1,51 @@
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Component, DestroyRef, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
-import { MaterialSelection, PartnershipPreviewService } from '../../partnership/shared/partnership-preview.service';
+import {
+  deadlineFromLocal,
+  deadlineToLocal,
+  MaterialSelection,
+  PartnershipPreviewService,
+} from '../../partnership/shared/partnership-preview.service';
 import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
-import { LogoDeliveryPreviewService } from '../../partnership/delivery-detail/logo-delivery-preview.service';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
 
-type BrandDialog = 'upload' | 'replace' | 'progress' | 'received' | 'cancelled' | 'history' | 'document' | 'close' | 'reopen' | 'saved';
+type BrandDialog =
+  | 'upload'
+  | 'replace'
+  | 'progress'
+  | 'received'
+  | 'cancelled'
+  | 'history'
+  | 'document'
+  | 'close'
+  | 'reopen'
+  | 'saved'
+  | 'publish';
 
 @Component({
   selector: 'app-rbs-brand-applications',
   imports: [AdminPartnershipShell, RouterLink, NzButtonModule, NzModalModule, DatePipe],
   templateUrl: './brand.html',
-  styleUrls: ['../../partnership/shared/partnership-ui.css', '../../partnership/shared/material-ui.css', '../../partnership/brand/brand.css', './brand.css']
+  styleUrls: [
+    '../../partnership/shared/partnership-ui.css',
+    '../../partnership/shared/material-ui.css',
+    '../../partnership/brand/brand.css',
+    './brand.css',
+  ],
 })
 export class RbsBrandApplications {
   readonly preview = inject(PartnershipPreviewService);
-  readonly logo = inject(LogoDeliveryPreviewService);
+  readonly api = inject(PortalApi);
+  readonly ctx = inject(PortalContext);
+  readonly title = signal('');
+  readonly text = signal('');
+  readonly url = signal('');
+  readonly publicationFile = signal<File | null>(null);
   readonly dialog = signal<BrandDialog | null>(null);
   readonly selected = signal<MaterialSelection | null>(null);
   readonly inputError = signal('');
@@ -27,25 +54,35 @@ export class RbsBrandApplications {
   readonly submissionButton = viewChild<ElementRef<HTMLButtonElement>>('submissionButton');
   readonly dialogTitle = computed(() => {
     switch (this.dialog()) {
-      case 'upload': return 'Enviar manual de identidade visual';
-      case 'replace': return 'Substituir manual de identidade visual';
-      case 'progress': return 'Enviando material';
-      case 'received': return 'Material recebido';
-      case 'cancelled': return 'Operação cancelada';
-      case 'history': return 'Histórico · MIV';
-      case 'close': return 'Encerrar envio de materiais?';
-      case 'reopen': return 'Reabrir envio de materiais?';
-      case 'saved': return 'Alterações salvas';
-      default: return 'Documento da parceria';
+      case 'upload':
+        return 'Enviar manual de identidade visual';
+      case 'replace':
+        return 'Substituir manual de identidade visual';
+      case 'progress':
+        return 'Enviando material';
+      case 'received':
+        return 'Material recebido';
+      case 'cancelled':
+        return 'Operação cancelada';
+      case 'history':
+        return 'Histórico · MIV';
+      case 'close':
+        return 'Encerrar envio de materiais?';
+      case 'reopen':
+        return 'Reabrir envio de materiais?';
+      case 'saved':
+        return 'Alterações salvas';
+      case 'publish':
+        return 'Publicar conteúdo de marca';
+      default:
+        return 'Documento da parceria';
     }
   });
-  private pendingUpload: ReturnType<typeof setTimeout> | undefined;
+  readonly busy = signal(false);
+  readonly deadlineInput = signal('');
+  readonly deadlineError = signal('');
   private focusMaterialsAfterClose = false;
   private focusSubmissionAfterClose = false;
-
-  constructor() {
-    inject(DestroyRef).onDestroy(() => this.stopPendingUpload());
-  }
 
   openUpload(): void {
     if (!this.preview.brandSubmissionsOpen()) return;
@@ -57,14 +94,19 @@ export class RbsBrandApplications {
   selectFile(input: HTMLInputElement): void {
     const file = input.files?.item(0);
     input.value = '';
-    if (!file || !this.preview.brandSubmissionsOpen() || !['upload', 'replace'].includes(this.dialog() ?? '')) return;
+    if (
+      !file ||
+      !this.preview.brandSubmissionsOpen() ||
+      !['upload', 'replace'].includes(this.dialog() ?? '')
+    )
+      return;
     if (file.size === 0) {
       this.selected.set(null);
       this.inputError.set('O arquivo está vazio. Selecione um arquivo com conteúdo.');
       return;
     }
     this.inputError.set('');
-    this.selected.set({ name: file.name, size: file.size });
+    this.selected.set({ name: file.name, size: file.size, file });
     this.focusDialogTitle();
   }
 
@@ -74,24 +116,32 @@ export class RbsBrandApplications {
     this.focusDialogTitle();
   }
 
-  send(): void {
+  async send(): Promise<void> {
     const selection = this.selected();
-    if (!selection || !this.preview.brandSubmissionsOpen() || !['upload', 'replace'].includes(this.dialog() ?? '')) return;
+    if (
+      !selection?.file ||
+      this.busy() ||
+      !this.preview.brandSubmissionsOpen() ||
+      !['upload', 'replace'].includes(this.dialog() ?? '')
+    )
+      return;
+    this.busy.set(true);
     this.dialog.set('progress');
     this.focusDialogTitle();
-    // Duração apenas demonstrativa, igual à transição de um segundo no Figma.
-    this.pendingUpload = setTimeout(() => {
-      this.pendingUpload = undefined;
-      if (!this.preview.brandSubmissionsOpen()) { this.close(); return; }
+    try {
       this.focusMaterialsAfterClose = this.preview.currentMiv() === null;
-      this.preview.recordMiv(selection, 'Admin RBS');
+      await this.preview.recordMiv(selection);
       this.dialog.set('received');
       this.focusDialogTitle();
-    }, 1000);
+    } catch {
+      this.dialog.set(this.preview.currentMiv() ? 'replace' : 'upload');
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   cancel(): void {
-    this.stopPendingUpload();
+    if (this.busy()) return;
     this.selected.set(null);
     this.inputError.set('');
     this.dialog.set('cancelled');
@@ -99,7 +149,7 @@ export class RbsBrandApplications {
   }
 
   close(): void {
-    this.stopPendingUpload();
+    if (this.busy()) return;
     this.selected.set(null);
     this.inputError.set('');
     this.dialog.set(null);
@@ -108,29 +158,94 @@ export class RbsBrandApplications {
   afterClose(): void {
     const target = this.focusMaterialsAfterClose
       ? this.materialsHeading()?.nativeElement
-      : this.focusSubmissionAfterClose ? this.submissionButton()?.nativeElement : null;
+      : this.focusSubmissionAfterClose
+        ? this.submissionButton()?.nativeElement
+        : null;
     this.focusSubmissionAfterClose = false;
     this.focusMaterialsAfterClose = false;
     // Aguarda a restauração de foco do NG-ZORRO; Enviar MIV já não existe após o primeiro envio.
-    if (target) requestAnimationFrame(() => { if (this.dialog() === null) target.focus(); });
+    if (target)
+      requestAnimationFrame(() => {
+        if (this.dialog() === null) target.focus();
+      });
   }
 
   labelDialog(modal: NzModalComponent): void {
     labelPartnershipDialog(modal, 'rbs-brand-dialog-title');
   }
 
-  confirmSubmissionChange(): void {
+  openSubmissionDialog(): void {
+    this.deadlineInput.set(deadlineToLocal(this.preview.deadline()));
+    this.deadlineError.set('');
+    this.dialog.set(this.preview.brandSubmissionsOpen() ? 'close' : 'reopen');
+  }
+  async confirmSubmissionChange(): Promise<void> {
     const dialog = this.dialog();
-    if (dialog !== 'close' && dialog !== 'reopen') return;
-    this.preview.setBrandSubmissionsOpen(dialog === 'reopen');
-    this.focusSubmissionAfterClose = true;
-    this.dialog.set('saved');
-    this.focusDialogTitle();
+    if ((dialog !== 'close' && dialog !== 'reopen') || this.busy()) return;
+    let deadline: string | null;
+    try {
+      deadline = deadlineFromLocal(this.deadlineInput(), dialog === 'reopen');
+      this.deadlineError.set('');
+    } catch (error) {
+      this.deadlineError.set(error instanceof Error ? error.message : 'Prazo inválido.');
+      return;
+    }
+    this.busy.set(true);
+    try {
+      await this.preview.setBrandSubmissionsOpen(dialog === 'reopen', deadline);
+      this.focusSubmissionAfterClose = true;
+      this.dialog.set('saved');
+      this.focusDialogTitle();
+    } catch {
+    } finally {
+      this.busy.set(false);
+    }
   }
 
-  private stopPendingUpload(): void {
-    if (this.pendingUpload !== undefined) clearTimeout(this.pendingUpload);
-    this.pendingUpload = undefined;
+  async download(): Promise<void> {
+    const file = this.preview.currentMiv();
+    if (file?.id)
+      try {
+        await this.preview.download(file.id, file.name);
+      } catch {}
+  }
+  selectPublication(input: HTMLInputElement): void {
+    const file = input.files?.item(0);
+    if (file) {
+      if (!file.size) {
+        this.inputError.set('O arquivo está vazio.');
+        return;
+      }
+      this.publicationFile.set(file);
+      this.inputError.set('');
+    }
+  }
+  async publish(): Promise<void> {
+    if (
+      this.busy() ||
+      !this.title().trim() ||
+      !(this.text().trim() || this.url().trim() || this.publicationFile())
+    ) {
+      this.inputError.set('Informe título e arquivo, texto ou link.');
+      return;
+    }
+    this.busy.set(true);
+    try {
+      await this.preview.publish(
+        this.title().trim(),
+        this.text().trim(),
+        this.url().trim(),
+        this.publicationFile(),
+      );
+      this.title.set('');
+      this.text.set('');
+      this.url.set('');
+      this.publicationFile.set(null);
+      this.dialog.set('saved');
+    } catch {
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   private focusDialogTitle(): void {

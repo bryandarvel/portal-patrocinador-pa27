@@ -1,29 +1,83 @@
-<app-partnership-shell activeArea="04" title="Cortesias"
-  description="Confira as cortesias disponibilizadas para sua parceria, separadas por tipo e setor."
-  pageUrl="/previa/cortesias">
+<app-partnership-shell
+  activeArea="04"
+  title="Cortesias"
+  description="Confira e destine as cortesias da sua parceria."
+>
   <section class="courtesies" aria-labelledby="courtesies-title">
     <h2 id="courtesies-title">Cortesias da parceria</h2>
     <ul class="courtesy-list">
-      @for (courtesy of courtesies(); track courtesy.id) {
+      @for (item of courtesies(); track item.id) {
         <li class="courtesy-item">
-          <article class="courtesy-card" [attr.aria-label]="'Cortesia: ' + courtesy.type + ' · ' + courtesy.sector">
-            <p class="eyebrow">Quantidade disponibilizada</p>
-            <p class="quantity">{{ courtesy.quantity }}</p>
+          <article class="courtesy-card">
+            <p class="quantity">{{ item.quantity }}</p>
             <dl class="courtesy-details">
-              <div><dt class="eyebrow">Tipo</dt><dd>{{ courtesy.type }}</dd></div>
-              <div><dt class="eyebrow">Setor</dt><dd>{{ courtesy.sector }}</dd></div>
+              <div>
+                <dt>Tipo</dt>
+                <dd>{{ item.type }}</dd>
+              </div>
+              <div>
+                <dt>Setor</dt>
+                <dd>{{ item.sector }}</dd>
+              </div>
+              <div>
+                <dt>Disponíveis</dt>
+                <dd>{{ item.quantity - item.allocated }}</dd>
+              </div>
             </dl>
+            @if (item.periodStart) {
+              <p>Período: {{ item.periodStart }} a {{ item.periodEnd }}</p>
+            }
+            @if (item.eventDay) {
+              <p>Dia: {{ item.eventDay }}</p>
+            }
+            @for (destination of item.destinations; track destination.id) {
+              <p>{{ destination.quantidade }} para {{ destination.destinacao }}</p>
+            }
           </article>
-          <button nz-button class="pill destination-button" type="button" disabled aria-disabled="true"
-            [attr.aria-label]="'Destinar cortesias: ' + courtesy.type + ' · ' + courtesy.sector"
-            aria-describedby="tickets-destination-help">Destinar</button>
+          <button
+            nz-button
+            class="pill destination-button"
+            type="button"
+            [disabled]="item.quantity <= item.allocated"
+            (click)="open(item)"
+          >
+            Destinar
+          </button>
         </li>
+      } @empty {
+        <li>Nenhuma cortesia disponibilizada para esta parceria.</li>
       }
     </ul>
   </section>
-  <section class="destination-guidance" aria-labelledby="tickets-destination-title">
-    <h2 id="tickets-destination-title">Destinação de ingressos</h2>
-    <p id="tickets-destination-help">A destinação pelo portal ainda não está disponível. Consulte a equipe RBS sobre o procedimento para indicar os destinatários.</p>
-  </section>
-  <p class="preview-note">Prévia com dados fictícios. As quantidades, os tipos e os setores são exemplos do protótipo e não representam direitos confirmados da cota.</p>
+  @if (selected(); as item) {
+    <section class="destination-guidance" aria-labelledby="destination-title">
+      <h2 id="destination-title">Destinar {{ item.type }} · {{ item.sector }}</h2>
+      <p>Saldo disponível: {{ item.quantity - item.allocated }}</p>
+      <form (ngSubmit)="destine()">
+        <label for="destination-quantity">Quantidade</label
+        ><input
+          id="destination-quantity"
+          name="quantity"
+          type="number"
+          min="1"
+          [max]="item.quantity - item.allocated"
+          step="1"
+          [(ngModel)]="quantity"
+          required
+        /><label for="destination-name">Destinação</label
+        ><input
+          id="destination-name"
+          name="destination"
+          maxlength="500"
+          [(ngModel)]="destination"
+          required
+        /><button nz-button class="pill dark-button" type="submit" [disabled]="saving()">
+          Confirmar destinação</button
+        ><button nz-button class="pill" type="button" (click)="selected.set(null)">Cancelar</button>
+      </form>
+      @if (error()) {
+        <p role="alert" class="field-error">{{ error() }}</p>
+      }
+    </section>
+  }
 </app-partnership-shell>

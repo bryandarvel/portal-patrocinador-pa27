@@ -3,6 +3,7 @@ package com.rbs.portal_patrocinador.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
+import java.time.Instant;
 
 @Entity
 @Table(name = "usuarios")
@@ -23,6 +24,8 @@ public class Usuario {
     private boolean ativo = false;
 
     private String tokenVerificacao;
+
+    private Instant tokenVerificacaoExpiresAt;
 
     private boolean mfaEnabled = false;
 

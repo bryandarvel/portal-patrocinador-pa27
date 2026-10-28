@@ -1,14 +1,32 @@
 <main class="login-page">
-  <section class="festival" aria-label="Imagens do Planeta Atlântida 2027" aria-roledescription="carrossel"
-    (mouseenter)="hovered.set(true)" (mouseleave)="hovered.set(false)" (focusin)="focused.set(true)" (focusout)="leaveCarousel($event)"
-    [class.motion-paused]="paused() || hovered() || focused() || hidden() || helpOpen()">
+  <section
+    class="festival"
+    aria-label="Imagens do Planeta Atlântida 2027"
+    aria-roledescription="carrossel"
+    (mouseenter)="hovered.set(true)"
+    (mouseleave)="hovered.set(false)"
+    (focusin)="focused.set(true)"
+    (focusout)="leaveCarousel($event)"
+    [class.motion-paused]="paused() || hovered() || focused() || hidden() || helpOpen()"
+  >
     @for (slide of slides; track slide.image; let index = $index) {
       <div class="festival-scene" [class.active]="activeSlide() === index" aria-hidden="true">
-        <img class="festival-photo" [src]="slide.image" alt="" [attr.fetchpriority]="index === 0 ? 'high' : 'low'" />
+        <img
+          class="festival-photo"
+          [src]="slide.image"
+          alt=""
+          [attr.fetchpriority]="index === 0 ? 'high' : 'low'"
+        />
       </div>
     }
     <div class="festival-shade"></div>
-    <img class="festival-logo" src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="140" height="140" />
+    <img
+      class="festival-logo"
+      src="/images/pa27-logo.png"
+      alt="Planeta Atlântida 2027"
+      width="140"
+      height="140"
+    />
     <div class="festival-message">
       <div class="festival-checker" aria-hidden="true"></div>
       <p class="festival-slogan">{{ slides[activeSlide()].title }}</p>
@@ -16,12 +34,24 @@
     </div>
     <div class="carousel-controls" aria-label="Controles das imagens">
       @for (slide of slides; track slide.image; let index = $index) {
-        <button class="slide-indicator" type="button" (click)="selectSlide(index)" [class.selected]="activeSlide() === index"
-          [attr.aria-label]="'Mostrar imagem ' + (index + 1) + ': ' + slide.title" [attr.aria-pressed]="activeSlide() === index"><span></span></button>
+        <button
+          class="slide-indicator"
+          type="button"
+          (click)="selectSlide(index)"
+          [class.selected]="activeSlide() === index"
+          [attr.aria-label]="'Mostrar imagem ' + (index + 1) + ': ' + slide.title"
+          [attr.aria-pressed]="activeSlide() === index"
+        >
+          <span></span>
+        </button>
       }
-      <button class="carousel-pause" type="button" (click)="paused.set(!paused())"
+      <button
+        class="carousel-pause"
+        type="button"
+        (click)="paused.set(!paused())"
         [attr.aria-label]="paused() ? 'Retomar carrossel' : 'Pausar carrossel'"
-        [attr.title]="paused() ? 'Retomar carrossel' : 'Pausar carrossel'">
+        [attr.title]="paused() ? 'Retomar carrossel' : 'Pausar carrossel'"
+      >
         <nz-icon [nzType]="paused() ? 'caret-right' : 'pause'" aria-hidden="true" />
       </button>
     </div>
@@ -33,64 +63,174 @@
       <h1 id="login-title">Que bom ter<br />você aqui.</h1>
       <p class="intro">Acesse sua parceria com o Planeta Atlântida.</p>
 
-      <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="submit()" (input)="validated.set(false)" novalidate>
-        <nz-form-item>
-          <nz-form-label nzFor="email">E-mail</nz-form-label>
-          <nz-form-control [nzValidateStatus]="showError('email') ? 'error' : ''">
-            <input nz-input nzSize="large" id="email" type="email" formControlName="email" autocomplete="username"
-              placeholder="voce@empresa.com.br" required [attr.aria-invalid]="showError('email')"
-              [attr.aria-describedby]="showError('email') ? 'email-error' : 'email-help'" />
-            @if (showError('email')) {
-              <p id="email-error" class="field-error" role="alert">{{ form.controls.email.hasError('required') ? 'Informe seu e-mail.' : 'Informe um e-mail válido.' }}</p>
-            } @else {
-              <p id="email-help" class="visually-hidden">Use o e-mail cadastrado pela equipe RBS.</p>
-            }
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzFor="password">Senha</nz-form-label>
-          <nz-form-control [nzValidateStatus]="showError('password') ? 'error' : ''">
-            <nz-input-wrapper>
-              <input nz-input nzSize="large" id="password" [type]="passwordVisible() ? 'text' : 'password'" formControlName="password"
-                autocomplete="current-password" placeholder="Digite sua senha" required
-                [attr.aria-invalid]="showError('password')" [attr.aria-describedby]="showError('password') ? 'password-error' : null" />
-              <button nzInputSuffix class="password-toggle" type="button" (click)="passwordVisible.set(!passwordVisible())"
-                [attr.aria-label]="passwordVisible() ? 'Ocultar senha' : 'Mostrar senha'" [attr.aria-pressed]="passwordVisible()">
-                <nz-icon [nzType]="passwordVisible() ? 'eye-invisible' : 'eye'" aria-hidden="true" />
-              </button>
-            </nz-input-wrapper>
-            @if (showError('password')) {
-              <p id="password-error" class="field-error" role="alert">Informe sua senha.</p>
-            }
-          </nz-form-control>
-        </nz-form-item>
-        <button nz-button nzType="primary" nzSize="large" class="submit dark-button" type="submit">
-          Entrar no portal
-        </button>
-        @if (validated() && form.valid) {
-          <div class="integration-notice" role="status">
-            <nz-alert nzType="info" nzMessage="Tela em desenvolvimento" nzDescription="Os campos foram validados. A autenticação ainda não está integrada." />
-          </div>
-        }
-      </form>
+      @if (authError()) {
+        <p role="alert" class="field-error">{{ authError() }}</p>
+      }
+      @if (!auth.challenge()) {
+        <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <nz-form-item>
+            <nz-form-label nzFor="email">E-mail</nz-form-label>
+            <nz-form-control [nzValidateStatus]="showError('email') ? 'error' : ''">
+              <input
+                nz-input
+                nzSize="large"
+                id="email"
+                type="email"
+                formControlName="email"
+                autocomplete="username"
+                placeholder="voce@empresa.com.br"
+                required
+                [attr.aria-invalid]="showError('email')"
+                [attr.aria-describedby]="showError('email') ? 'email-error' : 'email-help'"
+              />
+              @if (showError('email')) {
+                <p id="email-error" class="field-error" role="alert">
+                  {{
+                    form.controls.email.hasError('required')
+                      ? 'Informe seu e-mail.'
+                      : 'Informe um e-mail válido.'
+                  }}
+                </p>
+              } @else {
+                <p id="email-help" class="visually-hidden">
+                  Use o e-mail cadastrado pela equipe RBS.
+                </p>
+              }
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label nzFor="password">Senha</nz-form-label>
+            <nz-form-control [nzValidateStatus]="showError('password') ? 'error' : ''">
+              <nz-input-wrapper>
+                <input
+                  nz-input
+                  nzSize="large"
+                  id="password"
+                  [type]="passwordVisible() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="current-password"
+                  placeholder="Digite sua senha"
+                  required
+                  [attr.aria-invalid]="showError('password')"
+                  [attr.aria-describedby]="showError('password') ? 'password-error' : null"
+                />
+                <button
+                  nzInputSuffix
+                  class="password-toggle"
+                  type="button"
+                  (click)="passwordVisible.set(!passwordVisible())"
+                  [attr.aria-label]="passwordVisible() ? 'Ocultar senha' : 'Mostrar senha'"
+                  [attr.aria-pressed]="passwordVisible()"
+                >
+                  <nz-icon
+                    [nzType]="passwordVisible() ? 'eye-invisible' : 'eye'"
+                    aria-hidden="true"
+                  />
+                </button>
+              </nz-input-wrapper>
+              @if (showError('password')) {
+                <p id="password-error" class="field-error" role="alert">Informe sua senha.</p>
+              }
+            </nz-form-control>
+          </nz-form-item>
+          <button
+            nz-button
+            nzType="primary"
+            nzSize="large"
+            class="submit dark-button"
+            type="submit"
+            [disabled]="busy()"
+            [nzLoading]="busy()"
+          >
+            {{ busy() ? 'Entrando…' : 'Entrar no portal' }}
+          </button>
+        </form>
+      } @else {
+        <form (submit)="$event.preventDefault(); sendMfa()" class="mfa-form">
+          <label for="login-otp">Código do autenticador</label>
+          <input
+            nz-input
+            nzSize="large"
+            id="login-otp"
+            [formControl]="otp"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            [attr.aria-invalid]="otp.touched && otp.invalid"
+          />
+          @if (otp.touched && otp.invalid) {
+            <p class="field-error" role="alert">Informe os seis números do autenticador.</p>
+          }
+          <button
+            nz-button
+            nzType="primary"
+            class="submit dark-button"
+            type="submit"
+            [disabled]="busy()"
+            [nzLoading]="busy()"
+          >
+            Confirmar código
+          </button>
+          <button
+            nz-button
+            type="button"
+            [disabled]="busy()"
+            (click)="auth.challenge.set(null); otp.reset(); authError.set('')"
+          >
+            Voltar ao login
+          </button>
+        </form>
+      }
       <hr class="access-divider" />
-      <p class="access-help">Seu acesso é fornecido pela equipe RBS. Precisa de ajuda? Fale com o responsável pela sua parceria.</p>
-      <button nz-button class="access-guidance" type="button" (click)="helpOpen.set(true)">Orientações de acesso</button>
+      <p class="access-help">
+        Seu acesso é fornecido pela equipe RBS. Precisa de ajuda? Fale com o responsável pela sua
+        parceria.
+      </p>
+      <button nz-button class="access-guidance" type="button" (click)="helpOpen.set(true)">
+        Orientações de acesso
+      </button>
     </div>
   </section>
 </main>
 
-<nz-modal #helpModal="nzModal" [nzVisible]="helpOpen()" (nzOnCancel)="helpOpen.set(false)" [nzTitle]="helpTitle"
+<nz-modal
+  #helpModal="nzModal"
+  [nzVisible]="helpOpen()"
+  (nzOnCancel)="helpOpen.set(false)"
+  [nzTitle]="helpTitle"
   (nzAfterOpen)="labelHelpDialog(helpModal)"
-  [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" nzClassName="pa-login-help"
-  [nzCloseIcon]="helpClose" [nzNoAnimation]="reducedMotion()">
-  <ng-template #helpTitle><h2 id="login-help-title" class="help-title" tabindex="-1">Seu acesso ao portal</h2></ng-template>
-  <ng-template #helpClose><span aria-hidden="true">×</span><span class="visually-hidden">Fechar orientações</span></ng-template>
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  nzClassName="pa-login-help"
+  [nzCloseIcon]="helpClose"
+  [nzNoAnimation]="reducedMotion()"
+>
+  <ng-template #helpTitle
+    ><h2 id="login-help-title" class="help-title" tabindex="-1">
+      Seu acesso ao portal
+    </h2></ng-template
+  >
+  <ng-template #helpClose
+    ><span aria-hidden="true">×</span
+    ><span class="visually-hidden">Fechar orientações</span></ng-template
+  >
   <ng-container *nzModalContent>
     <div class="help-content">
       <p>A RBS fornece o e-mail e a senha da sua conta.</p>
-      <p>Se precisar de ajuda para entrar, entre em contato com a pessoa responsável pela parceria na RBS.</p>
-      <button nz-button nzType="primary" class="dark-button help-confirm" type="button" (click)="helpOpen.set(false)">Entendi</button>
+      <p>
+        Se precisar de ajuda para entrar, entre em contato com a pessoa responsável pela parceria na
+        RBS.
+      </p>
+      <button
+        nz-button
+        nzType="primary"
+        class="dark-button help-confirm"
+        type="button"
+        (click)="helpOpen.set(false)"
+      >
+        Entendi
+      </button>
     </div>
   </ng-container>
 </nz-modal>
