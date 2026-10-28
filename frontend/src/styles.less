@@ -1,5 +1,31 @@
 @import 'ng-zorro-antd/ng-zorro-antd.less';
 
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-latin-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/roboto-latin-variable.woff2') format('woff2');
+}
+
+@font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/montserrat-latin-800.woff2') format('woff2');
+}
+
 @pa-magenta: #e2047d;
 @pa-pink: #ff8bda;
 @pa-blue: #009ee5;
@@ -19,6 +45,9 @@
 @text-color-secondary: #595959;
 
 :root {
+  --font-body: @font-family;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-brand: 'Montserrat', @font-family;
   --pa-magenta: @pa-magenta;
   --pa-pink: @pa-pink;
   --pa-blue: @pa-blue;
@@ -29,6 +58,16 @@
   --color-primary: @primary-color;
   --color-text: @text-color;
   --color-surface: #fff;
+  --color-paper: #f6f5f2;
+  --color-border: #dfdfdb;
+  --color-muted: @text-color-secondary;
+  --color-accent-text: #aa0059;
+  --color-dark: #101619;
+  --color-nav: #fafaf8;
+  --color-success: #08674c;
+  --color-success-soft: #e6f5ed;
+  --color-error: #a62b30;
+  --color-error-soft: #fff0ee;
 }
 
 .ant-btn-primary:not(:disabled):hover,
@@ -40,4 +79,23 @@
 .ant-btn-primary:not(:disabled):active {
   background: @primary-color-active;
   border-color: @primary-color-active;
+}
+
+.login-page .ant-form-vertical .ant-form-item-label { display: flex; line-height: 20px; }
+.login-page .ant-form-item-label > label { height: 20px; line-height: 20px; }
+
+// O modal é renderizado pelo NG-ZORRO fora do host do componente de login.
+.pa-login-help, .pa-profile-dialog {
+  .ant-modal-content { border-radius: 16px; overflow: hidden; box-shadow: 0 16px 48px #00000029; }
+  .ant-modal-header { padding: 32px 32px 0; border: 0; }
+  .ant-modal-title { min-height: 44px; }
+  .ant-modal-body { padding: 20px 32px 32px; }
+  .ant-modal-close { top: 32px; right: 32px; color: @text-color; }
+  .ant-modal-close-x { width: 48px; height: 44px; line-height: 42px; border: 1px solid var(--color-border); border-radius: 999px; }
+  .ant-modal-close:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; border-radius: 999px; }
+  @media (max-width: 760px) {
+    .ant-modal-header { padding: 24px 24px 0; }
+    .ant-modal-body { padding: 20px 24px 24px; }
+    .ant-modal-close { top: 24px; right: 24px; }
+  }
 }

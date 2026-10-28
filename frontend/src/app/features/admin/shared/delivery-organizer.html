@@ -1,0 +1,76 @@
+<nz-modal
+  #organizeModal="nzModal"
+  [nzVisible]="open()"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="afterOpen(organizeModal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+>
+  <ng-template #dialogTitle
+    ><h2 #dialogHeading id="rbs-organizer-dialog-title" class="dialog-title" tabindex="-1">
+      {{ stage() === 'saved' ? 'Alterações salvas' : 'Organizar entrega' }}
+    </h2></ng-template
+  >
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (stage() !== 'saved') {
+        @if (stage() === 'organize') {
+          <p>Logo no telão · Defina a pessoa responsável.</p>
+        }
+        <strong class="owner-name">{{ selectedOwnerLabel() }}</strong>
+        @if (stage() === 'organize') {
+          @for (owner of logo.ownerOptions; track owner.id) {
+            <button
+              nz-button
+              class="pill owner-option"
+              [class.ana]="owner.id === 'ana'"
+              type="button"
+              (click)="chooseOwner(owner.id)"
+            >
+              {{ owner.label }}
+            </button>
+          }
+        } @else {
+          <p>A alteração será aplicada após salvar.</p>
+        }
+        <button
+          nz-button
+          class="pill dark-button save-owner-button"
+          type="button"
+          (click)="saveOwner()"
+        >
+          Salvar responsável
+        </button>
+        <button
+          nz-button
+          class="pill finish-button"
+          [class.dark-button]="stage() === 'organize'"
+          type="button"
+          (click)="close()"
+        >
+          Cancelar
+        </button>
+        <p class="preview-note">
+          Pessoas de exemplo do Figma. A alteração é salva somente nesta simulação.
+        </p>
+      } @else {
+        <p>As informações foram atualizadas na parceria.</p>
+        <span class="done-badge"
+          ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span
+        >
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+          Concluir
+        </button>
+        <p class="preview-note">
+          Responsável salvo somente em memória. Nenhum dado foi enviado à RBS.
+        </p>
+      }
+    </div>
+  </ng-container>
+</nz-modal>

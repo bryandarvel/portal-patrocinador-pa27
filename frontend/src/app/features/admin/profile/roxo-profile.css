@@ -1,0 +1,63 @@
+.roxo-profile-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.profile-field {
+  width: 680px;
+  max-width: 100%;
+}
+.profile-field input {
+  background: #fff;
+}
+.profile-field input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+.profile-field label {
+  color: var(--color-text);
+}
+.field-error {
+  color: var(--color-error);
+  font-size: 14px;
+  line-height: 20px;
+}
+.save-button {
+  width: 148px;
+}
+.publish-button {
+  width: 181px;
+}
+.publish-confirm {
+  width: 196px;
+}
+.selected-file {
+  cursor: default;
+}
+.selected-file:hover {
+  border-color: var(--color-border);
+}
+.dialog-title {
+  padding-right: 0;
+}
+.dialog-title:focus {
+  outline: none;
+}
+.document-description strong,
+.document-description span {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .profile-card,
+  .dialog-content {
+    overflow-wrap: anywhere;
+  }
+  .dialog-content .pill {
+    max-width: 100%;
+  }
+}

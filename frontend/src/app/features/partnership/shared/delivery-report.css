@@ -1,0 +1,10 @@
+.report-delivery-title { font-family: var(--font-display); font-size: 48px; line-height: 50px; font-weight: 700; text-transform: uppercase; }
+.report-status { display: grid; grid-template-columns: repeat(2, minmax(0, 240px)); gap: 24px; width: 100%; margin: 0; color: var(--color-text); }
+.report-status div { display: flex; flex-direction: column; gap: 8px; }
+.report-status dd { margin: 0; font-weight: 500; }
+.report-content hr { width: 100%; margin: 0; border: 0; border-top: 1px solid var(--color-border); }
+.proof-title { font-size: 20px; line-height: 28px; font-weight: 700; }
+.report-file { overflow-wrap: anywhere; color: var(--color-text); font-size: 16px; line-height: 24px; }
+.return-button { width: 144px; }
+.proof-description { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .report-delivery-title { font-size: 36px; line-height: 38px; } }

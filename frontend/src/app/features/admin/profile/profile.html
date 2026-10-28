@@ -1,0 +1,75 @@
+<app-admin-partnership-shell title="Perfil do cliente" description="Informações que identificam a parceria e seus documentos comerciais.">
+  <div class="profile-panels">
+    <section class="profile-card" aria-labelledby="rbs-registration-title">
+      <h2 id="rbs-registration-title">Cadastro do patrocinador</h2>
+      <form [formGroup]="form" (ngSubmit)="save()" class="profile-form">
+        <div class="profile-field"><label for="rbs-sponsor-name">Nome do patrocinador</label>
+          <input nz-input id="rbs-sponsor-name" formControlName="name" [attr.aria-invalid]="invalid('name')" [attr.aria-describedby]="invalid('name') ? 'rbs-name-error' : null" />
+          @if (invalid('name')) { <p class="field-error" id="rbs-name-error">Informe o nome do patrocinador.</p> }
+        </div>
+        <div class="profile-field"><label for="rbs-sponsor-quota">Cota / plano comercial</label>
+          <input nz-input id="rbs-sponsor-quota" formControlName="quota" [attr.aria-invalid]="invalid('quota')" [attr.aria-describedby]="invalid('quota') ? 'rbs-quota-error' : null" />
+          @if (invalid('quota')) { <p class="field-error" id="rbs-quota-error">Informe a cota ou o plano comercial.</p> }
+        </div>
+        <div class="profile-field"><label for="rbs-sponsor-email">E-mail autorizado</label>
+          <input nz-input id="rbs-sponsor-email" type="email" formControlName="email" [attr.aria-invalid]="invalid('email')" [attr.aria-describedby]="invalid('email') ? 'rbs-email-error' : null" />
+          @if (invalid('email')) { <p class="field-error" id="rbs-email-error">Informe um e-mail válido.</p> }
+        </div>
+        <div class="profile-actions"><button nz-button class="pill dark-button save-button" type="submit">Salvar alterações</button><button nz-button class="pill access-button" type="button" (click)="openAccess()">Gerenciar acesso</button></div>
+      </form>
+    </section>
+    <section class="profile-card commercial-documents" aria-labelledby="rbs-documents-title">
+      <h2 id="rbs-documents-title">Documentos comerciais</h2>
+      <p>Arquivos disponibilizados pela RBS para esta parceria.</p>
+      @for (document of preview.documents; track document.id) {
+        <button class="document-card" type="button" (click)="openDocument(document)" [attr.aria-label]="'Abrir ' + document.title">
+          <span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>{{ document.title }}</strong><span>{{ document.description }}</span></span><span class="document-action" aria-hidden="true">Abrir →</span>
+        </button>
+      }
+      <button nz-button class="pill publish-button" type="button" (click)="dialog.set('publish')">Disponibilizar documento</button>
+      @if (preview.publicationConfirmed()) { <p class="publication-feedback" role="status">Publicação do arquivo de exemplo simulada nesta sessão.</p> }
+    </section>
+  </div>
+  <p class="preview-note">Prévia RBS com dados fictícios. Alterações ficam em memória nesta área administrativa e são apagadas ao recarregar. Não alteram contas, permissões ou arquivos reais.</p>
+</app-admin-partnership-shell>
+
+<nz-modal #profileModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="closeDialog()" (nzAfterOpen)="labelDialog(profileModal)"
+  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #dialogTitle><h2 #dialogHeading id="rbs-profile-dialog-title" class="dialog-title" tabindex="-1">{{ title() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @switch (dialog()) {
+        @case ('access') {
+          <p>{{ preview.profile().name }} · Acesso separado às informações desta parceria.</p>
+          <form class="access-form" (submit)="$event.preventDefault(); saveAccess()">
+            <div class="profile-field"><label for="rbs-access-email">E-mail autorizado</label>
+              <input nz-input id="rbs-access-email" type="email" [formControl]="accessEmail" [attr.aria-invalid]="accessEmail.touched && accessEmail.invalid" [attr.aria-describedby]="accessEmail.touched && accessEmail.invalid ? 'rbs-access-error' : null" />
+              @if (accessEmail.touched && accessEmail.invalid) { <p class="field-error" id="rbs-access-error">Informe um e-mail válido.</p> }
+            </div>
+            <p>Perfil: Admin Patrocinador · Cota {{ preview.profile().quota }}</p>
+            <button nz-button type="submit" class="pill dark-button access-save-button">Salvar acesso</button>
+          </form>
+        }
+        @case ('publish') {
+          <p>O arquivo ficará disponível para o {{ preview.profile().name }}.</p>
+          <div class="document-card example-file"><span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>plano_comercial_amarelo.pdf</strong><span>Selecionado para publicação</span></span><span class="document-action" aria-disabled="true" title="Arquivo ilustrativo, sem conteúdo real">Abrir →</span></div>
+          <p class="preview-note">Arquivo de exemplo do Figma. Esta ação apenas simula a publicação; não envia nem disponibiliza um PDF real.</p>
+          <button nz-button class="pill dark-button" type="button" (click)="publish()">Publicar arquivo</button>
+        }
+        @case ('document') {
+          <p>Arquivo disponibilizado no contexto desta parceria.</p>
+          <div class="document-preview" [attr.aria-label]="selectedDocument()?.title"><h3>Documento</h3><p>O conteúdo será exibido conforme o formato do arquivo.</p></div>
+          <p class="preview-note">Visualizador demonstrativo: {{ selectedDocument()?.title }}. Não há arquivo real nesta prévia.</p>
+          <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta prévia">Baixar arquivo</button>
+        }
+        @default {
+          <p>{{ dialog() === 'saved' ? 'As informações da parceria foram salvas.' : 'As informações foram atualizadas na parceria.' }}</p>
+          <span class="done-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span>
+          <p class="preview-note">Simulação local. Nenhuma alteração foi enviada à RBS ou aplicada a uma conta real.</p>
+          <button nz-button class="pill dark-button finish-button" type="button" (click)="closeDialog()">Concluir</button>
+        }
+      }
+    </div>
+  </ng-container>
+</nz-modal>

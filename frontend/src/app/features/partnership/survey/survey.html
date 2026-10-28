@@ -1,0 +1,70 @@
+<app-partnership-shell activeArea="06" title="Pesquisa da ativação"
+  description="Perguntas personalizadas e resultados da pesquisa da ativação."
+  pageUrl="/previa/pesquisa-da-ativacao">
+  <section class="submission-status" aria-label="Disponibilidade de envio" [class.is-closed]="!preview.submissionsOpen()" role="status">
+    <p>{{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}</p>
+    <p>{{ preview.submissionsOpen() ? 'Os materiais podem ser enviados ou substituídos.' : 'A equipe RBS pode reabrir o envio para correção.' }}</p>
+  </section>
+
+  <div class="survey-panels">
+    <section class="survey-card" aria-labelledby="survey-questions-title">
+      <h2 id="survey-questions-title">Perguntas personalizadas</h2>
+      <p id="survey-questions-help">Sua cota permite até três perguntas personalizadas para a pesquisa da ativação.</p>
+      <form [formGroup]="form" (ngSubmit)="sendQuestions()" novalidate
+        aria-labelledby="survey-questions-title" aria-describedby="survey-questions-help survey-preview-note">
+        <div class="question-field">
+          <label for="survey-question-1">Pergunta 01</label>
+          <textarea #firstQuestion nz-input id="survey-question-1" formControlName="question1" rows="1" [readOnly]="!preview.submissionsOpen()"
+            [attr.aria-invalid]="submitted() && form.invalid"
+            [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"></textarea>
+        </div>
+        <div class="question-field">
+          <label for="survey-question-2">Pergunta 02</label>
+          <textarea nz-input id="survey-question-2" formControlName="question2" rows="1" [readOnly]="!preview.submissionsOpen()"
+            [attr.aria-invalid]="submitted() && form.invalid"
+            [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"></textarea>
+        </div>
+        <div class="question-field">
+          <label for="survey-question-3">Pergunta 03</label>
+          <textarea nz-input id="survey-question-3" formControlName="question3" rows="1" [readOnly]="!preview.submissionsOpen()"
+            [attr.aria-invalid]="submitted() && form.invalid"
+            [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"></textarea>
+        </div>
+        @if (submitted() && form.invalid) {
+          <p id="survey-questions-error" class="file-error" role="alert">Escreva pelo menos uma pergunta antes de enviar.</p>
+        }
+        @if (preview.submissionsOpen()) { <button nz-button class="pill dark-button send-questions-button" type="submit">Enviar perguntas</button> }
+      </form>
+    </section>
+    <section class="survey-card" aria-labelledby="survey-results-title">
+      <h2 id="survey-results-title">Resultados da pesquisa</h2>
+      @if (preview.resultsPublished()) {
+        <button class="document-card" type="button" (click)="documentOpen.set(true)" aria-label="Abrir Resultados da ativação">
+          <span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>Resultados da ativação</strong><span>Arquivo publicado pela RBS</span></span><span class="document-action">Abrir →</span>
+        </button>
+      } @else { <p>A RBS ainda não disponibilizou os resultados desta parceria.</p> }
+    </section>
+  </div>
+  <p id="survey-preview-note" class="preview-note">Prévia do Cliente Amarelo com dados fictícios. A disponibilidade de perguntas é um exemplo desta parceria. Os textos são salvos apenas em memória, sem envio à RBS, e serão restaurados ao recarregar a página.</p>
+</app-partnership-shell>
+
+<nz-modal #surveyModal="nzModal" [nzVisible]="confirmationOpen() || documentOpen()" (nzOnCancel)="closeDialog()"
+  (nzAfterOpen)="labelDialog(surveyModal)" [nzTitle]="modalTitle" [nzFooter]="null"
+  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #modalTitle><h2 id="survey-dialog-title" class="dialog-title">{{ documentOpen() ? 'Documento da parceria' : 'Perguntas enviadas' }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (documentOpen()) {
+        <p>Arquivo disponibilizado no contexto desta parceria.</p>
+        <div class="document-preview"><h3>Documento</h3><p>O conteúdo será exibido conforme o formato do arquivo.</p></div>
+        <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta simulação">Baixar arquivo</button>
+        <p class="preview-note">{{ preview.resultsFileName }} · Publicação ilustrativa, sem arquivo real para baixar.</p>
+      } @else {
+      <p role="status">{{ sentCount() === 1 ? 'Uma pergunta foi salva' : sentCount() + ' perguntas foram salvas' }} nesta simulação. Nenhum texto foi enviado à equipe RBS.</p>
+      <span class="done-badge"><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span>
+      <button nz-button class="pill dark-button finish-button" type="button" (click)="closeDialog()">Concluir</button>
+      }
+    </div>
+  </ng-container>
+</nz-modal>

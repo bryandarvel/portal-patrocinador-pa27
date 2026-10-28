@@ -1,25 +1,26 @@
 import { DOCUMENT } from '@angular/common';
 import { afterNextRender, Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { EyeInvisibleOutline, EyeOutline, ArrowRightOutline, PauseOutline, CaretRightOutline } from '@ant-design/icons-angular/icons';
+import { EyeInvisibleOutline, EyeOutline, PauseOutline, CaretRightOutline } from '@ant-design/icons-angular/icons';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, NzAlertModule, NzButtonModule, NzFormModule, NzIconModule, NzInputModule],
-  providers: [provideNzIconsPatch([EyeOutline, EyeInvisibleOutline, ArrowRightOutline, PauseOutline, CaretRightOutline])],
+  imports: [ReactiveFormsModule, NzAlertModule, NzButtonModule, NzFormModule, NzIconModule, NzInputModule, NzModalModule],
+  providers: [provideNzIconsPatch([EyeOutline, EyeInvisibleOutline, PauseOutline, CaretRightOutline])],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
   readonly slides = [
-    { image: '/images/pa27-festival.jpg', title: 'Só quem vai sente.', caption: 'Sua marca também vive o Planeta.' },
-    { image: '/images/pa27-experiencia.jpg', title: 'Sua marca faz parte.', caption: 'Experiências que aproximam marcas e planetários.' },
-    { image: '/images/pa27-publico.jpg', title: 'Encontros que ficam.', caption: 'Conexões que continuam além do festival.' }
+    { image: '/images/pa27-festival.jpg', title: 'Só quem\nvai sente.' },
+    { image: '/images/pa27-experiencia.jpg', title: 'Sua marca\nfaz parte.' },
+    { image: '/images/pa27-publico.jpg', title: 'Encontros\nque ficam.' }
   ];
   readonly activeSlide = signal(0);
   readonly paused = signal(false);
@@ -45,7 +46,7 @@ export class Login {
       });
     });
     effect(onCleanup => {
-      if (this.paused() || this.hidden() || this.reducedMotion() || this.hovered() || this.focused()) return;
+      if (this.paused() || this.hidden() || this.reducedMotion() || this.hovered() || this.focused() || this.helpOpen()) return;
       const timer = setInterval(() => this.activeSlide.update(index => (index + 1) % this.slides.length), 3000);
       onCleanup(() => clearInterval(timer));
     });
@@ -59,7 +60,18 @@ export class Login {
     this.focused.set((event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null));
   }
 
+  labelHelpDialog(modal: NzModalComponent): void {
+    // NG-ZORRO 22 não expõe inputs para o nome acessível do container e do botão de fechar.
+    const dialog = modal.getElement()?.closest<HTMLElement>('[role="dialog"]');
+    if (!dialog) return;
+    dialog.setAttribute('aria-labelledby', 'login-help-title');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.querySelector('.ant-modal-close')?.setAttribute('aria-label', 'Fechar orientações');
+    dialog.querySelector<HTMLElement>('#login-help-title')?.focus();
+  }
+
   readonly passwordVisible = signal(false);
+  readonly helpOpen = signal(false);
   readonly submitted = signal(false);
   readonly validated = signal(false);
   readonly form = inject(FormBuilder).nonNullable.group({

@@ -1,0 +1,129 @@
+<app-partnership-shell activeArea="07" title="Contrato"
+  description="Acompanhe o documento, os ajustes e a formalização da parceria."
+  pageUrl="/previa/contrato">
+  <div class="contract-panels">
+    <section class="contract-card" aria-labelledby="contract-validation-title">
+      <h2 id="contract-validation-title">Validação do contrato</h2>
+      <p class="contract-status" role="status">{{ preview.status() }}</p>
+      <p>{{ preview.guidance() }}</p>
+      <button #documentButton class="document-card" type="button" (click)="dialog.set('document')"
+        [attr.aria-label]="'Abrir ' + preview.version().name">
+        <span class="document-icon" aria-hidden="true">▤</span>
+        <span class="document-description"><strong>{{ preview.version().name }}</strong><span>Versão {{ preview.version().number }}</span></span>
+        <span class="document-action" aria-hidden="true">Abrir →</span>
+      </button>
+      @if (preview.canDecide()) {
+        <div class="dialog-actions">
+          <button nz-button class="pill dark-button finish-button" type="button" (click)="openDecision('approve')">Aprovar</button>
+          <button nz-button class="pill adjust-button" type="button" (click)="openDecision('adjust')">Solicitar ajustes</button>
+        </div>
+      }
+      @if (preview.comment(); as comment) {
+        <div class="adjustment-note">
+          <strong>AJUSTES SOLICITADOS · VERSÃO {{ preview.version().number }}</strong>
+          <p class="comment-text">{{ comment }}</p>
+          <p class="comment-caption">Admin Patrocinador · {{ preview.decision()?.recordedAt | date:'dd/MM/yyyy HH:mm' }} · Simulação</p>
+        </div>
+      }
+      <p>A aprovação registra concordância com esta versão. A assinatura acontece fora do portal.</p>
+      <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">Histórico de versões</button>
+    </section>
+    <section class="contract-card" aria-labelledby="contract-signatories-title">
+      <h2 id="contract-signatories-title">Quem assina</h2>
+      <div class="signatory">
+        <strong>{{ preview.signatory.name }}</strong>
+        <p>{{ preview.signatory.email }}</p>
+        <p>Dados enviados pelo patrocinador.</p>
+      </div>
+    </section>
+  </div>
+  <section class="contract-card" aria-labelledby="contract-signed-title">
+    <h2 id="contract-signed-title">Contrato final assinado</h2>
+    @if (preview.signed()) {
+      <button class="document-card" type="button" (click)="dialog.set('signed')" aria-label="Abrir Contrato assinado"><span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>Contrato assinado</strong><span>Arquivo final da parceria</span></span><span class="document-action">Abrir →</span></button>
+    } @else { <p>O arquivo será disponibilizado pela RBS após a assinatura externa.</p> }
+  </section>
+  <p class="preview-note">Prévia com dados fictícios e sem documento real. Aprovação e solicitação de ajustes são simuladas, sem envio à RBS ou assinatura. Os registros ficam apenas em memória e são apagados ao recarregar a página.</p>
+</app-partnership-shell>
+
+<nz-modal #contractModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(contractModal)" (nzAfterClose)="afterClose()" [nzTitle]="modalTitle" [nzFooter]="null"
+  [nzCentered]="true" [nzWidth]="dialog() === 'history' ? 840 : 640" [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #modalTitle><h2 id="contract-dialog-title" class="dialog-title" tabindex="-1">{{ dialogTitle() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (dialog() === 'document') {
+        <p class="version-label">Versão {{ preview.version().number }}</p>
+        <p class="document-name">{{ preview.version().name }}</p>
+        <div class="document-preview">
+          <h3>Contrato da parceria</h3>
+          <p>Cliente Amarelo · Documento para conferência</p>
+        </div>
+        <p>{{ preview.status() }}</p>
+        <p>A aprovação desta versão não substitui a assinatura.</p>
+        <button nz-button class="pill contract-download" type="button" disabled aria-disabled="true"
+          aria-describedby="contract-download-help">Baixar documento</button>
+        <button nz-button class="pill dark-button back-validation" type="button" (click)="close()">Voltar à validação</button>
+        <p id="contract-download-help" class="preview-note">O documento é demonstrativo. Não há arquivo real para visualizar ou baixar nesta prévia.</p>
+      }
+      @if (dialog() === 'history') {
+        <p>Cada decisão fica vinculada à versão disponibilizada.</p>
+        @for (version of preview.history(); track version.number) {
+        <section class="version-entry" [attr.aria-label]="'Histórico da versão ' + version.number">
+          <h3>Versão {{ version.number }} · {{ version.name }}</h3>
+          <p>{{ preview.statusFor(version.decision) }}</p>
+          <p>RBS · {{ version.publishedAt ? (version.publishedAt | date:'dd/MM/yyyy HH:mm') + ' · Simulação' : 'Exemplo do protótipo' }}</p>
+          @if (version.decision; as decision) {
+            <p>Admin Patrocinador · {{ decision.recordedAt | date:'dd/MM/yyyy HH:mm' }} · Simulação</p>
+            @if (decision.kind === 'adjustments') { <p class="comment-text">{{ decision.comment }}</p> }
+          }
+        </section>
+        }
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      @if (dialog() === 'approve') {
+        <p>Sua concordância ficará registrada no histórico desta versão.</p>
+        <p>A assinatura continuará acontecendo fora do portal.</p>
+        <button nz-button class="pill dark-button confirm-button" type="button" (click)="approve()">Confirmar aprovação</button>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Voltar</button>
+        <p class="preview-note">Simulação local: esta ação não aprova um contrato real nem envia dados à RBS.</p>
+      }
+      @if (dialog() === 'adjust') {
+        <p id="contract-comment-help" [attr.role]="adjustError() ? 'alert' : null">
+          @if (adjustError()) { O motivo do ajuste é necessário para a revisão pela RBS. }
+          @else if (commentControl.value.trim()) { Versão {{ preview.version().number }} · Comentário do patrocinador }
+          @else { Explique o que precisa ser corrigido na versão {{ preview.version().number }}. }
+        </p>
+        <form class="adjustment-form" [formGroup]="adjustmentForm" (ngSubmit)="sendAdjustment()" novalidate>
+          <div class="comment-field" [class.has-comment]="commentControl.value.trim().length > 0">
+            <label for="contract-comment">Comentário obrigatório</label>
+            <textarea #commentInput nz-input id="contract-comment" formControlName="comment" rows="1" required
+              placeholder="Descreva o ajuste necessário" [attr.aria-invalid]="adjustError()"
+              aria-describedby="contract-comment-help" (input)="adjustError.set(false)"></textarea>
+          </div>
+          @if (adjustError()) {
+            <button nz-button class="pill fill-comment-button" type="button" (click)="focusComment()">Preencher comentário</button>
+          } @else {
+            <button nz-button class="pill dark-button send-adjustment" type="submit">Enviar solicitação</button>
+          }
+        </form>
+        <p class="preview-note">Simulação local: o comentário não será enviado à RBS.</p>
+      }
+      @if (dialog() === 'saved') {
+        <p role="status">A decisão foi registrada nesta simulação. Nenhum dado foi enviado à RBS e nenhum contrato foi assinado.</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      @if (dialog() === 'signed') {
+        @if (preview.signed(); as signed) {
+          <strong class="signed-name">{{ signed.name }}</strong><p>Base: versão {{ signed.baseVersion }} aprovada</p>
+          <p>Assinatura realizada fora do portal. Arquivo final disponibilizado pela RBS.</p>
+          <button nz-button class="pill dark-button signed-download" type="button" disabled aria-disabled="true">Baixar contrato</button>
+          <p class="preview-note">Publicação ilustrativa. Não há contrato assinado real nesta simulação.</p>
+        }
+      }
+    </div>
+  </ng-container>
+</nz-modal>

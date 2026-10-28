@@ -1,0 +1,16 @@
+.owner-name {
+  color: var(--color-text);
+  font: 700 20px/28px var(--font-body);
+  overflow-wrap: anywhere;
+}
+.owner-option {
+  width: 188px;
+  max-width: 100%;
+}
+.owner-option.ana {
+  width: 206px;
+}
+.save-owner-button {
+  width: 159px;
+  max-width: 100%;
+}

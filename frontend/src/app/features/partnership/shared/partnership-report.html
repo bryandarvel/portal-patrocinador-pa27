@@ -1,0 +1,131 @@
+<nz-modal
+  #reportModal="nzModal"
+  [nzVisible]="open()"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="afterOpen(reportModal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="stage() === 'view' ? 840 : 640"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+>
+  <ng-template #dialogTitle
+    ><h2 #dialogHeading tabindex="-1" class="dialog-title" id="partnership-report-title">
+      {{ title() }}
+    </h2></ng-template
+  >
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @switch (stage()) {
+        @case ('overview') {
+          <p>{{ sponsorName() }} · Planeta Atlântida 2027</p>
+          @if (preview.publication(); as publication) {
+            <div class="available-report">
+              <button
+                type="button"
+                class="document-card"
+                [attr.aria-label]="'Abrir ' + publication.name"
+                (click)="showFile()"
+              >
+                <span class="document-icon" aria-hidden="true">▤</span>
+                <span class="document-description"
+                  ><strong>{{ publication.name }}</strong
+                  ><span>Relatório personalizado · publicado pela RBS</span></span
+                >
+                <span class="document-action" aria-hidden="true">Abrir →</span>
+              </button>
+              <button
+                nz-button
+                type="button"
+                class="pill dark-button view-report"
+                (click)="showFile()"
+              >
+                Visualizar relatório
+              </button>
+              <button
+                nz-button
+                type="button"
+                class="pill download-report"
+                disabled
+                title="Download indisponível nesta simulação, sem PDF real"
+              >
+                Baixar relatório
+              </button>
+            </div>
+          } @else {
+            <div class="report-unavailable">
+              <p>O relatório ainda não foi disponibilizado.</p>
+              <p>Você poderá consultar o arquivo assim que a RBS o publicar.</p>
+            </div>
+          }
+          @if (admin()) {
+            <button
+              nz-button
+              type="button"
+              class="pill brand-button publish-report"
+              (click)="showPublication()"
+            >
+              Disponibilizar relatório
+            </button>
+            <hr />
+            <p>Área interna da RBS</p>
+            <a
+              nz-button
+              class="pill organize-sheets"
+              routerLink="/previa/rbs/amarelo/relatorio-da-parceria"
+              (click)="close()"
+              >Organizar planilhas de origem</a
+            >
+          }
+        }
+        @case ('publish') {
+          <p>O arquivo ficará disponível para o {{ sponsorName() }}.</p>
+          <div class="document-card selected-file">
+            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-description"
+              ><strong>{{ preview.exampleName }}</strong
+              ><span>Selecionado para publicação</span></span
+            >
+            <span class="document-action" aria-hidden="true">Abrir →</span>
+          </div>
+          <button nz-button type="button" class="pill dark-button publish-file" (click)="publish()">
+            Publicar arquivo
+          </button>
+        }
+        @case ('view') {
+          <p>{{ sponsorName() }} · Arquivo disponibilizado pela RBS</p>
+          <div class="report-preview">
+            <h3>Relatório da parceria</h3>
+            <p>{{ sponsorName() }} · Planeta Atlântida 2027</p>
+            <p>Pré-visualização do arquivo</p>
+          </div>
+          <button
+            nz-button
+            type="button"
+            class="pill dark-button download-button"
+            disabled
+            title="Download indisponível nesta simulação, sem PDF real"
+          >
+            Baixar arquivo
+          </button>
+        }
+        @case ('saved') {
+          <p>As informações foram atualizadas na parceria.</p>
+          <span class="done-badge"
+            ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span
+          >
+          <button nz-button type="button" class="pill dark-button finish-button" (click)="close()">
+            Concluir
+          </button>
+        }
+      }
+      <p class="preview-note">
+        Prévia em memória, sem publicação, PDF ou download real. As planilhas de origem pertencem
+        somente à área administrativa.
+      </p>
+    </div>
+  </ng-container>
+</nz-modal>

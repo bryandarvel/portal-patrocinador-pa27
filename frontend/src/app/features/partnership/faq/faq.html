@@ -1,0 +1,56 @@
+<app-partnership-shell activeArea="faq" pageUrl="/previa/duvidas-frequentes"
+  title="Dúvidas frequentes" description="Respostas rápidas sobre materiais, documentos e o uso do portal.">
+  <form class="faq-search" role="search" aria-label="Dúvidas frequentes" (submit)="$event.preventDefault(); search()">
+    <label for="faq-query">Buscar uma dúvida</label>
+    <input nz-input id="faq-query" type="search" [formControl]="searchField" enterkeyhint="search"
+      placeholder="Digite uma palavra, por exemplo: MIV" aria-describedby="faq-search-help" />
+    <span id="faq-search-help" class="visually-hidden">Digite sua dúvida e pressione Enter para buscar.</span>
+  </form>
+
+  <div class="faq-categories" role="group" aria-label="Categorias de ajuda">
+    @for (category of categories; track category) {
+      <button nz-button type="button" class="pill category-button" [class.dark-button]="category === 'Todas'"
+        aria-haspopup="dialog" (click)="showCategory(category)">{{ category }}</button>
+    }
+  </div>
+
+  <section class="faq-list" aria-label="Perguntas e respostas">
+    @for (entry of preview.entries(); track entry.id) {
+      <ng-container [ngTemplateOutlet]="faqCard" [ngTemplateOutletContext]="{ $implicit: entry, inDialog: false }" />
+    }
+  </section>
+</app-partnership-shell>
+
+<ng-template #faqCard let-entry let-inDialog="inDialog">
+  <article class="faq-card" [attr.aria-labelledby]="(inDialog ? 'result-' : 'faq-') + entry.id">
+    @if (inDialog) {
+      <h3 class="question-title" [id]="'result-' + entry.id">{{ entry.question }}</h3>
+    } @else {
+      <h2 [id]="'faq-' + entry.id">{{ entry.question }}</h2>
+    }
+    <p class="faq-answer">{{ entry.answer }}</p>
+    <p class="faq-category">{{ entry.category }}</p>
+  </article>
+</ng-template>
+
+<nz-modal #faqModal="nzModal" [nzVisible]="selection() !== null" (nzOnCancel)="selection.set(null)"
+  (nzAfterOpen)="labelDialog(faqModal)" [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true"
+  [nzWidth]="840" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #dialogTitle><h2 id="faq-dialog-title" class="dialog-title">{{ resultTitle() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      <section class="faq-results" aria-label="Resultados da consulta" tabindex="0">
+        @for (entry of results(); track entry.id) {
+          <ng-container [ngTemplateOutlet]="faqCard" [ngTemplateOutletContext]="{ $implicit: entry, inDialog: true }" />
+        } @empty {
+          <div class="faq-empty" role="status">
+            <h3 class="question-title">Nenhuma dúvida encontrada</h3>
+            <p>Tente outra palavra ou consulte as categorias de ajuda.</p>
+          </div>
+        }
+      </section>
+      <button nz-button type="button" class="pill back-button" (click)="selection.set(null)">Voltar às dúvidas</button>
+    </div>
+  </ng-container>
+</nz-modal>

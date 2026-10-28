@@ -1,0 +1,50 @@
+<app-partnership-shell title="Entregas da parceria"
+  description="Acompanhe cada entrega da sua parceria e saiba qual é o próximo passo."
+  activeArea="deliveries" pageUrl="/previa/entregas">
+  <section class="featured-delivery" aria-labelledby="featured-title">
+    <div class="featured-content">
+      <p class="eyebrow">{{ preview.featured().context }}</p>
+      <h2 id="featured-title">{{ preview.featured().title }}</h2>
+      <p>{{ preview.featured().owner }}</p>
+      <dl class="delivery-status">
+        <div><dt class="eyebrow">Material</dt><dd>{{ preview.featured().material }}</dd></div>
+        <div><dt class="eyebrow">Entrega</dt><dd>{{ preview.featured().execution }}</dd></div>
+      </dl>
+      <p>{{ preview.featured().nextStep }}</p>
+      <a nz-button class="pill follow-button" routerLink="/previa/entregas/logo-no-telao">Acompanhar entrega →</a>
+    </div>
+    <section class="delivery-summary" aria-labelledby="summary-title">
+      <h2 id="summary-title">Entregas selecionadas</h2>
+      <dl class="delivery-totals">
+        @for (total of preview.totals(); track total.state) {
+          <div [class]="total.state"><dt>{{ total.label }}</dt><dd>{{ total.value }}</dd></div>
+        }
+      </dl>
+      <button nz-button class="pill report-preview-button" type="button" (click)="reportOpen.set(true)">Prévia do relatório</button>
+    </section>
+  </section>
+
+  <div class="delivery-areas">
+    @for (area of preview.areas; track area.id) {
+      <section class="delivery-card" [attr.aria-labelledby]="area.id + '-title'">
+        <h2 [id]="area.id + '-title'">{{ area.title }}</h2>
+        <p class="status-badge" [class.done]="area.status === 'Realizada'">
+          <img [src]="area.status === 'Realizada' ? '/images/status-concluido.svg' : '/images/status-em-andamento.svg'" alt="" width="6" height="6" />
+          {{ area.status }}
+        </p>
+        <p>{{ area.description }}</p>
+        <a nz-button class="pill area-button" [routerLink]="area.path" [attr.aria-label]="'Abrir área: ' + area.title">Abrir área</a>
+      </section>
+    }
+  </div>
+
+  @if (!partnershipPreview.currentMiv()) {
+    <aside class="material-pending" aria-labelledby="miv-pending-title">
+      <div><h3 id="miv-pending-title">Manual de identidade visual pendente</h3><p>A RBS ainda não recebeu o MIV solicitado para esta parceria.</p></div>
+      <a nz-button class="pill pending-button" routerLink="/previa/aplicacoes-de-marca">Ver pendência</a>
+    </aside>
+  }
+  <p class="preview-note">Prévia com dados de demonstração. Os envios são simulados e apagados ao recarregar a página.</p>
+</app-partnership-shell>
+
+<app-delivery-report [(open)]="reportOpen" />

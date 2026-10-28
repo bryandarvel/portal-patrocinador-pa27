@@ -1,0 +1,157 @@
+<app-admin-partnership-shell
+  [sponsorId]="sponsorId"
+  logoSrc="/images/pa27-logo-figma.png"
+  title="Perfil do cliente"
+  [description]="'Cliente ' + clientName + ' · Informações e materiais desta parceria.'"
+>
+  <div class="roxo-profile-panels">
+    <section class="profile-card" aria-labelledby="roxo-partnership-title">
+      <h2 id="roxo-partnership-title">Dados da parceria</h2>
+      <form #profileForm class="profile-form" [formGroup]="form" (ngSubmit)="save()">
+        <div class="profile-field">
+          <label for="roxo-sponsor-name">Patrocinador</label>
+          <input
+            nz-input
+            id="roxo-sponsor-name"
+            formControlName="name"
+            required
+            [attr.aria-invalid]="invalid('name')"
+            [attr.aria-describedby]="invalid('name') ? 'roxo-name-error' : null"
+          />
+          @if (invalid('name')) {
+            <p id="roxo-name-error" class="field-error" role="alert">
+              Informe o nome do patrocinador.
+            </p>
+          }
+        </div>
+        <div class="profile-field">
+          <label for="roxo-sponsor-quota">Cota / plano</label>
+          <input
+            nz-input
+            id="roxo-sponsor-quota"
+            formControlName="quota"
+            required
+            [attr.aria-invalid]="invalid('quota')"
+            [attr.aria-describedby]="invalid('quota') ? 'roxo-quota-error' : null"
+          />
+          @if (invalid('quota')) {
+            <p id="roxo-quota-error" class="field-error" role="alert">
+              Informe a cota ou o plano comercial.
+            </p>
+          }
+        </div>
+        <div class="profile-field">
+          <label for="roxo-sponsor-email">E-mail autorizado</label>
+          <input
+            nz-input
+            id="roxo-sponsor-email"
+            type="email"
+            formControlName="email"
+            required
+            [attr.aria-invalid]="invalid('email')"
+            [attr.aria-describedby]="invalid('email') ? 'roxo-email-error' : null"
+          />
+          @if (invalid('email')) {
+            <p id="roxo-email-error" class="field-error" role="alert">Informe um e-mail válido.</p>
+          }
+        </div>
+        <button nz-button type="submit" class="pill dark-button save-button">
+          Salvar alterações
+        </button>
+      </form>
+    </section>
+    <section class="profile-card commercial-documents" aria-labelledby="roxo-documents-title">
+      <h2 id="roxo-documents-title">Documentos comerciais</h2>
+      @if (preview.publicationConfirmed()) {
+        <button
+          type="button"
+          class="document-card"
+          [attr.aria-label]="'Abrir ' + preview.exampleName"
+          (click)="openDocument()"
+        >
+          <span class="document-icon" aria-hidden="true">▤</span
+          ><span class="document-description"
+            ><strong>{{ preview.exampleName }}</strong
+            ><span>Publicado para {{ preview.profile().name }}</span></span
+          ><span class="document-action" aria-hidden="true">Abrir →</span>
+        </button>
+      } @else {
+        <p>Nenhum documento comercial foi disponibilizado.</p>
+      }
+      <button nz-button type="button" class="pill publish-button" (click)="dialog.set('publish')">
+        Disponibilizar material
+      </button>
+    </section>
+  </div>
+  <p class="preview-note">
+    Prévia RBS do Cliente {{ clientName }}. Dados e publicação do exemplo ficam em memória, sem alterar contas,
+    permissões ou arquivos reais. Recarregar restaura o estado inicial.
+  </p>
+</app-admin-partnership-shell>
+
+<nz-modal
+  #profileModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(profileModal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  [nzClosable]="false"
+  nzClassName="pa-profile-dialog"
+>
+  <ng-template #dialogTitle
+    ><h2 #dialogHeading id="roxo-profile-dialog-title" class="dialog-title" tabindex="-1">
+      {{ title() }}
+    </h2></ng-template
+  >
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @switch (dialog()) {
+        @case ('publish') {
+          <p>{{ preview.profile().name }}</p>
+          <button nz-button type="button" class="pill finish-button" (click)="close()">
+            Voltar
+          </button>
+          <div class="document-card selected-file">
+            <span class="document-icon" aria-hidden="true">▤</span
+            ><span class="document-description"
+              ><strong>{{ preview.exampleName }}</strong
+              ><span>Selecionado para {{ preview.profile().name }}</span></span
+            ><span class="document-action" aria-hidden="true">Abrir →</span>
+          </div>
+          <button
+            nz-button
+            type="button"
+            class="pill dark-button publish-confirm"
+            (click)="publish()"
+          >
+            Salvar para esta parceria
+          </button>
+          <p class="preview-note">
+            Arquivo de exemplo do Figma. Somente a confirmação registra sua publicação em memória,
+            sem PDF ou upload real.
+          </p>
+        }
+        @case ('document') {
+          <p>Arquivo disponibilizado pela RBS para esta parceria.</p>
+          <button nz-button type="button" class="pill finish-button" (click)="close()">
+            Voltar
+          </button>
+          <p class="preview-note">
+            Visualizador ilustrativo, sem conteúdo de PDF ou download real.
+          </p>
+        }
+        @default {
+          <p>As informações foram atualizadas somente para o Cliente {{ clientName }}</p>
+          <button nz-button type="button" class="pill finish-button" (click)="close()">
+            Voltar
+          </button>
+          <p class="preview-note">Simulação local, sem alteração real de conta ou permissão.</p>
+        }
+      }
+    </div>
+  </ng-container>
+</nz-modal>

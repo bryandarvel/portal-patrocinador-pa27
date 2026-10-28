@@ -1,0 +1,37 @@
+<app-partnership-shell activeArea="05" title="Credenciamento"
+  description="Quantidades e orientações para o credenciamento da equipe."
+  pageUrl="/previa/credenciamento">
+  <div class="staff-panels">
+    <section class="staff-card" aria-labelledby="staff-credentials-title">
+      <h2 id="staff-credentials-title">Credenciais previstas</h2>
+      <p class="eyebrow">Quantidade informada pela RBS</p>
+      <p class="quantity">{{ accreditation().quantity }}</p>
+      <dl class="staff-details">
+        <div><dt class="eyebrow">Tipo</dt><dd>{{ accreditation().type }}</dd></div>
+        <div><dt class="eyebrow">Setor</dt><dd>{{ accreditation().sector }}</dd></div>
+      </dl>
+      <button nz-button class="pill dark-button open-staff-button" type="button"
+        aria-haspopup="dialog" (click)="openStaffDialog.set(true)">Acessar Open Staff</button>
+    </section>
+    <section class="staff-card external-guidance" aria-labelledby="staff-external-title">
+      <h2 id="staff-external-title">Credenciamento externo</h2>
+      <p>O credenciamento acontece no Open Staff. Consulte aqui a quantidade e o setor previstos.</p>
+      <p>Ao continuar, você acessará um sistema externo ao portal.</p>
+    </section>
+  </div>
+  <p class="preview-note">Prévia com dados fictícios. Quantidade, tipo e setor são exemplos do protótipo. O botão apresenta a orientação da RBS; o endereço do Open Staff ainda não foi disponibilizado nesta prévia.</p>
+</app-partnership-shell>
+
+<nz-modal #staffModal="nzModal" [nzVisible]="openStaffDialog()" (nzOnCancel)="openStaffDialog.set(false)"
+  (nzAfterOpen)="labelDialog(staffModal)" [nzTitle]="modalTitle" [nzFooter]="null"
+  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #modalTitle><h2 id="staff-dialog-title" class="dialog-title">Credenciamento no Open Staff</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      <p>O credenciamento é realizado em um sistema externo ao portal.</p>
+      <p>Consulte a quantidade e o setor disponíveis antes de continuar. O endereço será fornecido pela equipe RBS.</p>
+      <button nz-button class="pill dark-button back-button" type="button" (click)="openStaffDialog.set(false)">Voltar ao portal</button>
+    </div>
+  </ng-container>
+</nz-modal>

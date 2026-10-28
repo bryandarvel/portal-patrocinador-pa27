@@ -1,0 +1,16 @@
+.back-button { width: 100%; flex-shrink: 0; padding-top: 11px !important; }
+.exit-button { padding-top: 11px !important; }
+.deliveries-button { padding-top: 11px !important; }
+.faq-button { padding-top: 11px !important; }
+.context-back-button { width: 153px; padding-top: 11px !important; }
+.roxo-quota { background: #fdeaf5; }
+.verde-quota { background: #e6f5ed; }
+.roxo-dialog-title { padding-right: 0; }
+.roxo-publish-report { width: 182px; }
+.roxo-organize-sheets { width: 228px; }
+a.pending-button { padding-top: 11px !important; }
+.partnership-identity p, .quota { overflow-wrap: anywhere; }
+.quota { width: 150px; max-width: 100%; }
+.publish-report { background: var(--pa-magenta); border-color: var(--pa-magenta); color: #fff; }
+hr { width: 100%; border: 0; border-top: 1px solid var(--color-border); margin: 0; }
+@media (max-width: 760px) { .dialog-content .pill { max-width: 100%; height: auto; min-height: 44px; white-space: normal; } }

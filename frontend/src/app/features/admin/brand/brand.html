@@ -1,0 +1,142 @@
+<app-admin-partnership-shell activeArea="02" title="Aplicações de marca"
+  description="Da identidade da sua marca às aplicações realizadas no evento.">
+  <section class="submission-status submission-control" [class.is-closed]="!preview.brandSubmissionsOpen()" aria-label="Disponibilidade de envio">
+    <div class="submission-copy" role="status">
+      <p>{{ preview.brandSubmissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}</p>
+      <p>{{ preview.brandSubmissionsOpen() ? 'Os materiais podem ser enviados ou substituídos.' : 'A equipe RBS pode reabrir o envio para correção.' }}</p>
+    </div>
+    <button #submissionButton nz-button class="pill submission-button" type="button" (click)="dialog.set(preview.brandSubmissionsOpen() ? 'close' : 'reopen')">{{ preview.brandSubmissionsOpen() ? 'Encerrar envio' : 'Reabrir envio' }}</button>
+  </section>
+
+  <div class="brand-panels">
+    <section class="brand-card" aria-labelledby="brand-materials-title">
+      <h2 #materialsHeading id="brand-materials-title" tabindex="-1">Materiais da marca</h2>
+      <a class="document-card" routerLink="/previa/rbs/amarelo/entregas/logo-no-telao" aria-label="Abrir Logo para o telão">
+        <span class="document-icon" aria-hidden="true">▤</span>
+        <span class="document-description"><strong>Logo para o telão</strong><span>Vinculada à entrega Logo no telão</span></span>
+        <span class="document-action" aria-hidden="true">Abrir →</span>
+      </a>
+
+      @if (preview.currentMiv(); as miv) {
+        <div class="received-material">
+          <button class="document-card" type="button" (click)="dialog.set('document')" [attr.aria-label]="'Abrir ' + miv.name">
+            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-description"><strong>{{ miv.name }}</strong><span>{{ miv.sender === 'Admin RBS' ? 'Registrado pela RBS' : 'Recebido do patrocinador' }} · Histórico disponível</span></span>
+            <span class="document-action" aria-hidden="true">Abrir →</span>
+          </button>
+          @if (preview.brandSubmissionsOpen()) { <button nz-button class="pill replace-button" type="button" (click)="openUpload()">Substituir arquivo</button> }
+          <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">Histórico</button>
+        </div>
+      } @else {
+        <div class="missing-miv">
+          <p>Falta o manual de identidade visual</p>
+          <p>MIV é o manual que orienta o uso correto da sua marca.</p>
+          @if (preview.brandSubmissionsOpen()) {
+          <button class="upload-zone" type="button" (click)="openUpload()" aria-label="Enviar MIV">
+            <span class="upload-arrow" aria-hidden="true">↑</span>
+            <strong>Enviar MIV</strong>
+            <span>Clique para selecionar um arquivo</span>
+          </button>
+          } @else { <button nz-button class="pill closed-button" type="button" aria-disabled="true">Envio encerrado</button> }
+        </div>
+      }
+    </section>
+
+    <section class="brand-card delivery-card" aria-labelledby="brand-delivery-title">
+      <h2 id="brand-delivery-title">Da marca à entrega</h2>
+      <p class="eyebrow">Entrega em destaque</p>
+      <h3>Logo no telão</h3>
+      <p>Acompanhe o material enviado, o andamento da ação e a comprovação.</p>
+      <a nz-button class="pill dark-button follow-button" routerLink="/previa/rbs/amarelo/entregas/logo-no-telao">Acompanhar entrega</a>
+    </section>
+  </div>
+
+  <section class="brand-card evidence-card" aria-labelledby="evidence-title">
+    <h2 id="evidence-title">Comprovações das aplicações</h2>
+    @if (logo.proof(); as proof) { <p>{{ proof.description }}</p> } @else { <p>A comprovação desta entrega ainda não foi publicada.</p> }
+    <a nz-button class="pill proof-button" routerLink="/previa/rbs/amarelo/entregas/logo-no-telao">Registrar na entrega</a>
+  </section>
+  <p class="preview-note">Prévia RBS com dados fictícios. Controle de envio e metadados ficam somente em memória nesta sessão. Nenhum arquivo é transmitido; recarregar reinicia a simulação.</p>
+</app-admin-partnership-shell>
+
+<nz-modal #brandModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(brandModal)" (nzAfterClose)="afterClose()" [nzTitle]="modalTitle" [nzFooter]="null"
+  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" [nzClosable]="dialog() !== 'history'"
+  nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #modalTitle><h2 id="rbs-brand-dialog-title" class="dialog-title" tabindex="-1">{{ dialogTitle() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (dialog() === 'upload' || dialog() === 'replace') {
+        <input #fileInput type="file" hidden aria-label="Arquivo do manual de identidade visual" (change)="selectFile(fileInput)" />
+        @if (selected(); as file) {
+          <p>Confira o arquivo antes de continuar.</p>
+          <div class="document-card selected-file" aria-label="Arquivo selecionado">
+            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-description"><strong>{{ file.name }}</strong><span>Selecionado · pronto para enviar</span></span>
+            <span class="document-action" aria-disabled="true" title="Conteúdo indisponível nesta simulação">Abrir →</span>
+          </div>
+          <div class="dialog-actions">
+            <button nz-button class="pill brand-button" type="button" (click)="send()">Enviar arquivo</button>
+            <button nz-button class="pill choose-button" type="button" (click)="chooseAnother()">Escolher outro arquivo</button>
+          </div>
+        } @else {
+          <p>Selecione o material que deseja disponibilizar.</p>
+          <button class="upload-zone" type="button" (click)="fileInput.click()" aria-label="Selecionar arquivo">
+            <span class="upload-arrow" aria-hidden="true">↑</span>
+            <strong>Selecionar arquivo</strong>
+            <span>Escolha o arquivo no seu dispositivo</span>
+          </button>
+          <button nz-button class="pill finish-button" type="button" (click)="cancel()">Cancelar</button>
+        }
+        @if (inputError()) { <p class="file-error" role="alert">{{ inputError() }}</p> }
+        <p class="preview-note">Simulação local: apenas nome e tamanho são usados; o conteúdo não é lido nem enviado.</p>
+      }
+      @if (dialog() === 'progress') {
+        <p role="status">Aguarde enquanto o envio é simulado.</p>
+        <div class="document-card selected-file">
+          <span class="document-icon" aria-hidden="true">▤</span>
+          <span class="document-description"><strong>{{ selected()?.name }}</strong><span>Envio em andamento</span></span>
+          <span class="document-action" aria-disabled="true">Abrir →</span>
+        </div>
+        <div class="upload-progress" role="progressbar" aria-label="Envio simulado" aria-valuemin="0" aria-valuemax="100" aria-valuenow="67"><span></span></div>
+        <p class="progress-value">67%</p>
+      }
+      @if (dialog() === 'received' || dialog() === 'cancelled') {
+        <p role="status">{{ dialog() === 'received' ? 'O envio foi registrado nesta simulação. Nenhum arquivo real foi disponibilizado.' : 'Nenhuma informação foi alterada.' }}</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      @if (dialog() === 'history') {
+        @for (version of preview.mivVersions(); track version.version) {
+          <div class="history-version">
+            <strong>{{ version.name }}</strong>
+            <p>Versão {{ version.version }} · {{ version.sender ?? 'Admin Patrocinador' }} · {{ version.receivedAt | date:'dd/MM/yyyy' }}</p>
+          </div>
+        }
+        <p class="preview-note">Histórico desta simulação, mantido somente em memória.</p>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      @if (dialog() === 'document') {
+        <p>Arquivo disponibilizado no contexto desta parceria.</p>
+        <div class="document-preview" [attr.aria-label]="preview.currentMiv()?.name">
+          <h3>Documento</h3>
+          <p>O conteúdo será exibido conforme o formato do arquivo.</p>
+        </div>
+        <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta simulação">Baixar arquivo</button>
+        <p class="preview-note">Somente o nome foi registrado. Esta prévia não armazena o arquivo.</p>
+      }
+      @if (dialog() === 'close' || dialog() === 'reopen') {
+        <p>{{ dialog() === 'close' ? 'Novos envios e substituições pelo patrocinador ficarão indisponíveis.' : 'O patrocinador poderá enviar e substituir seus materiais novamente.' }}</p>
+        <button nz-button class="pill dark-button submission-button" type="button" (click)="confirmSubmissionChange()">{{ dialog() === 'close' ? 'Encerrar envio' : 'Reabrir envio' }}</button>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Voltar</button>
+      }
+      @if (dialog() === 'saved') {
+        <p>As informações foram atualizadas na parceria.</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span>
+        <p class="preview-note">Simulação local: {{ preview.brandSubmissionsOpen() ? 'envio reaberto' : 'envio encerrado' }}. Esta alteração não foi enviada a uma API.</p>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+    </div>
+  </ng-container>
+</nz-modal>

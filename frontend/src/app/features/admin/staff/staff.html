@@ -1,0 +1,54 @@
+<app-admin-partnership-shell activeArea="05" title="Credenciamento" description="Quantidades e orientações para o credenciamento da equipe.">
+  <div class="staff-panels">
+    <section class="staff-card" aria-labelledby="rbs-staff-credentials-title">
+      <h2 id="rbs-staff-credentials-title">Credenciais previstas</h2>
+      <p class="eyebrow">Quantidade informada pela RBS</p>
+      <p class="quantity">{{ accreditation().quantity }}</p>
+      <dl class="staff-details">
+        <div><dt class="eyebrow">Tipo</dt><dd>{{ accreditation().type }}</dd></div>
+        <div><dt class="eyebrow">Setor</dt><dd>{{ accreditation().sector }}</dd></div>
+      </dl>
+      <button nz-button class="pill edit-button" type="button" aria-haspopup="dialog" (click)="openEdit()">Editar quantidade e setor</button>
+    </section>
+    <section class="staff-card external-guidance" aria-labelledby="rbs-staff-external-title">
+      <h2 id="rbs-staff-external-title">Credenciamento externo</h2>
+      <p>O credenciamento acontece no Open Staff. Consulte aqui a quantidade e o setor previstos.</p>
+      <p>Ao continuar, você acessará um sistema externo ao portal.</p>
+    </section>
+  </div>
+  <p class="preview-note">Prévia RBS com dados fictícios. Alterações ficam somente em memória e são apagadas ao recarregar. Quantidade, tipo e setor não representam direitos confirmados da cota. Nenhuma credencial é emitida.</p>
+</app-admin-partnership-shell>
+
+<nz-modal #staffModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()" (nzAfterOpen)="labelDialog(staffModal)"
+  [nzTitle]="modalTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #modalTitle><h2 #dialogHeading id="rbs-staff-dialog-title" class="dialog-title" tabindex="-1">{{ dialog() === 'saved' ? 'Alterações salvas' : 'Credenciamento da parceria' }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (dialog() === 'edit') {
+        <form #formElement class="staff-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <div class="staff-field">
+            <label for="rbs-staff-quantity">Quantidade</label>
+            <input nz-input id="rbs-staff-quantity" type="number" inputmode="numeric" min="0" step="1" required formControlName="quantity"
+              [attr.aria-invalid]="invalid('quantity')" [attr.aria-describedby]="invalid('quantity') ? 'rbs-staff-quantity-error' : null" />
+            @if (invalid('quantity')) { <p class="field-error" id="rbs-staff-quantity-error">Informe uma quantidade inteira, igual ou maior que zero.</p> }
+          </div>
+          <div class="staff-field">
+            <label for="rbs-staff-sector">Setor</label>
+            <input nz-input id="rbs-staff-sector" required formControlName="sector"
+              [attr.aria-invalid]="invalid('sector')" [attr.aria-describedby]="invalid('sector') ? 'rbs-staff-sector-error' : null" />
+            @if (invalid('sector')) { <p class="field-error" id="rbs-staff-sector-error">Informe o setor.</p> }
+          </div>
+          <p>Informações previstas para esta parceria.</p>
+          <button nz-button class="pill dark-button save-button" type="submit">Salvar informações</button>
+        </form>
+      }
+      @if (dialog() === 'saved') {
+        <p>As informações foram atualizadas na parceria.</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      <p class="preview-note">Simulação local. Não altera o Open Staff nem emite credenciais.</p>
+    </div>
+  </ng-container>
+</nz-modal>

@@ -1,19 +1,18 @@
 <main class="login-page">
   <section class="festival" aria-label="Imagens do Planeta Atlântida 2027" aria-roledescription="carrossel"
     (mouseenter)="hovered.set(true)" (mouseleave)="hovered.set(false)" (focusin)="focused.set(true)" (focusout)="leaveCarousel($event)"
-    [class.motion-paused]="paused() || hovered() || focused() || hidden()">
+    [class.motion-paused]="paused() || hovered() || focused() || hidden() || helpOpen()">
     @for (slide of slides; track slide.image; let index = $index) {
       <div class="festival-scene" [class.active]="activeSlide() === index" aria-hidden="true">
         <img class="festival-photo" [src]="slide.image" alt="" [attr.fetchpriority]="index === 0 ? 'high' : 'low'" />
       </div>
     }
     <div class="festival-shade"></div>
-    <div class="festival-ribbon ribbon-top" aria-hidden="true"></div>
-    <div class="festival-ribbon ribbon-bottom" aria-hidden="true"></div>
-    <img class="festival-logo" src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="160" height="154" />
+    <img class="festival-logo" src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="140" height="140" />
     <div class="festival-message">
+      <div class="festival-checker" aria-hidden="true"></div>
       <p class="festival-slogan">{{ slides[activeSlide()].title }}</p>
-      <p class="festival-caption">{{ slides[activeSlide()].caption }}</p>
+      <p class="festival-caption">Planeta Atlântida 2027</p>
     </div>
     <div class="carousel-controls" aria-label="Controles das imagens">
       @for (slide of slides; track slide.image; let index = $index) {
@@ -26,15 +25,13 @@
         <nz-icon [nzType]="paused() ? 'caret-right' : 'pause'" aria-hidden="true" />
       </button>
     </div>
-    <div class="brand-stripe" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   </section>
 
   <section class="access" aria-labelledby="login-title">
     <div class="login-content">
-      <img class="access-logo" src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="140" height="135" />
       <p class="access-brand">Portal do Patrocinador</p>
-      <h1 id="login-title">Entre na sua conta</h1>
-      <p class="intro">Entre para acompanhar materiais e entregas do seu patrocínio.</p>
+      <h1 id="login-title">Que bom ter<br />você aqui.</h1>
+      <p class="intro">Acesse sua parceria com o Planeta Atlântida.</p>
 
       <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="submit()" (input)="validated.set(false)" novalidate>
         <nz-form-item>
@@ -46,7 +43,7 @@
             @if (showError('email')) {
               <p id="email-error" class="field-error" role="alert">{{ form.controls.email.hasError('required') ? 'Informe seu e-mail.' : 'Informe um e-mail válido.' }}</p>
             } @else {
-              <p id="email-help" class="field-help">Use o e-mail cadastrado pela equipe RBS.</p>
+              <p id="email-help" class="visually-hidden">Use o e-mail cadastrado pela equipe RBS.</p>
             }
           </nz-form-control>
         </nz-form-item>
@@ -67,8 +64,8 @@
             }
           </nz-form-control>
         </nz-form-item>
-        <button nz-button nzType="primary" nzSize="large" class="submit" type="submit">
-          Entrar no portal <nz-icon nzType="arrow-right" aria-hidden="true" />
+        <button nz-button nzType="primary" nzSize="large" class="submit dark-button" type="submit">
+          Entrar no portal
         </button>
         @if (validated() && form.valid) {
           <div class="integration-notice" role="status">
@@ -76,7 +73,24 @@
           </div>
         }
       </form>
-      <p class="access-help">Precisa de acesso? <strong>Fale com o atendimento RBS.</strong></p>
+      <hr class="access-divider" />
+      <p class="access-help">Seu acesso é fornecido pela equipe RBS. Precisa de ajuda? Fale com o responsável pela sua parceria.</p>
+      <button nz-button class="access-guidance" type="button" (click)="helpOpen.set(true)">Orientações de acesso</button>
     </div>
   </section>
 </main>
+
+<nz-modal #helpModal="nzModal" [nzVisible]="helpOpen()" (nzOnCancel)="helpOpen.set(false)" [nzTitle]="helpTitle"
+  (nzAfterOpen)="labelHelpDialog(helpModal)"
+  [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" nzClassName="pa-login-help"
+  [nzCloseIcon]="helpClose" [nzNoAnimation]="reducedMotion()">
+  <ng-template #helpTitle><h2 id="login-help-title" class="help-title" tabindex="-1">Seu acesso ao portal</h2></ng-template>
+  <ng-template #helpClose><span aria-hidden="true">×</span><span class="visually-hidden">Fechar orientações</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="help-content">
+      <p>A RBS fornece o e-mail e a senha da sua conta.</p>
+      <p>Se precisar de ajuda para entrar, entre em contato com a pessoa responsável pela parceria na RBS.</p>
+      <button nz-button nzType="primary" class="dark-button help-confirm" type="button" (click)="helpOpen.set(false)">Entendi</button>
+    </div>
+  </ng-container>
+</nz-modal>

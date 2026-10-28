@@ -1,0 +1,118 @@
+<app-partnership-shell activeArea="delivery-detail" title="Logo no telão"
+  description="Aplicações de marca · Da preparação do material à comprovação da entrega."
+  pageUrl="/previa/entregas/logo-no-telao">
+  <a nz-button class="pill back-button" routerLink="/previa/entregas">← Todas as entregas</a>
+  <div class="delivery-panels">
+    <section class="delivery-card" aria-labelledby="delivery-material-title">
+      <h2 #materialHeading id="delivery-material-title" tabindex="-1">Material da entrega</h2>
+      <p [class]="'material-badge ' + preview.tone()" role="status">
+        <img [src]="preview.icon()" alt="" width="6" height="6" />{{ preview.badge() }}
+      </p>
+      @if (preview.current(); as material) {
+        <p>{{ preview.guidance() }}</p>
+        <div class="received-material">
+          <button type="button" class="document-card" (click)="dialog.set('document')" [attr.aria-label]="'Abrir ' + material.name">
+            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-description"><strong>{{ material.name }}</strong><span>Arquivo enviado pelo patrocinador</span></span>
+            <span class="document-action" aria-hidden="true">Abrir →</span>
+          </button>
+          <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">Histórico do material</button>
+          @if (preview.stage() === 'adjustment') { <div class="correction-note"><strong>COMENTÁRIO DA RBS</strong><p>{{ material.correction }}</p></div>@if (preview.canUpload()) { <button nz-button class="pill brand-button replace-logo-button" type="button" (click)="openUpload()">Substituir logo</button> } }
+        </div>
+      } @else {
+        <p>Patrocinador · Envie a logo da sua marca.</p>
+        @if (partnership.brandSubmissionsOpen()) { <button nz-button class="pill brand-button upload-button" type="button" (click)="openUpload()">Enviar logo</button> }
+      }
+      @if (preview.proof(); as proof) { <div class="execution-record"><strong>Comprovação publicada</strong><p class="proof-description">{{ proof.description }}</p><button nz-button class="pill record-button" type="button" (click)="dialog.set('proof')">Consultar registro</button></div> }
+      @if (!partnership.brandSubmissionsOpen()) {
+        <div class="closed-submission" role="status"><p>Envio encerrado pela RBS</p><p>A RBS pode reabrir o envio caso seja necessária uma correção.</p></div>
+      }
+    </section>
+    <section class="delivery-card" aria-labelledby="journey-title">
+      <h2 id="journey-title">Jornada da entrega</h2>
+      <ol class="journey">
+        @for (step of steps; track step; let index = $index) {
+          <li [attr.aria-current]="index === preview.journeyStep() ? 'step' : null">
+            <span class="step-number" aria-hidden="true">0{{ index + 1 }}</span><span>{{ step }}</span>
+          </li>
+        }
+      </ol>
+      <p class="eyebrow">Responsável pela entrega</p>
+      <p>{{ preview.summary().owner }}</p>
+      <button nz-button class="pill preview-button" type="button" (click)="reportOpen.set(true)">Prévia do relatório</button>
+    </section>
+  </div>
+  <p class="preview-note">Prévia com dados fictícios. Apenas nome e tamanho do arquivo são registrados em memória, sem envio à RBS. Recarregar apaga o registro. Análise, correções e comprovação dependem das ações da RBS.</p>
+</app-partnership-shell>
+
+<app-delivery-report [(open)]="reportOpen" />
+
+<nz-modal #materialModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(materialModal)" (nzAfterClose)="afterClose()" [nzTitle]="modalTitle" [nzFooter]="null"
+  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
+  <ng-template #modalTitle><h2 id="delivery-material-dialog-title" class="dialog-title" tabindex="-1">{{ dialogTitle() }}</h2></ng-template>
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    <div class="dialog-content">
+      @if (dialog() === 'upload') {
+        <input #fileInput type="file" hidden aria-label="Arquivo da logo da entrega" (change)="selectFile(fileInput)" />
+        @if (selected(); as file) {
+          <p>Confira o arquivo antes de continuar.</p>
+          <div class="document-card selected-file" aria-label="Arquivo selecionado">
+            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-description"><strong>{{ file.name }}</strong><span>Selecionado · pronto para enviar</span></span>
+            <span class="document-action" aria-disabled="true" title="Conteúdo indisponível nesta simulação">Abrir →</span>
+          </div>
+          <div class="dialog-actions">
+            <button nz-button class="pill brand-button" type="button" (click)="send()">Enviar arquivo</button>
+            <button nz-button class="pill choose-button" type="button" (click)="chooseAnother()">Escolher outro arquivo</button>
+          </div>
+        } @else {
+          <p>Selecione o material que deseja disponibilizar.</p>
+          <button class="upload-zone" type="button" (click)="fileInput.click()" aria-label="Selecionar arquivo" aria-describedby="logo-upload-note">
+            <span class="upload-arrow" aria-hidden="true">↑</span><strong>Selecionar arquivo</strong><span>Escolha o arquivo no seu dispositivo</span>
+          </button>
+          <button nz-button class="pill finish-button" type="button" (click)="cancel()">Cancelar</button>
+        }
+        @if (inputError()) { <p class="file-error" role="alert">{{ inputError() }}</p> }
+        <p class="preview-note" id="logo-upload-note">Simulação local: o conteúdo não é lido nem enviado. Formatos e limites reais serão definidos na integração.</p>
+      }
+      @if (dialog() === 'progress') {
+        <p role="status">Aguarde enquanto o envio é simulado.</p>
+        <div class="document-card selected-file">
+          <span class="document-icon" aria-hidden="true">▤</span>
+          <span class="document-description"><strong>{{ selected()?.name }}</strong><span>Envio em andamento</span></span>
+          <span class="document-action" aria-disabled="true">Abrir →</span>
+        </div>
+        <div class="upload-progress" role="progressbar" aria-label="Envio simulado" aria-valuemin="0" aria-valuemax="100" aria-valuenow="67"><span></span></div>
+        <p class="progress-value">67%</p>
+      }
+      @if (dialog() === 'received' || dialog() === 'cancelled') {
+        <p role="status">{{ dialog() === 'received' ? 'O envio foi registrado nesta simulação. Nenhum arquivo foi disponibilizado à RBS.' : 'Nenhuma informação foi alterada.' }}</p>
+        <span class="done-badge"><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      @if (dialog() === 'history') {
+        <p>Logo no telão · Cliente Amarelo</p>
+        @for (version of preview.versions(); track version.version) {
+          <div class="history-version">
+            <strong>Versão {{ version.version }} · {{ version.name }}</strong>
+            <p>Enviado por Admin Patrocinador · {{ version.example ? 'Exemplo do protótipo' : (version.receivedAt | date:'dd/MM/yyyy HH:mm') }}</p>
+            @if (version.correction) { <p>{{ version.correction }}</p> }
+          </div>
+        }
+        <p>A substituição mantém o registro anterior, o responsável e a data.</p>
+        <p class="preview-note">Histórico desta simulação. A substituição depende de solicitação de correção pela RBS.</p>
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+      }
+      @if (dialog() === 'document') {
+        <h3 class="file-name">{{ preview.current()?.name }}</h3>
+        <div class="logo-placeholder" aria-label="Marca fictícia de demonstração"><p>Cliente<br />Amarelo</p></div>
+        <p>Enviado pelo patrocinador · Histórico disponível na entrega.</p>
+        <button nz-button class="pill download-button" type="button" disabled aria-describedby="logo-preview-note">Baixar arquivo</button>
+        <p class="preview-note" id="logo-preview-note">A marca acima é o exemplo do protótipo, não o conteúdo do arquivo selecionado. Somente os metadados foram registrados; download indisponível.</p>
+      }
+      @if (dialog() === 'proof') { @if (preview.proof(); as proof) { <p>Logo no telão · Cliente Amarelo</p><span class="material-badge info"><img src="/images/status-disponivel.svg" width="6" height="6" alt="" />Comprovação disponível</span><p class="proof-description">{{ proof.description }}</p><p>Registro publicado por {{ proof.author }} · {{ proof.publishedAt | date:'dd/MM/yyyy HH:mm' }} · Simulação</p><button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button> } }
+    </div>
+  </ng-container>
+</nz-modal>

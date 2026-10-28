@@ -1,0 +1,249 @@
+<app-admin-partnership-shell
+  [sponsorId]="sponsorId"
+  logoSrc="/images/pa27-logo-figma.png"
+  activeArea="faq"
+  title="Dúvidas frequentes"
+  description="Respostas rápidas sobre materiais, documentos e o uso do portal."
+>
+  <div class="search-management">
+    <form
+      class="faq-search"
+      role="search"
+      aria-label="Dúvidas frequentes"
+      (submit)="$event.preventDefault(); search()"
+    >
+      <label for="rbs-faq-query">Buscar uma dúvida</label>
+      <input
+        nz-input
+        id="rbs-faq-query"
+        type="search"
+        [formControl]="searchField"
+        enterkeyhint="search"
+        placeholder="Digite uma palavra, por exemplo: MIV"
+        aria-describedby="rbs-faq-search-help"
+      />
+      <span id="rbs-faq-search-help" class="visually-hidden"
+        >Digite sua dúvida e pressione Enter para buscar.</span
+      >
+    </form>
+    <button
+      nz-button
+      type="button"
+      class="pill brand-button new-button"
+      aria-haspopup="dialog"
+      (click)="openEditor()"
+    >
+      Nova dúvida
+    </button>
+  </div>
+  <div class="faq-categories" role="group" aria-label="Categorias de ajuda">
+    @for (category of categories; track category) {
+      <button
+        nz-button
+        type="button"
+        class="pill category-button"
+        [class.dark-button]="category === 'Todas'"
+        aria-haspopup="dialog"
+        (click)="showCategory(category)"
+      >
+        {{ category }}
+      </button>
+    }
+  </div>
+  <section class="faq-list" aria-label="Perguntas e respostas">
+    @for (entry of preview.entries(); track entry.id) {
+      <ng-container
+        [ngTemplateOutlet]="faqCard"
+        [ngTemplateOutletContext]="{ $implicit: entry, inDialog: false }"
+      />
+    }
+  </section>
+  <p class="preview-note">
+    Prévia RBS com dados fictícios. Criação e edição ficam somente em memória, sem publicação real.
+    Recarregar restaura as quatro dúvidas iniciais.
+  </p>
+</app-admin-partnership-shell>
+
+<ng-template #faqCard let-entry let-inDialog="inDialog">
+  <article
+    class="faq-card"
+    [attr.aria-labelledby]="(inDialog ? 'rbs-result-' : 'rbs-faq-') + entry.id"
+  >
+    @if (inDialog) {
+      <h3 class="question-title" [id]="'rbs-result-' + entry.id">{{ entry.question }}</h3>
+    } @else {
+      <h2 [id]="'rbs-faq-' + entry.id">{{ entry.question }}</h2>
+    }
+    <p class="faq-answer">{{ entry.answer }}</p>
+    <div class="category-actions">
+      <p class="faq-category">{{ entry.category }}</p>
+      <button
+        nz-button
+        type="button"
+        class="pill edit-button"
+        [attr.aria-label]="'Editar: ' + entry.question"
+        [attr.data-entry-id]="entry.id"
+        aria-haspopup="dialog"
+        (click)="openEditor(entry)"
+      >
+        Editar
+      </button>
+    </div>
+  </article>
+</ng-template>
+
+<nz-modal
+  #faqModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(faqModal)"
+  [nzTitle]="dialogTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="dialog() === 'results' ? 840 : 720"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+>
+  <ng-template #dialogTitle
+    ><h2 #dialogHeading tabindex="-1" id="rbs-faq-dialog-title" class="dialog-title">
+      {{ title() }}
+    </h2></ng-template
+  >
+  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-container *nzModalContent>
+    @switch (dialog()) {
+      @case ('results') {
+        <div class="dialog-content">
+          <section
+            #resultsPanel
+            class="faq-results"
+            aria-label="Resultados da consulta"
+            tabindex="0"
+          >
+            @for (entry of results(); track entry.id) {
+              <ng-container
+                [ngTemplateOutlet]="faqCard"
+                [ngTemplateOutletContext]="{ $implicit: entry, inDialog: true }"
+              />
+            } @empty {
+              <div class="faq-empty" role="status">
+                <h3 class="question-title">Nenhuma dúvida encontrada</h3>
+                <p>Tente outra palavra ou consulte as categorias de ajuda.</p>
+              </div>
+            }
+          </section>
+          <button nz-button type="button" class="pill back-button" (click)="close()">
+            Voltar às dúvidas
+          </button>
+        </div>
+      }
+      @case ('editor') {
+        <form #editorForm class="dialog-content faq-editor" [formGroup]="form" (ngSubmit)="save()">
+          <p>
+            {{
+              editingId()
+                ? 'Atualize a pergunta, a resposta e sua categoria.'
+                : form.valid
+                  ? 'Confira o conteúdo antes de disponibilizar.'
+                  : 'Preencha uma dúvida recorrente e a orientação para o patrocinador.'
+            }}
+          </p>
+          <div class="editor-field">
+            <label for="rbs-faq-question">Pergunta</label>
+            <input
+              nz-input
+              id="rbs-faq-question"
+              formControlName="question"
+              required
+              placeholder="Digite a pergunta"
+              [attr.aria-invalid]="form.controls.question.touched && form.controls.question.invalid"
+              [attr.aria-describedby]="
+                form.controls.question.touched && form.controls.question.invalid
+                  ? 'rbs-question-error'
+                  : null
+              "
+            />
+            @if (form.controls.question.touched && form.controls.question.invalid) {
+              <p id="rbs-question-error" class="field-error" role="alert">Informe a pergunta.</p>
+            }
+          </div>
+          <div class="editor-field">
+            <label for="rbs-faq-answer">Resposta</label>
+            <textarea
+              nz-input
+              id="rbs-faq-answer"
+              formControlName="answer"
+              required
+              placeholder="Escreva a resposta"
+              [rows]="form.controls.answer.value ? 2 : 1"
+              [attr.aria-invalid]="form.controls.answer.touched && form.controls.answer.invalid"
+              [attr.aria-describedby]="
+                form.controls.answer.touched && form.controls.answer.invalid
+                  ? 'rbs-answer-error'
+                  : null
+              "
+            ></textarea>
+            @if (form.controls.answer.touched && form.controls.answer.invalid) {
+              <p id="rbs-answer-error" class="field-error" role="alert">Informe a resposta.</p>
+            }
+          </div>
+          <div class="editor-field">
+            <label for="rbs-faq-category">Categoria</label>
+            <select
+              id="rbs-faq-category"
+              formControlName="category"
+              required
+              [attr.aria-invalid]="form.controls.category.touched && form.controls.category.invalid"
+              [attr.aria-describedby]="
+                form.controls.category.touched && form.controls.category.invalid
+                  ? 'rbs-category-error'
+                  : null
+              "
+            >
+              <option value="" disabled>Selecione uma categoria</option>
+              @for (category of preview.categories; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+            @if (form.controls.category.touched && form.controls.category.invalid) {
+              <p id="rbs-category-error" class="field-error" role="alert">
+                Selecione uma categoria.
+              </p>
+            }
+          </div>
+          <div class="editor-actions" [class.empty-actions]="!editingId() && form.invalid">
+            <button
+              nz-button
+              type="submit"
+              class="pill brand-button"
+              [class.save-edit]="editingId() !== null"
+              [class.save-new]="editingId() === null"
+              [disabled]="form.invalid"
+            >
+              {{ editingId() ? 'Salvar alterações' : 'Salvar dúvida' }}
+            </button>
+            <button nz-button type="button" class="pill finish-button" (click)="close()">
+              Cancelar
+            </button>
+          </div>
+          <p class="preview-note">
+            Alteração simulada, disponível apenas nesta instância da aplicação.
+          </p>
+        </form>
+      }
+      @case ('saved') {
+        <div class="dialog-content">
+          <p>As informações já estão disponíveis para consulta.</p>
+          <span class="saved-badge"
+            ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Atualizado</span
+          >
+          <button nz-button type="button" class="pill dark-button finish-button" (click)="close()">
+            Concluir
+          </button>
+          <p class="preview-note">Salvo somente em memória, sem publicação real.</p>
+        </div>
+      }
+    }
+  </ng-container>
+</nz-modal>
