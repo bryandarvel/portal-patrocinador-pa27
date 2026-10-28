@@ -1,50 +1,45 @@
-<app-partnership-shell activeArea="01" title="Perfil do cliente"
+<app-partnership-shell
+  activeArea="01"
+  title="Perfil do cliente"
   description="Informações que identificam a parceria e seus documentos comerciais."
-  pageUrl="/previa/perfil">
-        <div class="profile-panels">
-          <section class="profile-card partnership-data" aria-labelledby="partnership-data-title">
-            <h2 id="partnership-data-title">Dados da parceria</h2>
-            <div class="profile-field">
-              <label for="sponsor-name">Nome do patrocinador</label>
-              <input nz-input id="sponsor-name" [value]="partnership.sponsorName" readonly />
-            </div>
-            <div class="profile-field">
-              <label for="sponsor-quota">Cota / plano comercial</label>
-              <input nz-input id="sponsor-quota" [value]="partnership.quota" readonly />
-            </div>
-            <div class="profile-field">
-              <label for="sponsor-email">E-mail autorizado</label>
-              <input nz-input id="sponsor-email" type="email" [value]="partnership.email" readonly />
-            </div>
-          </section>
-
-          <section class="profile-card commercial-documents" aria-labelledby="commercial-documents-title">
-            <h2 id="commercial-documents-title">Documentos comerciais</h2>
-            <p>Arquivos disponibilizados pela RBS para esta parceria.</p>
-            @for (document of partnership.documents; track document.id) {
-              <button class="document-card" type="button" (click)="openDocument(document)" [attr.aria-label]="'Abrir ' + document.title">
-                <span class="document-icon" aria-hidden="true">▤</span>
-                <span class="document-description"><strong>{{ document.title }}</strong><span>{{ document.description }}</span></span>
-                <span class="document-action" aria-hidden="true">Abrir →</span>
-              </button>
-            }
-          </section>
-        </div>
+  pageUrl="/perfil"
+>
+  <div class="profile-panels">
+    <section class="profile-card partnership-data" aria-labelledby="partnership-data-title">
+      <h2 id="partnership-data-title">Dados da parceria</h2>
+      <div class="profile-field">
+        <label for="sponsor-name">Nome do patrocinador</label
+        ><input nz-input id="sponsor-name" [value]="partnership().sponsorName" readonly />
+      </div>
+      <div class="profile-field">
+        <label for="sponsor-quota">Cota / plano comercial</label
+        ><input nz-input id="sponsor-quota" [value]="partnership().quota" readonly />
+      </div>
+      <div class="profile-field">
+        <label for="sponsor-email">E-mail da conta</label
+        ><input nz-input id="sponsor-email" type="email" [value]="partnership().email" readonly />
+      </div>
+    </section>
+    <section class="profile-card commercial-documents" aria-labelledby="commercial-documents-title">
+      <h2 id="commercial-documents-title">Documentos comerciais</h2>
+      <p>Arquivos disponibilizados pela RBS para esta parceria.</p>
+      @for (document of partnership().documents; track document.id) {
+        <button
+          class="document-card"
+          type="button"
+          [disabled]="api.pending() > 0"
+          (click)="download(document.id, document.title)"
+          [attr.aria-label]="'Baixar ' + document.title"
+        >
+          <span class="document-icon" aria-hidden="true">▤</span
+          ><span class="document-description"
+            ><strong>{{ document.title }}</strong
+            ><span>{{ document.description }}</span></span
+          ><span class="document-action">Baixar →</span>
+        </button>
+      } @empty {
+        <p>Nenhum documento disponibilizado.</p>
+      }
+    </section>
+  </div>
 </app-partnership-shell>
-
-<nz-modal #profileModal="nzModal" [nzVisible]="documentOpen()" (nzOnCancel)="documentOpen.set(false)"
-  (nzAfterOpen)="labelDialog(profileModal)" [nzTitle]="dialogTitle" [nzFooter]="null"
-  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #dialogTitle><h2 id="profile-dialog-title" class="dialog-title">Documento da parceria</h2></ng-template>
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-          <p>Arquivo disponibilizado no contexto desta parceria.</p>
-          <div class="document-preview" [attr.aria-label]="selectedDocument()?.title">
-            <h3>Documento</h3>
-            <p>O conteúdo será exibido conforme o formato do arquivo.</p>
-          </div>
-          <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta prévia">Baixar arquivo</button>
-    </div>
-  </ng-container>
-</nz-modal>

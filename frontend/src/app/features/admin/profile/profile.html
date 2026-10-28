@@ -1,75 +1,323 @@
-<app-admin-partnership-shell title="Perfil do cliente" description="Informações que identificam a parceria e seus documentos comerciais.">
+<app-admin-partnership-shell
+  title="Perfil do cliente"
+  description="Informações que identificam a parceria e seus documentos comerciais."
+>
   <div class="profile-panels">
     <section class="profile-card" aria-labelledby="rbs-registration-title">
       <h2 id="rbs-registration-title">Cadastro do patrocinador</h2>
-      <form [formGroup]="form" (ngSubmit)="save()" class="profile-form">
-        <div class="profile-field"><label for="rbs-sponsor-name">Nome do patrocinador</label>
-          <input nz-input id="rbs-sponsor-name" formControlName="name" [attr.aria-invalid]="invalid('name')" [attr.aria-describedby]="invalid('name') ? 'rbs-name-error' : null" />
-          @if (invalid('name')) { <p class="field-error" id="rbs-name-error">Informe o nome do patrocinador.</p> }
+      <form class="profile-form" (ngSubmit)="save()">
+        <div class="profile-field">
+          <label for="rbs-sponsor-name">Nome do patrocinador</label
+          ><input
+            nz-input
+            id="rbs-sponsor-name"
+            name="name"
+            [(ngModel)]="name"
+            required
+            maxlength="200"
+          />
         </div>
-        <div class="profile-field"><label for="rbs-sponsor-quota">Cota / plano comercial</label>
-          <input nz-input id="rbs-sponsor-quota" formControlName="quota" [attr.aria-invalid]="invalid('quota')" [attr.aria-describedby]="invalid('quota') ? 'rbs-quota-error' : null" />
-          @if (invalid('quota')) { <p class="field-error" id="rbs-quota-error">Informe a cota ou o plano comercial.</p> }
+        <div class="profile-field">
+          <label for="rbs-sponsor-quota">Cota / plano comercial</label
+          ><select id="rbs-sponsor-quota" name="quota" [(ngModel)]="cotaId" required>
+            @for (cota of preview.quotas(); track cota.id) {
+              <option [value]="cota.id">{{ cota.nome }}</option>
+            }
+          </select>
+          <p>A troca de cota preserva os direitos já contratados.</p>
         </div>
-        <div class="profile-field"><label for="rbs-sponsor-email">E-mail autorizado</label>
-          <input nz-input id="rbs-sponsor-email" type="email" formControlName="email" [attr.aria-invalid]="invalid('email')" [attr.aria-describedby]="invalid('email') ? 'rbs-email-error' : null" />
-          @if (invalid('email')) { <p class="field-error" id="rbs-email-error">Informe um e-mail válido.</p> }
+        <div class="profile-field">
+          <label>Acessos autorizados</label>
+          @for (user of ctx.partnership()?.acessos ?? []; track user.id) {
+            <p>
+              {{ user.nome }} · {{ user.email }} {{ user.ativo ? '' : '(aguardando ativação)' }}
+            </p>
+          } @empty {
+            <p>Nenhuma conta vinculada.</p>
+          }
         </div>
-        <div class="profile-actions"><button nz-button class="pill dark-button save-button" type="submit">Salvar alterações</button><button nz-button class="pill access-button" type="button" (click)="openAccess()">Gerenciar acesso</button></div>
+        <div class="profile-actions">
+          <button
+            nz-button
+            class="pill dark-button save-button"
+            type="submit"
+            [disabled]="api.pending() > 0"
+          >
+            Salvar alterações</button
+          ><button nz-button class="pill access-button" type="button" (click)="openAccess()">
+            Gerenciar acesso
+          </button>
+        </div>
       </form>
     </section>
     <section class="profile-card commercial-documents" aria-labelledby="rbs-documents-title">
       <h2 id="rbs-documents-title">Documentos comerciais</h2>
       <p>Arquivos disponibilizados pela RBS para esta parceria.</p>
-      @for (document of preview.documents; track document.id) {
-        <button class="document-card" type="button" (click)="openDocument(document)" [attr.aria-label]="'Abrir ' + document.title">
-          <span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>{{ document.title }}</strong><span>{{ document.description }}</span></span><span class="document-action" aria-hidden="true">Abrir →</span>
+      @for (document of preview.documents(); track document.id) {
+        <button
+          class="document-card"
+          type="button"
+          [disabled]="api.pending() > 0"
+          (click)="download(document.id, document.nome)"
+          [attr.aria-label]="'Baixar ' + document.nome"
+        >
+          <span class="document-icon" aria-hidden="true">▤</span
+          ><span class="document-description"
+            ><strong>{{ document.nome }}</strong
+            ><span>Versão {{ document.versao }}</span></span
+          ><span class="document-action">Baixar →</span>
         </button>
+      } @empty {
+        <p>Nenhum documento disponibilizado.</p>
       }
-      <button nz-button class="pill publish-button" type="button" (click)="dialog.set('publish')">Disponibilizar documento</button>
-      @if (preview.publicationConfirmed()) { <p class="publication-feedback" role="status">Publicação do arquivo de exemplo simulada nesta sessão.</p> }
+      <button
+        nz-button
+        class="pill publish-button"
+        type="button"
+        (click)="file.set(null); dialog.set('publish')"
+      >
+        Disponibilizar documento
+      </button>
     </section>
   </div>
-  <p class="preview-note">Prévia RBS com dados fictícios. Alterações ficam em memória nesta área administrativa e são apagadas ao recarregar. Não alteram contas, permissões ou arquivos reais.</p>
+  <section class="profile-card rights-card" aria-labelledby="rights-title">
+    <h2 id="rights-title">Direitos desta parceria</h2>
+    <p>
+      A troca de cota não altera áreas e benefícios já contratados. Ajuste-os aqui quando
+      necessário.
+    </p>
+    <button
+      nz-button
+      class="pill"
+      type="button"
+      [attr.aria-expanded]="rightsOpen()"
+      aria-controls="rights-editor"
+      (click)="rightsOpen() ? rightsOpen.set(false) : openRights()"
+    >
+      {{ rightsOpen() ? 'Fechar editor' : 'Editar direitos' }}
+    </button>
+    @if (rightsOpen()) {
+      <div id="rights-editor">
+        <fieldset>
+          <legend>Áreas habilitadas</legend>
+          @for (a of areaOptions; track a.key) {
+            <label class="area-choice"
+              ><input
+                #areaCheck
+                type="checkbox"
+                [checked]="areasDraft().includes(a.key)"
+                [disabled]="a.key === 'perfil'"
+                (change)="toggleArea(a.key, areaCheck.checked)"
+              />
+              {{ a.label }}</label
+            >
+          }
+        </fieldset>
+        <button
+          nz-button
+          class="pill dark-button"
+          type="button"
+          [disabled]="api.pending() > 0"
+          (click)="saveAreas()"
+        >
+          Salvar áreas
+        </button>
+        <h3>Limites contratados</h3>
+        @for (b of ctx.partnership()?.beneficios ?? []; track b.id) {
+          <div class="benefit-row">
+            <label [for]="'benefit-quantity-' + b.id"
+              >{{ b.natureza === 'CORTESIA' ? 'Cortesia' : 'Credencial' }} · {{ b.tipo }} ·
+              {{ b.setor }}</label
+            ><input
+              #benefitQuantity
+              [id]="'benefit-quantity-' + b.id"
+              type="number"
+              min="0"
+              step="1"
+              [value]="quantityDraft()[b.id]"
+              (input)="setQuantity(b.id, benefitQuantity.value)"
+            /><button
+              nz-button
+              class="pill"
+              type="button"
+              [disabled]="api.pending() > 0"
+              (click)="saveQuantity(b)"
+            >
+              Salvar limite
+            </button>
+          </div>
+        } @empty {
+          <p>Nenhum benefício contratado.</p>
+        }
+        <h3>Adicionar direito contratual</h3>
+        <div class="benefit-form">
+          <label for="new-benefit-nature">Natureza</label
+          ><select
+            #benefitNature
+            id="new-benefit-nature"
+            [value]="newNature"
+            (change)="changeNature(benefitNature.value)"
+          >
+            <option value="CORTESIA">Cortesia</option>
+            <option value="CREDENCIAL">Credencial</option></select
+          ><label for="new-benefit-type">Tipo</label>
+          @if (newNature === 'CORTESIA') {
+            <select id="new-benefit-type" [(ngModel)]="newType">
+              <option value="passaporte">Passaporte</option>
+              <option value="sexta">Sexta</option>
+              <option value="sabado">Sábado</option>
+            </select>
+          } @else {
+            <input id="new-benefit-type" [(ngModel)]="newType" maxlength="120" required />
+          }
+          <label for="new-benefit-sector">Setor</label
+          ><input id="new-benefit-sector" [(ngModel)]="newSector" maxlength="120" required />
+          @if (newNature === 'CREDENCIAL') {
+            <label for="new-benefit-audience">Público</label
+            ><input id="new-benefit-audience" [(ngModel)]="newAudience" maxlength="120" required />
+          }
+          <label for="new-benefit-quantity">Quantidade</label
+          ><input
+            id="new-benefit-quantity"
+            type="number"
+            min="0"
+            step="1"
+            [(ngModel)]="newQuantity"
+            required
+          /><button
+            nz-button
+            class="pill dark-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="addBenefit()"
+          >
+            Adicionar direito
+          </button>
+        </div>
+        @if (rightsError()) {
+          <p role="alert" class="field-error">{{ rightsError() }}</p>
+        }
+      </div>
+    }
+  </section>
 </app-admin-partnership-shell>
-
-<nz-modal #profileModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="closeDialog()" (nzAfterOpen)="labelDialog(profileModal)"
-  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #dialogTitle><h2 #dialogHeading id="rbs-profile-dialog-title" class="dialog-title" tabindex="-1">{{ title() }}</h2></ng-template>
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-      @switch (dialog()) {
-        @case ('access') {
-          <p>{{ preview.profile().name }} · Acesso separado às informações desta parceria.</p>
-          <form class="access-form" (submit)="$event.preventDefault(); saveAccess()">
-            <div class="profile-field"><label for="rbs-access-email">E-mail autorizado</label>
-              <input nz-input id="rbs-access-email" type="email" [formControl]="accessEmail" [attr.aria-invalid]="accessEmail.touched && accessEmail.invalid" [attr.aria-describedby]="accessEmail.touched && accessEmail.invalid ? 'rbs-access-error' : null" />
-              @if (accessEmail.touched && accessEmail.invalid) { <p class="field-error" id="rbs-access-error">Informe um e-mail válido.</p> }
-            </div>
-            <p>Perfil: Admin Patrocinador · Cota {{ preview.profile().quota }}</p>
-            <button nz-button type="submit" class="pill dark-button access-save-button">Salvar acesso</button>
-          </form>
+<nz-modal
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="closeDialog()"
+  [nzTitle]="
+    dialog() === 'access'
+      ? 'Acesso do patrocinador'
+      : dialog() === 'publish'
+        ? 'Disponibilizar documento'
+        : 'Alterações salvas'
+  "
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  nzClassName="pa-profile-dialog"
+  ><ng-container *nzModalContent
+    ><div class="dialog-content">
+      @if (dialog() === 'access') {
+        <p>Selecione as contas que terão acesso a esta parceria.</p>
+        <label for="access-search">Buscar conta cadastrada</label
+        ><input
+          nz-input
+          id="access-search"
+          [(ngModel)]="search"
+          type="search"
+          placeholder="Nome ou e-mail"
+        /><button nz-button class="pill" type="button" (click)="find()">Buscar</button>
+        @for (user of searchResults(); track user.id) {
+          <label class="access-option"
+            ><input
+              type="checkbox"
+              [checked]="selectedUser(user.id)"
+              (change)="toggleUser(user.id, accessCheck.checked)"
+              #accessCheck
+            />
+            {{ user.nome }} · {{ user.email }}
+            {{ user.ativo ? '' : '(aguardando ativação)' }}</label
+          >
         }
-        @case ('publish') {
-          <p>O arquivo ficará disponível para o {{ preview.profile().name }}.</p>
-          <div class="document-card example-file"><span class="document-icon" aria-hidden="true">▤</span><span class="document-description"><strong>plano_comercial_amarelo.pdf</strong><span>Selecionado para publicação</span></span><span class="document-action" aria-disabled="true" title="Arquivo ilustrativo, sem conteúdo real">Abrir →</span></div>
-          <p class="preview-note">Arquivo de exemplo do Figma. Esta ação apenas simula a publicação; não envia nem disponibiliza um PDF real.</p>
-          <button nz-button class="pill dark-button" type="button" (click)="publish()">Publicar arquivo</button>
-        }
-        @case ('document') {
-          <p>Arquivo disponibilizado no contexto desta parceria.</p>
-          <div class="document-preview" [attr.aria-label]="selectedDocument()?.title"><h3>Documento</h3><p>O conteúdo será exibido conforme o formato do arquivo.</p></div>
-          <p class="preview-note">Visualizador demonstrativo: {{ selectedDocument()?.title }}. Não há arquivo real nesta prévia.</p>
-          <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta prévia">Baixar arquivo</button>
-        }
-        @default {
-          <p>{{ dialog() === 'saved' ? 'As informações da parceria foram salvas.' : 'As informações foram atualizadas na parceria.' }}</p>
-          <span class="done-badge"><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span>
-          <p class="preview-note">Simulação local. Nenhuma alteração foi enviada à RBS ou aplicada a uma conta real.</p>
-          <button nz-button class="pill dark-button finish-button" type="button" (click)="closeDialog()">Concluir</button>
-        }
+        <h3>Convidar nova conta</h3>
+        <label for="invite-name">Nome</label
+        ><input
+          nz-input
+          id="invite-name"
+          [(ngModel)]="inviteName"
+          (ngModelChange)="inviteCreated.set(false)"
+          maxlength="120"
+        /><label for="invite-email">E-mail</label
+        ><input
+          nz-input
+          id="invite-email"
+          [(ngModel)]="inviteEmail"
+          (ngModelChange)="inviteCreated.set(false)"
+          type="email"
+          maxlength="254"
+        /><label for="invite-password">Senha inicial</label
+        ><input
+          nz-input
+          id="invite-password"
+          [(ngModel)]="invitePassword"
+          type="password"
+          minlength="12"
+          maxlength="128"
+        />
+        <p>O convite exige ativação por e-mail. Após criar a conta, salve os acessos.</p>
+        <button
+          nz-button
+          class="pill"
+          type="button"
+          [disabled]="api.pending() > 0"
+          (click)="invite()"
+        >
+          Criar convite</button
+        ><button
+          nz-button
+          class="pill dark-button"
+          type="button"
+          [disabled]="api.pending() > 0"
+          (click)="saveAccess()"
+        >
+          Salvar acessos
+        </button>
       }
-    </div>
-  </ng-container>
-</nz-modal>
+      @if (dialog() === 'publish') {
+        <p>Selecione um documento comercial real para disponibilizar nesta parceria.</p>
+        <label for="profile-file">Arquivo</label
+        ><input
+          #profileFile
+          id="profile-file"
+          type="file"
+          (change)="selectFile(profileFile)"
+          required
+        />
+        <p>{{ file()?.name ?? 'Nenhum arquivo selecionado' }}</p>
+        <button
+          nz-button
+          class="pill dark-button"
+          type="button"
+          [disabled]="api.pending() > 0"
+          (click)="publish()"
+        >
+          Publicar arquivo
+        </button>
+      }
+      @if (error()) {
+        <p role="alert">{{ error() }}</p>
+      }
+      @if (dialog() === 'saved') {
+        <p role="status">As informações foram atualizadas na parceria.</p>
+        <button
+          nz-button
+          class="pill dark-button finish-button"
+          type="button"
+          (click)="closeDialog()"
+        >
+          Concluir
+        </button>
+      }
+    </div></ng-container
+  ></nz-modal
+>

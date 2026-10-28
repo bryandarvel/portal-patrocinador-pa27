@@ -1,65 +1,7 @@
-<div class="profile-page">
-  <a class="skip-link" [href]="pageUrl() + '#admin-partnership-content'" (click)="$event.preventDefault(); mainContent.focus()">Ir para o conteúdo</a>
-  <header class="portal-header">
-    <img class="portal-logo" [src]="logoSrc()" alt="Planeta Atlântida 2027" width="64" height="64" />
-    <div class="portal-brand"><p>Portal do Patrocinador</p><span>Planeta Atlântida 2027</span></div>
-    <div class="header-actions">
-      <a nz-button class="pill faq-button" [routerLink]="baseUrl() + '/duvidas-frequentes'" [attr.aria-current]="activeArea() === 'faq' ? 'page' : null">Dúvidas frequentes</a>
-      <button nz-button class="pill notifications-button" type="button" (click)="dialog.set('notifications')">Notificações</button>
-    </div>
-    <div class="account"><p>Admin RBS</p><span>Equipe de relacionamento</span></div>
-    <a nz-button class="pill exit-button" routerLink="/login">Sair</a>
-  </header>
-  <div class="portal-body">
-    <aside class="partnership-sidebar" aria-label="Navegação da parceria">
-      <a nz-button class="pill back-button" routerLink="/previa/rbs/patrocinadores">← Patrocinadores</a>
-      <div class="partnership-identity"><p>{{ profile().name }}</p><span class="quota" [class.roxo-quota]="sponsorId() === 'roxo'" [class.verde-quota]="sponsorId() === 'verde'">{{ quotaLabel() }}</span></div>
-      <a nz-button class="pill deliveries-button" [class.dark-button]="activeArea() === 'deliveries'" [routerLink]="baseUrl() + '/entregas'" [attr.aria-current]="activeArea() === 'deliveries' ? 'page' : null">Entregas da parceria</a>
-      <p class="eyebrow areas-title" id="admin-areas-title">Áreas da parceria</p>
-      <nav aria-labelledby="admin-areas-title">
-        @for (area of areas(); track area.number) {
-          @if (area.path) {
-            <a class="area-link" [class.active]="activeArea() === area.number" [routerLink]="area.path" [attr.aria-current]="activeArea() === area.number ? 'page' : null"><span class="area-number">{{ area.number }}</span><span>{{ area.label }}</span></a>
-          } @else {
-            <button class="area-link" type="button" aria-disabled="true" title="Página administrativa disponível em uma próxima etapa"><span class="area-number">{{ area.number }}</span><span>{{ area.label }}</span></button>
-          }
-        }
-      </nav>
-      <div class="festival-signature" aria-hidden="true"><div class="checker"></div><p>Só quem vai sente.</p></div>
-    </aside>
-    <main #mainContent class="profile-scroll" id="admin-partnership-content" tabindex="-1">
-      <div class="profile-content">
-        <div class="page-heading">
-          <div class="context-row"><p class="eyebrow">Parceria / {{ contextLabel() }} / PA27</p>
-            @if (activeArea() === 'report') { <a nz-button class="pill report-button context-back-button" [routerLink]="baseUrl() + '/perfil'">← Voltar à parceria</a> }
-            @else { <button nz-button class="pill report-button" type="button" (click)="openReport()">Relatório da parceria</button> }
-          </div>
-          <h1>{{ title() }}</h1><p class="page-intro">{{ description() }}</p>
-          <div class="festival-stripe" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-        </div>
-        <ng-content />
-      </div>
-    </main>
-  </div>
-</div>
-
-<nz-modal #shellModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="dialog.set(null)" (nzAfterOpen)="labelDialog(shellModal)"
-  [nzTitle]="dialogTitle" [nzFooter]="null" [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" [nzClosable]="sponsorId() === 'amarelo'" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #dialogTitle><h2 id="admin-shell-dialog-title" class="dialog-title" [class.roxo-dialog-title]="sponsorId() !== 'amarelo'">Notificações</h2></ng-template>
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-      @if (sponsorId() !== 'amarelo') {<p>Nenhuma pendência registrada para o {{ profile().name }}</p><button nz-button type="button" class="pill finish-button" (click)="dialog.set(null)">Voltar</button>} @else {
-        @if (!preview.currentMiv()) {
-          <div class="notification-preview"><h3>Manual de identidade visual pendente</h3><p>{{ profile().name }} · Envie o MIV em Aplicações de marca.</p><a nz-button class="pill pending-button" routerLink="/previa/rbs/amarelo/aplicacoes-de-marca" (click)="dialog.set(null)">Ver pendência</a></div>
-        } @else { <p>A pendência do manual de identidade visual foi resolvida.</p> }
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="dialog.set(null)">Concluir</button>
-      }
-    </div>
-  </ng-container>
-</nz-modal>
-
-@if (sponsorId() === 'amarelo') { <app-partnership-report [(open)]="reportOpen" [admin]="true" [sponsorName]="profile().name" /> }
-
-@if (sponsorId() === 'roxo') { <app-client-report-summary sponsorId="roxo" [(open)]="reportOpen" /> }
-@if (sponsorId() === 'verde') { <app-client-report-summary sponsorId="verde" [(open)]="reportOpen" /> }
+<app-partnership-shell
+  [title]="title()"
+  [description]="description()"
+  [logoSrc]="logoSrc()"
+  [activeArea]="activeArea()"
+  ><ng-content
+/></app-partnership-shell>

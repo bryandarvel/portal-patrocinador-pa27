@@ -1,8 +1,35 @@
 # Telas do Portal do Patrocinador
 
-Inventário em 28/10/2026: **43 páginas principais implementadas e pré-aprovadas por Bryan** como interfaces demonstrativas. As 19 versões do último lote receberam pré-aprovação expressa nesta data; as outras 24 já estavam pré-aprovadas nos ciclos anteriores.
+## Rotas integradas ao backend
 
-Os links requerem o frontend local ativo em `http://localhost:4200`. Login e funcionalidades ainda utilizam as simulações documentadas. Recarregar restaura os exemplos em memória. Esta pré-aprovação não representa autenticação, persistência, upload ou autorização real.
+Em 28/10/2026, as áreas usam sessão, dados e arquivos reais. Os IDs vêm da API. RBS acessa `/rbs/parcerias/:parceriaId`; patrocinador acessa `/parcerias/:parceriaId`. O backend valida papel, vínculo e capacidade em cada operação.
+
+| Tela | Caminho ou sufixo | Ações conectadas |
+| --- | --- | --- |
+| Login | `/login` | Senha, desafio MFA, identidade e redirecionamento por perfil |
+| Ativação | `/verificar?token=...` | Ativar convite recebido por e-mail |
+| Minha conta | `/conta` | Configurar/confirmar MFA e sair |
+| Parcerias autorizadas | `/parcerias` | Listar, buscar, paginar e abrir |
+| Gestão RBS | `/rbs/patrocinadores` | Listar, buscar, cadastrar parceria/contato, cotas, benefícios, modelos de entrega e convite RBS |
+| Perfil | `/perfil` | Nome/cota, documentos comerciais, múltiplos acessos e convites |
+| Marca | `/aplicacoes-de-marca` | MIV, versões, publicações, recebimento e entregas da área |
+| Mídia | `/midia-e-conteudo` | Arquivos, briefing, versões, publicações e veiculações |
+| Cortesias | `/cortesias` | Quantidades, períodos, limites e destinação |
+| Credenciamento | `/credenciamento` | Quantidades por benefício/setor/público, versões e URL Open Staff |
+| Pesquisa | `/pesquisa-da-ativacao` | Até três perguntas, recebimento e resultados |
+| Contrato | `/contrato` | Signatários, versões, aprovação/ajustes e documento assinado externamente |
+| Entregas | `/entregas` | Resumo, criação RBS, responsável e navegação por área |
+| Detalhe da entrega | `/entregas/:entregaId` | Material/versionamento, análise, execução e comprovações |
+| FAQ | `/duvidas-frequentes` | Busca/categoria, cadastro e edição RBS |
+| Relatório RBS | `/relatorio-da-parceria` | Planilhas internas, consolidação automática e complemento |
+| Relatório/notificações | Modais do cabeçalho | Relatório/HTML/arquivos autorizados e avisos reais da parceria |
+| Acesso/indisponibilidade | `/sem-acesso` | Sem permissão ou tentativa de recarga após falha de conexão |
+
+Escritas e dados internos seguem o papel e os contratos em [backend-api.md](../../docs/backend-api.md). A aparência PA27 permanece; as variações antigas convergem conforme os dados/capacidades. Não há um mapeamento de cores para contas de produção.
+
+## Histórico da pré-aprovação visual
+
+O inventário anterior registrava **43 páginas principais pré-aprovadas por Bryan** como interfaces demonstrativas, incluindo 19 versões do último lote. Os links históricos abaixo deixam de exibir exemplos e encaminham à seleção autorizada. Para uso atual, siga as rotas da tabela acima.
 
 ## Login comum (1)
 

@@ -1,257 +1,206 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import {
-  MaterialSelection,
-  MaterialVersion,
-  PartnershipPreviewService,
-} from '../shared/partnership-preview.service';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
 
-export type DeliveryOwnerId = 'ana' | 'bruno';
-export type LogoStage =
-  | 'awaiting'
-  | 'received'
-  | 'analysis'
-  | 'adjustment'
-  | 'approved'
-  | 'executing'
-  | 'realized'
-  | 'proof';
-export interface LogoMaterialVersion extends MaterialVersion {
-  readonly example?: boolean;
-  readonly review: 'received' | 'analysis' | 'adjustment' | 'approved';
-  readonly reviewedAt?: Date;
-  readonly reviewedBy?: string;
-  readonly correction?: string;
+export interface DeliveryMaterial {
+  id: string;
+  numero: number;
+  arquivo_id: string;
+  estado: 'RECEBIDO' | 'EM_ANALISE' | 'AJUSTES' | 'APROVADO';
+  correcao: string | null;
+  avaliado_em: string | null;
+  avaliado_por: string | null;
 }
-export interface LogoProof {
-  readonly description: string;
-  readonly author: string;
-  readonly publishedAt: Date;
-  readonly materialVersion: number;
+export interface DeliveryProof {
+  id: string;
+  descricao: string;
+  material_id: string;
+  arquivo_id: string | null;
+  criado_em: string;
+  autor: string;
+}
+export interface Delivery {
+  id: string;
+  parceria_id: string;
+  area: string;
+  titulo: string;
+  descricao: string;
+  execucao: 'PROGRAMADA' | 'EM_EXECUCAO' | 'REALIZADA';
+  versao: number;
+  responsavel_id: string | null;
+  responsavel: string | null;
+  materiais: DeliveryMaterial[];
+  comprovacoes: DeliveryProof[];
 }
 
-/** Estado local da entrega Logo no telão. Não transmite arquivos à RBS. */
 @Injectable({ providedIn: 'root' })
 export class LogoDeliveryPreviewService {
-  private readonly partnership = inject(PartnershipPreviewService);
-  private readonly stageState = signal<LogoStage>('awaiting');
-  private readonly proofState = signal<LogoProof | null>(null);
-  readonly stage = this.stageState.asReadonly();
-  readonly proof = this.proofState.asReadonly();
-  readonly correctionText =
-    'Por favor, envie a logo com fundo transparente para aplicação no telão.';
-  readonly proofExample =
-    'A logo do Cliente Amarelo foi exibida no telão durante a ação prevista no evento.';
-  readonly canUpload = computed(
-    () =>
-      this.partnership.brandSubmissionsOpen() &&
-      (this.stage() === 'awaiting' || this.stage() === 'adjustment'),
-  );
-  readonly ownerOptions = [
-    { id: 'ana', label: 'Ana Costa · Produção RBS' },
-    { id: 'bruno', label: 'Bruno Lima · Mídia RBS' },
-  ] as const;
-  private readonly ownerState = signal<DeliveryOwnerId>('ana');
-  readonly ownerId = this.ownerState.asReadonly();
-  readonly owner = computed(() =>
-    this.ownerId() === 'ana' ? this.ownerOptions[0].label : this.ownerOptions[1].label,
-  );
-  private readonly versionsState = signal<readonly LogoMaterialVersion[]>([]);
-  readonly versions = this.versionsState.asReadonly();
-  readonly current = computed(() => this.versions()[0] ?? null);
-  readonly journeyStep = computed(() => {
-    switch (this.stage()) {
-      case 'awaiting':
-      case 'adjustment':
-        return 0;
-      case 'received':
-      case 'analysis':
-        return 1;
-      case 'approved':
-      case 'executing':
-        return 2;
-      default:
-        return 3;
-    }
+  private readonly api = inject(PortalApi);
+  private readonly ctx = inject(PortalContext);
+  private requestedId = '';
+  private readonly state = signal<Delivery | null>(null);
+  readonly delivery = this.state.asReadonly();
+  readonly loading = signal(false);
+  readonly current = computed(() => this.state()?.materiais[0] ?? null);
+  readonly versions = computed(() => this.state()?.materiais ?? []);
+  readonly proof = computed(() => this.state()?.comprovacoes.at(-1) ?? null);
+  readonly stage = computed(() => {
+    const d = this.delivery();
+    const m = this.current();
+    if (!d) return 'awaiting';
+    if (this.proof()) return 'proof';
+    if (d.execucao === 'REALIZADA') return 'realized';
+    if (d.execucao === 'EM_EXECUCAO') return 'executing';
+    return (
+      (
+        {
+          RECEBIDO: 'received',
+          EM_ANALISE: 'analysis',
+          AJUSTES: 'adjustment',
+          APROVADO: 'approved',
+        } as Record<string, string>
+      )[m?.estado ?? ''] ?? 'awaiting'
+    );
   });
-  readonly tone = computed(() =>
-    this.stage() === 'proof'
-      ? 'info'
-      : this.stage() === 'approved' || this.stage() === 'realized'
-        ? 'done'
-        : this.stage() === 'awaiting' || this.stage() === 'adjustment'
-          ? 'awaiting'
-          : 'progress',
-  );
-  readonly icon = computed(() =>
-    this.stage() === 'proof'
-      ? '/images/status-disponivel.svg'
-      : this.stage() === 'approved'
-        ? '/images/status-concluido.svg'
-        : this.tone() === 'done'
-          ? '/images/status-concluido.svg'
-          : this.tone() === 'awaiting'
-            ? '/images/status-aguardando.svg'
-            : '/images/status-em-andamento.svg',
-  );
+  readonly canUpload = computed(() => {
+    const d = this.delivery();
+    return (
+      !!d &&
+      !this.ctx.admin() &&
+      this.ctx.submissionsOpen(d.area) &&
+      d.execucao === 'PROGRAMADA' &&
+      (!this.current() || this.current()?.estado === 'AJUSTES')
+    );
+  });
+  readonly owner = computed(() => this.delivery()?.responsavel ?? 'Responsável ainda não definido');
   readonly badge = computed(
     () =>
-      ({
-        awaiting: 'Aguardando material',
-        received: 'Material recebido',
-        analysis: 'Material em análise',
-        adjustment: 'Ajuste solicitado',
-        approved: 'Material aprovado',
-        executing: 'Entrega em andamento',
-        realized: 'Entrega realizada',
-        proof: 'Comprovação disponível',
-      })[this.stage()],
+      (
+        ({
+          awaiting: 'Aguardando material',
+          received: 'Material recebido',
+          analysis: 'Material em análise',
+          adjustment: 'Ajuste solicitado',
+          approved: 'Material aprovado',
+          executing: 'Entrega em andamento',
+          realized: 'Entrega realizada',
+          proof: 'Comprovação disponível',
+        }) as Record<string, string>
+      )[this.stage()],
+  );
+  readonly tone = computed(() =>
+    ['proof', 'approved', 'realized'].includes(this.stage())
+      ? 'done'
+      : ['awaiting', 'adjustment'].includes(this.stage())
+        ? 'awaiting'
+        : 'progress',
+  );
+  readonly icon = computed(() =>
+    this.tone() === 'done'
+      ? '/images/status-concluido.svg'
+      : this.tone() === 'awaiting'
+        ? '/images/status-aguardando.svg'
+        : '/images/status-em-andamento.svg',
   );
   readonly guidance = computed(
     () =>
-      ({
-        awaiting: 'Patrocinador · Envie a logo da sua marca.',
-        received: 'RBS · Confira o arquivo enviado pelo patrocinador.',
-        analysis: 'RBS · Avalie o material recebido.',
-        adjustment: 'Patrocinador · Envie a logo com fundo transparente.',
-        approved: 'A execução da entrega ainda está programada.',
-        executing: 'RBS · Registre a realização quando a ação acontecer.',
-        realized: 'RBS · Adicione uma comprovação da execução.',
-        proof: 'O registro está disponível para consulta e consolidação.',
-      })[this.stage()],
+      (
+        ({
+          awaiting: 'Patrocinador · Envie o material desta entrega.',
+          received: 'RBS · Confira o arquivo enviado pelo patrocinador.',
+          analysis: 'RBS · Avalie o material recebido.',
+          adjustment: 'Patrocinador · Envie uma versão corrigida.',
+          approved: 'A execução da entrega está programada.',
+          executing: 'RBS · Registre a realização quando a ação acontecer.',
+          realized: 'RBS · Adicione uma comprovação da execução.',
+          proof: 'O registro está disponível para consulta.',
+        }) as Record<string, string>
+      )[this.stage()],
+  );
+  readonly journeyStep = computed(() =>
+    ['awaiting', 'adjustment'].includes(this.stage())
+      ? 0
+      : ['received', 'analysis'].includes(this.stage())
+        ? 1
+        : ['approved', 'executing'].includes(this.stage())
+          ? 2
+          : 3,
   );
   readonly summary = computed(() => ({
-    context: 'Aplicações de marca / Entrega 01',
-    title: 'Logo no telão',
+    context: this.delivery()?.area ?? '',
+    title: this.delivery()?.titulo ?? '',
     owner: this.owner(),
-    material:
-      this.stage() === 'awaiting'
-        ? 'Aguardando envio'
-        : this.stage() === 'received'
-          ? 'Recebido'
-          : this.stage() === 'analysis'
-            ? 'Em análise'
-            : this.stage() === 'adjustment'
-              ? 'Ajuste solicitado'
-              : 'Aprovado',
-    execution:
-      this.stage() === 'executing'
-        ? 'Em andamento'
-        : this.stage() === 'realized' || this.stage() === 'proof'
-          ? 'Realizada'
-          : 'Programada',
-    nextStep:
-      this.stage() === 'awaiting'
-        ? 'Patrocinador · Envie a logo para esta entrega.'
-        : this.guidance(),
+    material: this.badge(),
+    execution: this.delivery()?.execucao ?? 'PROGRAMADA',
+    nextStep: this.guidance(),
   }));
-
-  setOwner(id: DeliveryOwnerId): boolean {
-    if (!this.ownerOptions.some((option) => option.id === id)) return false;
-    this.ownerState.set(id);
-    return true;
-  }
-
-  recordUpload(selection: MaterialSelection): boolean {
-    if (
-      !this.canUpload() ||
-      !selection.name.trim() ||
-      !Number.isFinite(selection.size) ||
-      selection.size <= 0
-    )
-      return false;
-    this.versionsState.update((versions) => [
-      {
-        name: selection.name,
-        size: selection.size,
-        version: versions.length + 1,
-        receivedAt: new Date(),
-        sender: 'Admin Patrocinador',
-        review: 'received',
-      },
-      ...versions,
-    ]);
-    this.stageState.set('received');
-    return true;
-  }
-
-  seedReceivedExample(): boolean {
-    if (this.stage() !== 'awaiting' || this.current()) return false;
-    // Metadados de demonstração: não representa um upload ou conteúdo de arquivo.
-    this.versionsState.set([
-      {
-        name: 'logo_amarelo_v1.svg',
-        size: 0,
-        version: 1,
-        receivedAt: new Date(),
-        sender: 'Admin Patrocinador',
-        review: 'received',
-        example: true,
-      },
-    ]);
-    this.stageState.set('received');
-    return true;
-  }
-
-  startAnalysis(): boolean {
-    if (this.stage() !== 'received') return false;
-    this.review('analysis');
-    return true;
-  }
-
-  approveMaterial(): boolean {
-    if (this.stage() !== 'analysis') return false;
-    this.review('approved');
-    return true;
-  }
-
-  requestAdjustment(): boolean {
-    if (this.stage() !== 'analysis') return false;
-    this.review('adjustment');
-    return true;
-  }
-
-  startExecution(): boolean {
-    if (this.stage() !== 'approved') return false;
-    this.stageState.set('executing');
-    return true;
-  }
-
-  realize(): boolean {
-    if (this.stage() !== 'executing') return false;
-    this.stageState.set('realized');
-    return true;
-  }
-
-  publishProof(description: string): boolean {
-    const text = description.trim();
-    const material = this.current();
-    if (this.stage() !== 'realized' || !material || !text) return false;
-    this.proofState.set({
-      description: text,
-      author: this.owner(),
-      publishedAt: new Date(),
-      materialVersion: material.version,
+  constructor() {
+    effect(() => {
+      this.ctx.id();
+      this.state.set(null);
     });
-    this.stageState.set('proof');
-    return true;
   }
-
-  private review(review: LogoMaterialVersion['review']): void {
-    const current = this.current();
-    if (!current) return;
-    this.versionsState.update((versions) =>
-      versions.map((version) =>
-        version.version === current.version
-          ? {
-              ...version,
-              review,
-              reviewedAt: new Date(),
-              reviewedBy: this.owner(),
-              ...(review === 'adjustment' ? { correction: this.correctionText } : {}),
-            }
-          : version,
-      ),
+  async load(id: string, partnershipId = this.ctx.id()): Promise<void> {
+    this.requestedId = id;
+    this.state.set(null);
+    this.loading.set(true);
+    try {
+      const d = await this.api.get<Delivery>(`/api/parcerias/${partnershipId}/entregas/${id}`);
+      if (partnershipId === this.ctx.id() && id === this.requestedId) this.state.set(d);
+    } finally {
+      if (partnershipId === this.ctx.id() && id === this.requestedId) this.loading.set(false);
+    }
+  }
+  async upload(file: File): Promise<void> {
+    const d = this.delivery();
+    if (!d) throw new Error('Entrega indisponível.');
+    const result = await this.api.upload<Delivery>(
+      this.ctx.url(`/entregas/${d.id}/materiais/versoes`),
+      file,
     );
-    this.stageState.set(review);
+    if (d.parceria_id === this.ctx.id()) this.state.set(result);
+  }
+  async evaluate(acao: 'ANALISAR' | 'APROVAR' | 'AJUSTAR', comentario = ''): Promise<void> {
+    const d = this.delivery(),
+      m = this.current();
+    if (!d || !m) throw new Error('Material indisponível.');
+    const result = await this.api.post<Delivery>(
+      this.ctx.url(`/entregas/${d.id}/materiais/versoes/${m.id}/avaliacoes`),
+      { acao, comentario },
+    );
+    if (d.parceria_id === this.ctx.id()) this.state.set(result);
+  }
+  async execute(estado: 'EM_EXECUCAO' | 'REALIZADA'): Promise<void> {
+    const d = this.delivery();
+    if (!d) throw new Error('Entrega indisponível.');
+    const result = await this.api.patch<Delivery>(this.ctx.url(`/entregas/${d.id}/execucao`), {
+      estado,
+      versao: d.versao,
+    });
+    if (d.parceria_id === this.ctx.id()) this.state.set(result);
+  }
+  async assign(usuarioId: string): Promise<void> {
+    const d = this.delivery();
+    if (!d) throw new Error('Entrega indisponível.');
+    const result = await this.api.patch<Delivery>(this.ctx.url(`/entregas/${d.id}/responsavel`), {
+      usuarioId,
+      versao: d.versao,
+    });
+    if (d.parceria_id === this.ctx.id()) this.state.set(result);
+  }
+  async publishProof(descricao: string, file: File | null): Promise<void> {
+    const d = this.delivery();
+    if (!d) throw new Error('Entrega indisponível.');
+    const body = new FormData();
+    body.append('descricao', descricao);
+    if (file) body.append('arquivo', file);
+    const result = await this.api.post<Delivery>(
+      this.ctx.url(`/entregas/${d.id}/comprovacoes`),
+      body,
+    );
+    if (d.parceria_id === this.ctx.id()) this.state.set(result);
+  }
+  async download(id: string, name: string): Promise<void> {
+    await this.api.download(this.ctx.url(`/arquivos/${id}`), name);
   }
 }

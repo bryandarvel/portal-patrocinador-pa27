@@ -1,13 +1,130 @@
-.profile-form { display: flex; flex-direction: column; gap: 16px; }
-.profile-field input { background: #fff; }
-.profile-field input[aria-invalid="true"] { border-color: var(--color-error); }
-.profile-field label { color: var(--color-text); }
-.profile-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.save-button { width: 148px; }.access-button { width: 149px; }.publish-button { width: 200px; }
-.field-error { color: var(--color-error); font-size: 14px; line-height: 20px; }
-.access-form { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; width: 100%; }
-.access-form .profile-field { width: 100%; }.access-save-button { width: 128px; }
-.example-file { cursor: default; }.example-file:hover { border-color: var(--color-border); }
-.publication-feedback { color: var(--color-success); font-size: 12px; line-height: 18px; }
-.document-description strong, .document-description span { overflow-wrap: anywhere; }
-@media (max-width: 760px) { .profile-actions .pill { max-width: 100%; }.example-file { flex-wrap: wrap; } }
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.profile-field input {
+  background: #fff;
+}
+.profile-field input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+.profile-field label {
+  color: var(--color-text);
+}
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.save-button {
+  width: 148px;
+}
+.access-button {
+  width: 149px;
+}
+.publish-button {
+  width: 200px;
+}
+.field-error {
+  color: var(--color-error);
+  font-size: 14px;
+  line-height: 20px;
+}
+.access-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+.access-form .profile-field {
+  width: 100%;
+}
+.access-save-button {
+  width: 128px;
+}
+.example-file {
+  cursor: default;
+}
+.example-file:hover {
+  border-color: var(--color-border);
+}
+.publication-feedback {
+  color: var(--color-success);
+  font-size: 12px;
+  line-height: 18px;
+}
+.document-description strong,
+.document-description span {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .profile-actions .pill {
+    max-width: 100%;
+  }
+  .example-file {
+    flex-wrap: wrap;
+  }
+}
+.profile-field select,
+.dialog-content input:not([type='checkbox']),
+.dialog-content select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 8px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.access-option {
+  display: block;
+  margin: 8px 0;
+}
+.profile-field select:focus-visible,
+.dialog-content input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.rights-card {
+  margin-top: 24px;
+}
+.rights-card fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.rights-card .area-choice {
+  display: block;
+  margin: 8px 0;
+}
+.benefit-row,
+.benefit-form {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin: 16px 0;
+}
+.benefit-row input,
+.benefit-form input,
+.benefit-form select {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+}
+.benefit-row input:focus-visible,
+.benefit-form input:focus-visible,
+.benefit-form select:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

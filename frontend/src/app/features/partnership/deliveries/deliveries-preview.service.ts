@@ -1,33 +1,45 @@
-import { computed, inject, Injectable } from '@angular/core';
-import { LogoDeliveryPreviewService } from '../delivery-detail/logo-delivery-preview.service';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
+import { Delivery } from '../delivery-detail/logo-delivery-preview.service';
 
-interface DeliveryAreaPreview {
-  readonly id: string;
-  readonly title: string;
-  readonly status: 'Realizada' | 'Em andamento';
-  readonly description: string;
-  readonly path: string;
+interface DeliveryList {
+  itens: Delivery[];
+  totais: { pendentes: number; emCurso: number; realizadas: number };
 }
-
-/** Exemplos do frame 11:658; não representam acompanhamento real pela RBS. */
 @Injectable({ providedIn: 'root' })
 export class DeliveriesPreviewService {
-  private readonly logo = inject(LogoDeliveryPreviewService);
-  readonly featured = this.logo.summary;
-
-  // Apenas os três exemplos selecionados no protótipo, sem matriz de direitos.
-  readonly totals = computed(() => {
-    const executing = this.logo.stage() === 'executing';
-    const realized = this.logo.stage() === 'realized' || this.logo.stage() === 'proof';
-    return [
-      { label: 'Pendentes', value: executing || realized ? 0 : 1, state: 'pending' },
-      { label: 'Em curso', value: executing ? 2 : 1, state: 'progress' },
-      { label: 'Realizadas', value: realized ? 2 : 1, state: 'done' }
-    ] as const;
+  private readonly api = inject(PortalApi);
+  private readonly ctx = inject(PortalContext);
+  private readonly state = signal<DeliveryList>({
+    itens: [],
+    totais: { pendentes: 0, emCurso: 0, realizadas: 0 },
   });
-
-  readonly areas: readonly DeliveryAreaPreview[] = [
-    { id: 'media', title: 'Post carrossel', status: 'Realizada', description: 'Comprovação disponível', path: '/previa/midia-e-conteudo' },
-    { id: 'survey', title: 'Pesquisa da ativação', status: 'Em andamento', description: 'Aguardando resultados', path: '/previa/pesquisa-da-ativacao' }
-  ];
+  readonly loading = signal(false);
+  readonly items = computed(() => this.state().itens);
+  readonly totals = computed(() => [
+    { label: 'Pendentes', value: this.state().totais.pendentes, state: 'pending' },
+    { label: 'Em curso', value: this.state().totais.emCurso, state: 'progress' },
+    { label: 'Realizadas', value: this.state().totais.realizadas, state: 'done' },
+  ]);
+  constructor() {
+    effect(() => {
+      const id = this.ctx.id();
+      this.state.set({ itens: [], totais: { pendentes: 0, emCurso: 0, realizadas: 0 } });
+      if (id) void this.load(id).catch(() => {});
+    });
+  }
+  async load(id = this.ctx.id()): Promise<void> {
+    this.loading.set(true);
+    try {
+      const data = await this.api.get<DeliveryList>(`/api/parcerias/${id}/entregas`);
+      if (id === this.ctx.id()) this.state.set(data);
+    } finally {
+      if (id === this.ctx.id()) this.loading.set(false);
+    }
+  }
+  async create(area: string, titulo: string, descricao: string): Promise<void> {
+    await this.api.post(this.ctx.url('/entregas'), { area, titulo, descricao });
+    await this.load();
+  }
 }

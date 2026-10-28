@@ -2,44 +2,50 @@ package com.rbs.portal_patrocinador.controller;
 
 import com.rbs.portal_patrocinador.entity.Usuario;
 import com.rbs.portal_patrocinador.repository.UsuarioRepository;
+import com.rbs.portal_patrocinador.security.CurrentUser;
 import com.rbs.portal_patrocinador.service.MfaService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.server.ResponseStatusException;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/mfa")
 public class MfaController {
+    private final MfaService mfa;
+    private final UsuarioRepository users;
+    private final CurrentUser current;
 
-    @Autowired private MfaService mfaService;
-    @Autowired private UsuarioRepository usuarioRepository;
+    public MfaController(MfaService mfa, UsuarioRepository users, CurrentUser current) {
+        this.mfa = mfa;
+        this.users = users;
+        this.current = current;
+    }
 
     @PostMapping("/setup/{email}")
-    public ResponseEntity<?> setupMfa(@PathVariable String email) throws Exception {
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
-
-        // Gera um novo segredo e salva no usuário (mas ainda não ativa o 2FA)
-        String secret = mfaService.generateSecret();
-        usuario.setMfaSecret(secret);
-        usuarioRepository.save(usuario);
-
-        // Retorna a imagem do QR Code em Base64 para o frontend exibir
-        String qrCodeUri = mfaService.getQrCodeImageUri(secret, email);
-        return ResponseEntity.ok(Map.of("qrCode", qrCodeUri, "secret", secret));
+    public Map<String, String> setup(@PathVariable String email) throws Exception {
+        Usuario user = own(email);
+        if (user.isMfaEnabled()) throw new ResponseStatusException(HttpStatus.CONFLICT, "MFA já configurado");
+        String secret = mfa.generateSecret();
+        user.setMfaSecret(secret);
+        users.save(user);
+        return Map.of("qrCode", mfa.getQrCodeImageUri(secret, user.getEmail()), "secret", secret);
     }
 
     @PostMapping("/confirm/{email}")
-    public ResponseEntity<?> confirmMfa(@PathVariable String email, @RequestBody Map<String, String> body) {
+    public Map<String, String> confirm(@PathVariable String email, @RequestBody Map<String, String> body) {
+        Usuario user = own(email);
         String code = body.get("code");
-        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+        if (user.getMfaSecret() == null || code == null || !mfa.verifyCode(user.getMfaSecret(), code))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Código inválido");
+        user.setMfaEnabled(true);
+        users.save(user);
+        return Map.of("mensagem", "MFA ativado");
+    }
 
-        if (mfaService.verifyCode(usuario.getMfaSecret(), code)) {
-            usuario.setMfaEnabled(true);
-            usuarioRepository.save(usuario);
-            return ResponseEntity.ok("2FA ativado com sucesso!");
-        }
-        return ResponseEntity.badRequest().body("Código inválido.");
+    private Usuario own(String email) {
+        Usuario user = current.get();
+        if (!user.getEmail().equalsIgnoreCase(email)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return user;
     }
 }

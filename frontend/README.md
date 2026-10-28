@@ -1,5 +1,13 @@
 # Frontend do Portal do Patrocinador
 
+Integração atual: as telas consomem a API autenticada, persistem operações e transferem arquivos reais. Login, ativação e MFA estão conectados. Rotas e capacidades usam IDs de parceria, sem condições por cor. Consulte [telas e rotas atuais](docs/telas-portal.md) e [evidências de integração](../docs/integracao-backend.md#integração-angular-solicitada).
+
+Os roteiros locais `scripts/check-auth-integration.cjs` e `scripts/check-portal-integration.cjs` requerem backend, frontend e Mailpit ativos, credenciais locais no `.env` da raiz, Playwright e Chromium disponíveis. Use `PLAYWRIGHT_MODULE` para selecionar o módulo instalado e `PLAYWRIGHT_CHROMIUM_EXECUTABLE` para um executável fora do cache padrão. Os testes criam dados sintéticos e não limpam o banco existente.
+
+## Histórico das prévias visuais
+
+As seções abaixo registram a etapa demonstrativa anterior à integração. Seus caminhos `/previa/**` encaminham agora para a seleção autorizada; descrições de simulação não representam o comportamento atual.
+
 > Estado atual das prévias Roxo/Verde e verificações do lote:
 > [checkpoint dos clientes](docs/checkpoint-clientes.md). As seções abaixo também
 > preservam o registro de ciclos anteriores; o checkpoint distingue código escrito

@@ -1,76 +1,44 @@
 <nz-modal
-  #organizeModal="nzModal"
   [nzVisible]="open()"
-  (nzOnCancel)="close()"
-  (nzAfterOpen)="afterOpen(organizeModal)"
-  [nzTitle]="dialogTitle"
+  (nzOnCancel)="open.set(false)"
+  [nzTitle]="stage() === 'saved' ? 'Alterações salvas' : 'Organizar entrega'"
   [nzFooter]="null"
   [nzCentered]="true"
-  [nzWidth]="640"
-  [nzNoAnimation]="true"
   nzClassName="pa-profile-dialog"
-  [nzCloseIcon]="closeIcon"
->
-  <ng-template #dialogTitle
-    ><h2 #dialogHeading id="rbs-organizer-dialog-title" class="dialog-title" tabindex="-1">
-      {{ stage() === 'saved' ? 'Alterações salvas' : 'Organizar entrega' }}
-    </h2></ng-template
-  >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-      @if (stage() !== 'saved') {
-        @if (stage() === 'organize') {
-          <p>Logo no telão · Defina a pessoa responsável.</p>
-        }
-        <strong class="owner-name">{{ selectedOwnerLabel() }}</strong>
-        @if (stage() === 'organize') {
-          @for (owner of logo.ownerOptions; track owner.id) {
-            <button
-              nz-button
-              class="pill owner-option"
-              [class.ana]="owner.id === 'ana'"
-              type="button"
-              (click)="chooseOwner(owner.id)"
-            >
-              {{ owner.label }}
-            </button>
+  ><ng-container *nzModalContent
+    ><div class="dialog-content">
+      @if (stage() === 'choose') {
+        <p>{{ preview.delivery()?.titulo }} · Defina a pessoa responsável.</p>
+        <label for="owner-select">Responsável pela entrega</label
+        ><select
+          id="owner-select"
+          [value]="selected()"
+          (change)="selected.set(ownerSelect.value)"
+          #ownerSelect
+        >
+          <option value="">Selecione</option>
+          @for (owner of owners(); track owner.id) {
+            <option [value]="owner.id">{{ owner.nome }} · {{ owner.email }}</option>
           }
-        } @else {
-          <p>A alteração será aplicada após salvar.</p>
+        </select>
+        @if (!owners().length) {
+          <p>Nenhum responsável RBS ativo disponível.</p>
         }
         <button
           nz-button
-          class="pill dark-button save-owner-button"
+          class="pill dark-button"
           type="button"
-          (click)="saveOwner()"
+          [disabled]="!selected() || api.pending() > 0"
+          (click)="save()"
         >
-          Salvar responsável
-        </button>
-        <button
-          nz-button
-          class="pill finish-button"
-          [class.dark-button]="stage() === 'organize'"
-          type="button"
-          (click)="close()"
-        >
-          Cancelar
-        </button>
-        <p class="preview-note">
-          Pessoas de exemplo do Figma. A alteração é salva somente nesta simulação.
-        </p>
+          Salvar responsável</button
+        ><button nz-button class="pill" type="button" (click)="open.set(false)">Cancelar</button>
       } @else {
-        <p>As informações foram atualizadas na parceria.</p>
-        <span class="done-badge"
-          ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span
-        >
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+        <p role="status">O responsável foi atualizado na parceria.</p>
+        <button nz-button class="pill dark-button" type="button" (click)="open.set(false)">
           Concluir
         </button>
-        <p class="preview-note">
-          Responsável salvo somente em memória. Nenhum dado foi enviado à RBS.
-        </p>
       }
-    </div>
-  </ng-container>
-</nz-modal>
+    </div></ng-container
+  ></nz-modal
+>

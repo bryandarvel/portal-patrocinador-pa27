@@ -1,26 +1,12 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
-import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
-import { RbsProfilePreviewService } from '../profile/profile-preview.service';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
+import { PortalApi, PortalArquivo } from '../../../core/portal-api.service';
 import { SourceSheetsPreviewService } from './source-sheets-preview.service';
-import { AdminSponsorId, ClientPreviewService } from '../shared/client-preview.service';
-
-type SheetsDialog = 'select' | 'selected' | 'progress' | 'success' | 'error' | 'details' | null;
 
 @Component({
   selector: 'app-rbs-report',
-  imports: [AdminPartnershipShell, NzButtonModule, NzModalModule],
+  imports: [AdminPartnershipShell, NzButtonModule],
   templateUrl: './report.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
@@ -30,91 +16,37 @@ type SheetsDialog = 'select' | 'selected' | 'progress' | 'success' | 'error' | '
 })
 export class RbsReport {
   readonly sheets = inject(SourceSheetsPreviewService);
-  readonly sponsorId: AdminSponsorId = inject(ActivatedRoute).snapshot.data['sponsorId'] ?? 'amarelo';
-  private readonly amareloProfile = inject(RbsProfilePreviewService).profile;
-  private readonly clients = inject(ClientPreviewService);
-  readonly profile = computed(() => this.sponsorId === 'amarelo' ? this.amareloProfile() : this.clients.profile(this.sponsorId));
-  readonly dialog = signal<SheetsDialog>(null);
-  readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('dialogHeading');
-  readonly title = computed(
-    () =>
-      ({
-        select: 'Adicionar planilhas',
-        selected: 'Conferir planilhas',
-        progress: 'Adicionando planilhas',
-        success: 'Planilhas adicionadas',
-        error: 'Não foi possível adicionar',
-        details: 'Planilhas de origem',
-      })[this.dialog() ?? 'select'],
-  );
-  private selected = false;
-  private nextAttemptFails =
-    inject(ActivatedRoute).snapshot.queryParamMap.get('exemplo') === 'falha-planilhas';
-  private timer: ReturnType<typeof setTimeout> | undefined;
-
-  constructor() {
-    inject(DestroyRef).onDestroy(() => this.cancelTimer());
+  readonly api = inject(PortalApi);
+  readonly selected = signal<File[]>([]);
+  readonly busy = signal(false);
+  readonly error = signal('');
+  choose(event: Event): void {
+    this.selected.set(Array.from((event.target as HTMLInputElement).files ?? []));
+    this.error.set('');
   }
-
-  openSelection(): void {
-    this.selected = false;
-    this.dialog.set('select');
-  }
-
-  selectExamples(): void {
-    if (this.dialog() !== 'select') return;
-    this.selected = true;
-    this.changeDialog('selected');
-  }
-
-  chooseOthers(): void {
-    if (this.dialog() !== 'selected') return;
-    this.selected = false;
-    this.changeDialog('select');
-  }
-
-  add(): void {
-    if (this.dialog() !== 'selected' || !this.selected) return;
-    this.changeDialog('progress');
-    this.timer = setTimeout(() => {
-      this.timer = undefined;
-      if (this.dialog() !== 'progress') return;
-      if (this.nextAttemptFails) {
-        this.nextAttemptFails = false;
-        this.changeDialog('error');
-        return;
+  async add(): Promise<void> {
+    if (this.busy() || !this.selected().length) return;
+    this.busy.set(true);
+    this.error.set('');
+    const failed: File[] = [];
+    for (const file of this.selected()) {
+      try {
+        await this.sheets.add(file);
+      } catch {
+        failed.push(file);
       }
-      this.sheets.addExamples();
-      this.selected = false;
-      this.changeDialog('success');
-    }, 900);
+    }
+    this.selected.set(failed);
+    if (failed.length)
+      this.error.set(`${failed.length} arquivo(s) não enviado(s). Revise e tente novamente.`);
+    else this.api.notice.set('Planilhas adicionadas.');
+    this.busy.set(false);
   }
-
-  retry(): void {
-    if (this.dialog() === 'error' && this.selected) this.changeDialog('selected');
-  }
-
-  showDetails(): void {
-    if (this.sheets.sheets().length) this.dialog.set('details');
-  }
-
-  close(): void {
-    this.cancelTimer();
-    this.selected = false;
-    this.dialog.set(null);
-  }
-
-  labelDialog(modal: NzModalComponent): void {
-    labelPartnershipDialog(modal, 'source-sheets-title');
-  }
-
-  private cancelTimer(): void {
-    if (this.timer !== undefined) clearTimeout(this.timer);
-    this.timer = undefined;
-  }
-
-  private changeDialog(dialog: SheetsDialog): void {
-    this.dialog.set(dialog);
-    requestAnimationFrame(() => this.heading()?.nativeElement.focus());
+  async download(file: PortalArquivo): Promise<void> {
+    try {
+      await this.sheets.download(file);
+    } catch {
+      this.error.set(this.api.error());
+    }
   }
 }

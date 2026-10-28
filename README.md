@@ -6,15 +6,15 @@ O portal busca centralizar o acompanhamento das parcerias entre a RBS e os patro
 
 ## Estado atual
 
-Situação identificada pela leitura do código do ZIP recebido em **09/10/2026**. Os itens abaixo descrevem o que está nos arquivos; não representam uma nova validação da aplicação em execução.
+Atualização em **28/10/2026**. O backend foi implementado e validado localmente conforme o [TAP e planos comerciais](docs/regras-negocio/README.md). O [plano de integração](docs/integracao-backend.md) registra contratos, verificações e limites da entrega.
 
 | Componente | Situação encontrada |
 | --- | --- |
-| Frontend | Tela `/login` com identidade PA27, carrossel, validação visual de e-mail e senha e redirecionamento da raiz. O formulário ainda não chama a API nem cria uma sessão. |
-| Backend | Código de cadastro, verificação de e-mail, configuração de segundo fator, emissão de JWT e histórico/geolocalização de login. O fluxo de autenticação está em desenvolvimento. |
-| Autenticação | A verificação de senha com BCrypt está comentada em `AuthService`; seu método de login ainda retorna um texto provisório no lugar do token. A presença de `TokenService` não significa que o login esteja integrado. |
-| Banco | O Compose fornece PostgreSQL 17, mas `application.properties` declara driver e dialeto H2. O `pom.xml` inclui o driver PostgreSQL e não inclui H2. Essa configuração precisa ser alinhada antes de validar o backend. |
-| Funcionalidades da parceria | As sete abas, as regras por cota e os relatórios da parceria permanecem como escopo a implementar. |
+| Frontend | Login e áreas de patrocinador/RBS em prévia. Ainda usam estado em memória; integração Angular com as novas APIs permanece pendente. |
+| Backend | Módulos de identidade, cotas/parcerias/acessos, arquivos, áreas operacionais, contratos, entregas, histórico e relatório automático. |
+| Autenticação | BCrypt, ativação de conta, JWT configurável, desafio MFA e cadastro de acessos pela RBS. Chaves e credenciais são locais, fora do código versionado. |
+| Banco | PostgreSQL 17 no Compose; Flyway aplica migrações versionadas preservando as tabelas existentes. H2 é usado apenas no teste de contexto. |
+| Regras comerciais | Capacidades, modelos de entrega e direitos quantitativos são cadastrados e aplicados por parceria. Os PDFs de exemplo não são importados automaticamente. |
 
 As validações antigas da base foram preservadas em [Histórico de configuração](docs/historico-configuracao.md), com suas datas e limitações.
 
@@ -47,7 +47,7 @@ Versões identificadas nos arquivos da base analisada:
 | Segurança e recursos auxiliares | Spring Security, JJWT, TOTP, JavaMail e GeoIP2 | [backend/pom.xml](backend/pom.xml) |
 | Ambiente e colaboração | Docker Compose, Maven Wrapper, npm, Git e GitHub | Configurações na raiz e nas aplicações |
 
-JWT e segundo fator ainda precisam ser integrados ao fluxo completo. BCrypt está previsto no código, mas sua verificação não está ativa no método de login analisado.
+O Angular ainda precisa consumir essas APIs. As rotas e exemplos de contratos ficam no Swagger em `http://localhost:8080/swagger-ui/index.html`.
 
 ## Como executar
 
@@ -76,17 +76,19 @@ npm.cmd start
 
 Acesse **http://localhost:4200/login**. Use `Ctrl+C` para encerrar. Em WSL, Linux ou macOS, use `npm` no lugar de `npm.cmd`.
 
-Essa tela permite conferir a interface e a validação dos campos. A autenticação ainda não está conectada ao backend.
+O login autentica no backend e encaminha conforme o perfil e as parcerias autorizadas. Ativação de conta e MFA também estão conectados. As credenciais locais do administrador estão no `.env`, em `PORTAL_BOOTSTRAP_EMAIL` e `PORTAL_BOOTSTRAP_PASSWORD`.
 
 ### Ambiente completo com Docker
 
 Requer Docker Desktop com containers Linux e Docker Compose. As imagens fornecem Java, Node e PostgreSQL; o backend utiliza Maven Wrapper.
 
-**Pendência da base:** alinhar o driver e o dialeto H2 de `backend/src/main/resources/application.properties` com o PostgreSQL configurado no Compose. As variáveis atuais do Compose alteram URL, usuário e senha, mas não substituem o driver e o dialeto declarados. O envio de e-mails também depende de configuração válida para o ambiente utilizado. Os comandos abaixo descrevem a inicialização prevista; a execução completa dessa versão ainda precisa ser validada.
+O Compose configura URL, driver, usuário, senha e dialeto PostgreSQL por variáveis de ambiente, substituindo a configuração H2 de `backend/src/main/resources/application.properties` apenas nos containers. O envio de e-mails depende de configuração válida para o ambiente utilizado. Veja o [registro da execução local](docs/execucao-docker.md) para evidências e limites da validação.
 
 Na raiz do repositório:
 
 ```powershell
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+# Preencha .env com chave JWT exclusiva (mínimo 32 bytes) e senha inicial (mínimo 12 caracteres).
 docker compose up -d
 docker compose ps
 docker compose logs --tail 50 backend frontend
@@ -97,6 +99,7 @@ docker compose logs --tail 50 backend frontend
 | Frontend | http://localhost:4200/login |
 | Backend | http://localhost:8080 — disponibilidade das rotas depende da configuração e da inicialização |
 | PostgreSQL | `db:5432`, acessível pela rede interna do Docker |
+| E-mails de desenvolvimento | http://localhost:8025, caixa local Mailpit; nenhuma entrega externa é feita pelo Compose |
 
 O primeiro início instala dependências. Aguarde os logs de inicialização: um container ativo não comprova que a aplicação está pronta. As portas locais 4200 e 8080 precisam estar livres.
 
@@ -114,6 +117,18 @@ docker compose down
 
 O Compose é destinado ao desenvolvimento local. Cada máquina mantém seus próprios dados e caches. Consulte os arquivos de configuração para as variáveis locais; não use essas configurações como ambiente de produção.
 
+Em Linux/macOS, use `cp .env.example .env` somente se ainda não houver `.env`. Não sobrescreva credenciais existentes. O primeiro administrador é criado apenas quando o bootstrap está habilitado e suas credenciais foram preenchidas. Após a primeira criação, desabilite `PORTAL_BOOTSTRAP_ENABLED` na implantação. O volume `portal-files` preserva os arquivos enviados.
+
+Para validar as APIs localmente, com backend, banco e Mailpit ativos e as credenciais do bootstrap no `.env`:
+
+```sh
+python3 backend/scripts/check-portal-api.py
+```
+
+Esse teste cria contas e parcerias sintéticas com prefixo `Smoke`, verifica caminhos válidos/negados e não remove registros anteriores. O relatório automático está disponível em JSON em `/api/parcerias/{id}/relatorio` e como HTML baixável/imprimível em `/api/parcerias/{id}/relatorio/exportar`.
+
+As telas usam os IDs reais retornados pela API. RBS entra em `/rbs/patrocinadores`; patrocinadores acessam suas parcerias em `/parcerias`. Consulte o [inventário de telas e rotas](frontend/docs/telas-portal.md) e a [validação da integração](docs/integracao-backend.md#integração-angular-solicitada). Os roteiros locais em `frontend/scripts/check-auth-integration.cjs` e `check-portal-integration.cjs` usam Playwright já instalado, Chromium e os serviços Docker ativos. Defina `PLAYWRIGHT_MODULE` para o módulo disponível e, se necessário, `PLAYWRIGHT_CHROMIUM_EXECUTABLE` para o navegador. Eles criam somente dados sintéticos `E2E` e não removem registros anteriores.
+
 ### Comunicação entre as aplicações
 
 O proxy de desenvolvimento do Angular encaminha `/api/**` preservando o caminho. No host, o destino padrão é `http://127.0.0.1:8080`; no Docker, `API_PROXY_TARGET` seleciona `http://backend:8080`. O proxy não realiza autenticação.
@@ -127,7 +142,10 @@ O PostgreSQL do Compose não publica porta no host. Executar o backend fora do D
 | `backend/` | Aplicação Spring Boot, Maven Wrapper, configurações e testes. |
 | `frontend/` | Aplicação Angular, dependências, proxy e assets. |
 | `docs/` | Documentação de funcionalidades e registros históricos. |
-| `openspec/` | Especificações, decisões e tarefas das mudanças documentadas. |
+| `openspec/` | Histórico de mudanças antigas. O processo deixou de ser usado em 22/10/2026. |
+| [Regras de negócio](docs/regras-negocio/README.md) | TAP, planos comerciais e aplicabilidade por edição. |
+| [Integração do backend](docs/integracao-backend.md) | Inventário, contratos, decisões, tarefas e evidências da implementação. |
+| [API e operação](docs/backend-api.md) | Autenticação, parametrização, DTOs e comandos da API local. |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Fluxo de colaboração, padrões de desenvolvimento, commits, PRs e verificações. |
 | [PRODUCT.md](PRODUCT.md) | Contexto e limites do produto. |
 | [DESIGN.md](DESIGN.md) | Identidade visual, paleta PA27 e decisões de interface. |
@@ -137,7 +155,7 @@ O PostgreSQL do Compose não publica porta no host. Executar o backend fora do D
 
 A paleta é implementada em `frontend/src/styles.less`. A origem das imagens está em [frontend/public/images/README.md](frontend/public/images/README.md). Os assets necessários estão versionados; os PDFs originais não são necessários para executar o frontend.
 
-OpenSpec e as integrações de agentes apoiam o desenvolvimento. Não são dependências de execução da aplicação.
+A implementação atual usa a documentação de tarefas do projeto, sem criar mudanças OpenSpec.
 
 ## Como contribuir
 

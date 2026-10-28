@@ -1,141 +1,304 @@
-<app-partnership-shell activeArea="03" title="Mídia e conteúdo"
+<app-partnership-shell
+  activeArea="03"
+  title="Mídia e conteúdo"
   description="Materiais, veiculações e comprovações reunidos no mesmo lugar."
-  pageUrl="/previa/midia-e-conteudo">
-  <section class="submission-status" [class.is-closed]="!preview.submissionsOpen()" aria-label="Disponibilidade de envio" role="status">
-    <p>{{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}</p>
-    <p>{{ preview.submissionsOpen() ? 'Os materiais podem ser enviados ou substituídos.' : 'A equipe RBS pode reabrir o envio para correção.' }}</p>
+  [pageUrl]="ctx.link('midia-e-conteudo')"
+>
+  <section
+    class="submission-status"
+    [class.is-closed]="!preview.submissionsOpen()"
+    aria-label="Disponibilidade de envio"
+    role="status"
+  >
+    <p>
+      {{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}
+    </p>
+    <p>
+      {{
+        preview.submissionsOpen()
+          ? 'Os materiais podem ser enviados ou substituídos.'
+          : 'A equipe RBS pode reabrir o envio para correção.'
+      }}
+    </p>
   </section>
 
   <div class="media-panels">
     <section class="media-card" aria-labelledby="media-materials-title">
       <h2 id="media-materials-title">Materiais e textos</h2>
-      <button class="document-card" type="button" (click)="openDocument(preview.currentFile().name)" [attr.aria-label]="'Abrir ' + preview.currentFile().name">
-        <span class="document-icon" aria-hidden="true">▤</span>
-        <span class="document-description"><strong>{{ preview.currentFile().name }}</strong><span>{{ preview.currentFile().sender === 'Admin RBS' ? 'Registrado pela RBS' : 'Recebido do patrocinador' }} · Histórico disponível</span></span>
-        <span class="document-action" aria-hidden="true">Abrir →</span>
-      </button>
+      @if (preview.currentFile(); as file) {
+        <button
+          class="document-card"
+          type="button"
+          (click)="openDocument(file.name)"
+          [attr.aria-label]="'Abrir ' + file.name"
+        >
+          <span class="document-icon" aria-hidden="true">▤</span>
+          <span class="document-description"
+            ><strong>{{ file.name }}</strong
+            ><span>Versão {{ file.version }} · Histórico disponível</span></span
+          >
+          <span class="document-action" aria-hidden="true">Abrir →</span>
+        </button>
+      } @else {
+        <p>Nenhum arquivo de mídia enviado.</p>
+      }
       @if (preview.submissionsOpen()) {
-      <button class="upload-zone" type="button" (click)="openUpload()" aria-label="Enviar arquivo de mídia">
-        <span class="upload-arrow" aria-hidden="true">↑</span>
-        <strong>Enviar arquivo de mídia</strong>
-        <span>Clique para selecionar um arquivo</span>
+        <button
+          class="upload-zone"
+          type="button"
+          (click)="openUpload()"
+          aria-label="Enviar arquivo de mídia"
+        >
+          <span class="upload-arrow" aria-hidden="true">↑</span>
+          <strong>Enviar arquivo de mídia</strong>
+          <span>Clique para selecionar um arquivo</span>
+        </button>
+        <button nz-button class="pill briefing-button" type="button" (click)="openBriefing()">
+          Enviar texto / briefing
+        </button>
+      } @else {
+        <p>Envio encerrado</p>
+      }
+      <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">
+        Histórico de versões
       </button>
-      <button nz-button class="pill briefing-button" type="button" (click)="openBriefing()">Enviar texto / briefing</button>
-      } @else { <button nz-button class="pill closed-button" type="button" aria-disabled="true">Envio encerrado</button> }
-      <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">Histórico de versões</button>
     </section>
 
     <section class="media-card" aria-labelledby="media-publications-title">
       <h2 id="media-publications-title">Publicações da RBS</h2>
-      <button class="document-card" type="button" (click)="openDocument('Relatório de mídia')" aria-label="Abrir Relatório de mídia">
-        <span class="document-icon" aria-hidden="true">▤</span>
-        <span class="document-description"><strong>Relatório de mídia</strong><span>Arquivo da parceria</span></span>
-        <span class="document-action" aria-hidden="true">Abrir →</span>
-      </button>
-      <button class="document-card" type="button" (click)="dialog.set('post')" aria-label="Abrir Post carrossel">
-        <span class="document-icon" aria-hidden="true">▤</span>
-        <span class="document-description"><strong>Post carrossel</strong><span>Link da veiculação</span></span>
-        <span class="document-action" aria-hidden="true">Abrir →</span>
-      </button>
+      @for (publication of preview.publications(); track publication.id) {
+        <div class="history-version">
+          <strong>{{ publication.titulo }}</strong>
+          <p>{{ publication.texto }}</p>
+          @if (publication.url) {
+            <a [href]="publication.url" target="_blank" rel="noopener noreferrer"
+              >Abrir publicação</a
+            >
+          }
+          @if (publication.arquivoId) {
+            <button
+              type="button"
+              (click)="preview.download(publication.arquivoId, publication.titulo)"
+            >
+              Baixar arquivo
+            </button>
+          }
+        </div>
+      } @empty {
+        <p>Nenhuma publicação disponível.</p>
+      }
     </section>
   </div>
 
   <section class="media-card" aria-labelledby="media-comparison-title">
-    <h2 id="media-comparison-title">Previsto × exibido</h2>
-    <table aria-labelledby="media-comparison-title">
-      <thead><tr><th scope="col">Formato</th><th scope="col">Previsto</th><th scope="col">Exibido</th></tr></thead>
-      <tbody>
-        <tr><th scope="row">Post carrossel</th><td>1 publicação</td><td>1 publicação</td></tr>
-        <tr><th scope="row">Story</th><td>2 inserções</td><td>{{ preview.displayedStoriesLabel() }}</td></tr>
-      </tbody>
-    </table>
+    <h2 id="media-comparison-title">Veiculações registradas</h2>
+    @if (preview.placements().length) {
+      <table aria-labelledby="media-comparison-title">
+        <thead>
+          <tr>
+            <th scope="col">Canal</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of preview.placements(); track item.id) {
+            <tr>
+              <th scope="row">{{ item.canal }}</th>
+              <td>
+                {{ item.descricao }}
+                @if (item.url) {
+                  <a [href]="item.url" target="_blank" rel="noopener noreferrer">Abrir</a>
+                }
+              </td>
+              <td>
+                {{ item.veiculadoEm ? (item.veiculadoEm | date: 'dd/MM/yyyy') : 'Não informada' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p>Nenhuma veiculação registrada.</p>
+    }
   </section>
-  <p class="preview-note">Prévia com dados fictícios. Os números são exemplos do protótipo. Arquivos e textos não são enviados à RBS; os registros locais serão apagados ao recarregar a página.</p>
 </app-partnership-shell>
 
-<nz-modal #mediaModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="close()"
-  (nzAfterOpen)="labelDialog(mediaModal)" [nzTitle]="modalTitle" [nzFooter]="null"
-  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" [nzClosable]="dialog() !== 'history'"
-  nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #modalTitle><h2 id="media-dialog-title" class="dialog-title" tabindex="-1">{{ dialogTitle() }}</h2></ng-template>
+<nz-modal
+  #mediaModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="close()"
+  (nzAfterOpen)="labelDialog(mediaModal)"
+  [nzTitle]="modalTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  [nzClosable]="dialog() !== 'history'"
+  nzClassName="pa-profile-dialog"
+  [nzCloseIcon]="closeIcon"
+>
+  <ng-template #modalTitle
+    ><h2 id="media-dialog-title" class="dialog-title" tabindex="-1">
+      {{ dialogTitle() }}
+    </h2></ng-template
+  >
   <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
       @if (dialog() === 'upload') {
-        <input #fileInput type="file" hidden aria-label="Arquivo de mídia" (change)="selectFile(fileInput)" />
+        <input
+          #fileInput
+          type="file"
+          hidden
+          aria-label="Arquivo de mídia"
+          (change)="selectFile(fileInput)"
+        />
         @if (selected(); as file) {
           <p>Confira o arquivo antes de continuar.</p>
           <div class="document-card selected-file" aria-label="Arquivo selecionado">
             <span class="document-icon" aria-hidden="true">▤</span>
-            <span class="document-description"><strong>{{ file.name }}</strong><span>Selecionado · pronto para enviar</span></span>
-            <span class="document-action" aria-disabled="true" title="Conteúdo indisponível nesta simulação">Abrir →</span>
+            <span class="document-description"
+              ><strong>{{ file.name }}</strong
+              ><span>Selecionado · pronto para enviar</span></span
+            >
+            <span class="document-action" aria-hidden="true">Pronto</span>
           </div>
           <div class="dialog-actions">
-            <button nz-button class="pill brand-button" type="button" (click)="send()">Enviar arquivo</button>
-            <button nz-button class="pill choose-button" type="button" (click)="chooseAnother()">Escolher outro arquivo</button>
+            <button
+              nz-button
+              class="pill brand-button"
+              type="button"
+              (click)="send()"
+              [disabled]="busy()"
+            >
+              Enviar arquivo
+            </button>
+            <button nz-button class="pill choose-button" type="button" (click)="chooseAnother()">
+              Escolher outro arquivo
+            </button>
           </div>
         } @else {
           <p>Selecione o material que deseja disponibilizar.</p>
-          <button class="upload-zone" type="button" (click)="fileInput.click()" aria-label="Selecionar arquivo">
-            <span class="upload-arrow" aria-hidden="true">↑</span><strong>Selecionar arquivo</strong><span>Escolha o arquivo no seu dispositivo</span>
+          <button
+            class="upload-zone"
+            type="button"
+            (click)="fileInput.click()"
+            aria-label="Selecionar arquivo"
+          >
+            <span class="upload-arrow" aria-hidden="true">↑</span><strong>Selecionar arquivo</strong
+            ><span>Escolha o arquivo no seu dispositivo</span>
           </button>
-          <button nz-button class="pill finish-button" type="button" (click)="cancel()">Cancelar</button>
+          <button nz-button class="pill finish-button" type="button" (click)="cancel()">
+            Cancelar
+          </button>
         }
-        @if (inputError()) { <p class="file-error" role="alert">{{ inputError() }}</p> }
-        <p class="preview-note">Simulação local: apenas nome e tamanho são usados; o conteúdo não é lido nem enviado.</p>
+        @if (inputError()) {
+          <p class="file-error" role="alert">{{ inputError() }}</p>
+        }
       }
       @if (dialog() === 'progress') {
-        <p role="status">Aguarde enquanto o envio é simulado.</p>
+        <p role="status">Aguarde enquanto o arquivo é enviado.</p>
         <div class="document-card selected-file">
           <span class="document-icon" aria-hidden="true">▤</span>
-          <span class="document-description"><strong>{{ selected()?.name }}</strong><span>Envio em andamento</span></span>
+          <span class="document-description"
+            ><strong>{{ selected()?.name }}</strong
+            ><span>Envio em andamento</span></span
+          >
           <span class="document-action" aria-disabled="true">Abrir →</span>
         </div>
-        <div class="upload-progress" role="progressbar" aria-label="Envio simulado" aria-valuemin="0" aria-valuemax="100" aria-valuenow="67"><span></span></div>
-        <p class="progress-value">67%</p>
       }
       @if (dialog() === 'received' || dialog() === 'saved' || dialog() === 'cancelled') {
-        <p role="status">{{ dialog() === 'cancelled' ? 'Nenhuma informação foi alterada.' : 'O envio foi registrado nesta simulação. Nenhum material foi disponibilizado à RBS.' }}</p>
-        <span class="done-badge"><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span>
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+        <p role="status">
+          {{
+            dialog() === 'cancelled'
+              ? 'Nenhuma informação foi alterada.'
+              : 'Informações registradas na parceria.'
+          }}
+        </p>
+        <span class="done-badge"
+          ><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span
+        >
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+          Concluir
+        </button>
       }
       @if (dialog() === 'briefing') {
         <p id="briefing-help">Envie as orientações para o material de mídia.</p>
-        <form class="briefing-form" [formGroup]="briefingForm" (ngSubmit)="sendBriefing()" novalidate>
+        <form
+          class="briefing-form"
+          [formGroup]="briefingForm"
+          (ngSubmit)="sendBriefing()"
+          novalidate
+        >
           <div class="briefing-field">
             <label for="media-briefing">Texto</label>
-            <textarea #briefingInput nz-input id="media-briefing" rows="1" [formControl]="briefingControl"
-              placeholder="Divulgar a ativação do Cliente Amarelo durante o evento."
-              required [attr.aria-invalid]="briefingControl.touched && briefingControl.invalid"
-              [attr.aria-describedby]="briefingControl.touched && briefingControl.invalid ? 'briefing-help briefing-error' : 'briefing-help'"></textarea>
+            <textarea
+              #briefingInput
+              nz-input
+              id="media-briefing"
+              rows="1"
+              [formControl]="briefingControl"
+              placeholder="Descreva as orientações para o material."
+              required
+              [attr.aria-invalid]="briefingControl.touched && briefingControl.invalid"
+              [attr.aria-describedby]="
+                briefingControl.touched && briefingControl.invalid
+                  ? 'briefing-help briefing-error'
+                  : 'briefing-help'
+              "
+            ></textarea>
             @if (briefingControl.touched && briefingControl.invalid) {
-              <p id="briefing-error" class="file-error" role="alert">Escreva o texto ou briefing antes de enviar.</p>
+              <p id="briefing-error" class="file-error" role="alert">
+                Escreva o texto ou briefing antes de enviar.
+              </p>
             }
           </div>
-          <button nz-button class="pill dark-button send-text-button" type="submit">Enviar texto</button>
+          <button
+            nz-button
+            class="pill dark-button send-text-button"
+            type="submit"
+            [disabled]="busy()"
+          >
+            Salvar briefing</button
+          ><button nz-button class="pill" type="button" (click)="sendText()" [disabled]="busy()">
+            Enviar texto de mídia
+          </button>
         </form>
-        <p class="preview-note">O texto ficará somente nesta simulação, até recarregar a página.</p>
       }
       @if (dialog() === 'history') {
         @for (version of preview.versions(); track version.version) {
           <div class="history-version">
             <strong>{{ version.name }}</strong>
-            <p>Versão {{ version.version }} · {{ version.sender ?? 'Admin Patrocinador' }} · {{ version.receivedAt ? (version.receivedAt | date:'dd/MM/yyyy') : 'Exemplo do protótipo' }}</p>
+            <p>Versão {{ version.version }} · {{ version.receivedAt | date: 'dd/MM/yyyy' }}</p>
+            @if (version.id) {
+              <button type="button" (click)="preview.download(version.id, version.name)">
+                Baixar
+              </button>
+            }
           </div>
         }
-        <p class="preview-note">Histórico de arquivos desta simulação, mantido somente em memória.</p>
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">Concluir</button>
+        @if (!preview.versions().length) {
+          <p>Nenhuma versão enviada.</p>
+        }
+        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+          Concluir
+        </button>
       }
       @if (dialog() === 'document') {
         <p>Arquivo disponibilizado no contexto desta parceria.</p>
-        <div class="document-preview" [attr.aria-label]="documentName()"><h3>Documento</h3><p>O conteúdo será exibido conforme o formato do arquivo.</p></div>
-        <button nz-button class="pill dark-button download-button" type="button" aria-disabled="true" title="Arquivo indisponível nesta simulação">Baixar arquivo</button>
-        <p class="preview-note">{{ documentName() }} · Esta prévia não armazena o arquivo.</p>
-      }
-      @if (dialog() === 'post') {
-        <p>Post carrossel · Cliente Amarelo</p>
-        <p>O link da veiculação é disponibilizado pela RBS junto aos registros de mídia.</p>
-        <button nz-button class="pill dark-button back-button" type="button" (click)="close()">Voltar à mídia</button>
+        <div class="document-preview" [attr.aria-label]="documentName()">
+          <h3>Documento</h3>
+          <p>O conteúdo será exibido conforme o formato do arquivo.</p>
+        </div>
+        <button
+          nz-button
+          class="pill dark-button download-button"
+          type="button"
+          (click)="download()"
+        >
+          Baixar arquivo
+        </button>
       }
     </div>
   </ng-container>

@@ -1,89 +1,157 @@
 <div class="profile-page">
-  <a class="skip-link" [attr.href]="pageUrl() + '#partnership-content'" (click)="$event.preventDefault(); mainContent.focus()">Ir para o conteúdo</a>
+  <a
+    class="skip-link"
+    [href]="router.url + '#partnership-content'"
+    (click)="$event.preventDefault(); mainContent.focus()"
+    >Ir para o conteúdo</a
+  >
   <header class="portal-header">
-    <img class="portal-logo" src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="64" height="64" />
+    <img
+      class="portal-logo"
+      src="/images/pa27-logo.png"
+      alt="Planeta Atlântida"
+      width="64"
+      height="64"
+    />
     <div class="portal-brand">
       <p>Portal do Patrocinador</p>
-      <span>Planeta Atlântida 2027</span>
+      <span>Planeta Atlântida {{ profile()?.edicao }}</span>
     </div>
     <div class="header-actions">
-      <a nz-button class="pill faq-button" routerLink="/previa/duvidas-frequentes"
-        [attr.aria-current]="activeArea() === 'faq' ? 'page' : null">Dúvidas frequentes</a>
-      <button nz-button class="pill notifications-button" type="button" (click)="dialog.set('notifications')">Notificações</button>
+      <a
+        nz-button
+        class="pill faq-button"
+        [routerLink]="context.link('duvidas-frequentes')"
+        [attr.aria-current]="activeArea() === 'faq' ? 'page' : null"
+        >Dúvidas frequentes</a
+      >
+      <button
+        nz-button
+        class="pill notifications-button"
+        type="button"
+        (click)="openNotifications()"
+      >
+        Notificações
+      </button>
     </div>
     <div class="account">
-      <p>{{ partnership.roleLabel }}</p>
-      <span>{{ partnership.sponsorName }}</span>
+      <p>{{ context.admin() ? 'Admin RBS' : 'Admin Patrocinador' }}</p>
+      <a routerLink="/conta">{{ user()?.nome }}</a>
     </div>
-    <a nz-button class="pill exit-button" routerLink="/login">Sair</a>
+    <button nz-button class="pill exit-button" type="button" (click)="auth.logout()">Sair</button>
   </header>
-
   <div class="portal-body">
     <aside class="partnership-sidebar" aria-label="Navegação da parceria">
+      <a
+        nz-button
+        class="pill back-button"
+        [routerLink]="context.admin() ? '/rbs/patrocinadores' : '/parcerias'"
+        >{{ context.admin() ? 'Patrocinadores' : 'Minhas parcerias' }}</a
+      >
       <div class="partnership-identity">
-        <p>{{ partnership.sponsorName }}</p>
-        <span class="quota">Cota {{ partnership.quota }}</span>
+        <p>{{ profile()?.nome }}</p>
+        <span class="quota">{{ profile()?.cota }}</span>
       </div>
-      <a nz-button class="pill deliveries-button" [class.dark-button]="activeArea() === 'deliveries'"
-        routerLink="/previa/entregas" [attr.aria-current]="activeArea() === 'deliveries' ? 'page' : null">Entregas da parceria</a>
+      <a
+        nz-button
+        class="pill deliveries-button"
+        [class.dark-button]="activeArea() === 'deliveries'"
+        [routerLink]="context.link('entregas')"
+        [attr.aria-current]="activeArea() === 'deliveries' ? 'page' : null"
+        >Entregas da parceria</a
+      >
       <p class="eyebrow areas-title" id="areas-title">Áreas da parceria</p>
       <nav aria-labelledby="areas-title">
-        @for (area of areas; track area.number) {
-          @if (area.path) {
-            <a class="area-link" [class.active]="activeArea() === area.number" [routerLink]="area.path" [attr.aria-current]="activeArea() === area.number ? 'page' : null">
-              <span class="area-number">{{ area.number }}</span><span>{{ area.label }}</span>
-            </a>
-          } @else {
-            <button class="area-link" type="button" aria-disabled="true" title="Página indisponível nesta prévia">
-              <span class="area-number">{{ area.number }}</span><span>{{ area.label }}</span>
-            </button>
-          }
+        @for (area of areas(); track area.key) {
+          <a
+            class="area-link"
+            [class.active]="activeArea() === area.number"
+            [routerLink]="area.url"
+            [attr.aria-current]="activeArea() === area.number ? 'page' : null"
+            ><span class="area-number">{{ area.number }}</span
+            ><span>{{ area.label }}</span></a
+          >
         }
       </nav>
-      <div class="festival-signature" aria-hidden="true"><div class="checker"></div><p>Só quem vai sente.</p></div>
+      @if (context.admin()) {
+        <a
+          class="area-link"
+          [routerLink]="context.link('relatorio-da-parceria')"
+          [attr.aria-current]="activeArea() === 'report' ? 'page' : null"
+          >Relatório e planilhas</a
+        >
+      }
+      <div class="festival-signature" aria-hidden="true">
+        <div class="checker"></div>
+        <p>Só quem vai sente.</p>
+      </div>
     </aside>
-
     <main #mainContent class="profile-scroll" id="partnership-content" tabindex="-1">
       <div class="profile-content">
         <div class="page-heading">
           <div class="context-row">
-            <p class="eyebrow">Parceria / {{ partnership.sponsorContext }} / PA27</p>
-            <button nz-button class="pill report-button" type="button" (click)="reportOpen.set(true)">Relatório da parceria</button>
+            <p class="eyebrow">Parceria / {{ profile()?.nome }} / {{ profile()?.edicao }}</p>
+            <button nz-button class="pill report-button" type="button" (click)="openReport()">
+              Relatório da parceria
+            </button>
           </div>
           <h1>{{ title() }}</h1>
           <p class="page-intro">{{ description() }}</p>
-          <div class="festival-stripe" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <div class="festival-stripe" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
         </div>
-
+        <app-api-status />
         <ng-content />
       </div>
     </main>
   </div>
 </div>
-
-<nz-modal #shellModal="nzModal" [nzVisible]="dialog() !== null" (nzOnCancel)="dialog.set(null)"
-  (nzAfterOpen)="labelDialog(shellModal)" [nzTitle]="dialogTitle" [nzFooter]="null"
-  [nzCentered]="true" [nzWidth]="640" [nzNoAnimation]="true" nzClassName="pa-profile-dialog" [nzCloseIcon]="closeIcon">
-  <ng-template #dialogTitle><h2 id="shell-dialog-title" class="dialog-title">Notificações</h2></ng-template>
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-      @switch (dialog()) {
-        @case ('notifications') {
-          @if (!preview.currentMiv()) {
-          <div class="notification-preview">
-            <h3>Manual de identidade visual pendente</h3>
-            <p>{{ partnership.sponsorName }} · Envie o MIV em Aplicações de marca.</p>
-            <a nz-button class="pill pending-button" routerLink="/previa/aplicacoes-de-marca" (click)="dialog.set(null)">Ver pendência</a>
-          </div>
-          } @else {
-            <p>O MIV já foi recebido nesta simulação.</p>
+<nz-modal
+  #shellModal="nzModal"
+  [nzVisible]="dialog() !== null"
+  (nzOnCancel)="dialog.set(null)"
+  (nzAfterOpen)="labelDialog(shellModal)"
+  [nzTitle]="notificationsTitle"
+  [nzFooter]="null"
+  [nzCentered]="true"
+  [nzWidth]="640"
+  [nzNoAnimation]="true"
+  nzClassName="pa-profile-dialog"
+>
+  <ng-template #notificationsTitle
+    ><h2 id="shell-dialog-title" class="dialog-title" tabindex="-1">Notificações</h2></ng-template
+  >
+  <ng-container *nzModalContent
+    ><div class="dialog-content">
+      <app-api-status />
+      <ul class="api-notifications">
+        @for (notification of notifications(); track notification.id) {
+          <li>
+            <p>{{ notification.descricao }}</p>
+            <p>{{ notification.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
+            <a
+              nz-button
+              class="pill"
+              [routerLink]="notificationLink(notification.area)"
+              (click)="dialog.set(null)"
+              >Abrir área</a
+            >
+          </li>
+        } @empty {
+          @if (!api.pending()) {
+            <li>Nenhuma atualização registrada nesta parceria.</li>
           }
-          <button nz-button class="pill dark-button finish-button" type="button" (click)="dialog.set(null)">Concluir</button>
         }
-      }
-    </div>
-  </ng-container>
+      </ul>
+      <button nz-button class="pill dark-button" type="button" (click)="dialog.set(null)">
+        Concluir
+      </button>
+    </div></ng-container
+  >
 </nz-modal>
-
-<app-partnership-report [(open)]="reportOpen" [sponsorName]="partnership.sponsorName" />
+<app-partnership-report
+  [(open)]="reportOpen"
+  [admin]="context.admin()"
+  [sponsorName]="profile()?.nome ?? ''"
+/>

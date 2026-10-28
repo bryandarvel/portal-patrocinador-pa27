@@ -1,99 +1,122 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
 
-export type ContractDecision =
-  | { readonly kind: 'approved'; readonly recordedAt: Date }
-  | { readonly kind: 'adjustments'; readonly recordedAt: Date; readonly comment: string };
-
+export interface Signatario {
+  id?: string;
+  nome: string;
+  email: string;
+  cargo: string;
+}
 export interface ContractVersion {
-  readonly number: number;
-  readonly name: string;
-  readonly publishedAt: Date | null;
-  readonly decision: ContractDecision | null;
+  id: string;
+  numero: number;
+  arquivo_id: string;
+  criado_em: string;
+  decisao: 'APROVADO' | 'AJUSTES' | null;
+  comentario: string | null;
+  decidido_em: string | null;
+}
+export interface SignedContract {
+  versao_id: string;
+  arquivo_id: string;
+  criado_em: string;
+}
+interface ContractView {
+  signatarios: Signatario[];
+  versoes: ContractVersion[];
+  assinado: SignedContract[];
 }
 
-export interface SignedContractPreview {
-  readonly name: string;
-  readonly baseVersion: number;
-  readonly publishedAt: Date;
-}
-
-/** Estado demonstrativo do frame 10:527. Nenhuma decisão é transmitida à RBS. */
 @Injectable({ providedIn: 'root' })
 export class ContractPreviewService {
-  readonly signatory = { name: 'Representante Amarelo', email: 'assinatura@example.com' } as const;
-  private readonly versionsState = signal<readonly ContractVersion[]>([
-    { number: 1, name: 'contrato_amarelo_v1.pdf', publishedAt: null, decision: null }
-  ]);
-  private readonly signedState = signal<SignedContractPreview | null>(null);
-  readonly history = this.versionsState.asReadonly();
-  readonly version = computed(() => this.versionsState()[0]);
-  readonly decision = computed(() => this.version().decision);
-  readonly signed = this.signedState.asReadonly();
-  readonly canDecide = computed(() => this.decision() === null);
-  readonly canPublishCorrection = computed(() => this.decision()?.kind === 'adjustments' && this.signed() === null);
-  readonly canPublishSigned = computed(() => this.decision()?.kind === 'approved' && this.signed() === null);
-  readonly correctionFileName = computed(() => `contrato_amarelo_v${this.version().number + 1}.pdf`);
-  readonly signedFileName = computed(() => `contrato_amarelo_v${this.version().number}_assinado.pdf`);
-  readonly comment = computed(() => {
-    const decision = this.decision();
-    return decision?.kind === 'adjustments' ? decision.comment : null;
-  });
-  readonly status = computed(() => {
-    if (this.signed()) return 'Contrato assinado';
-    switch (this.decision()?.kind) {
-      case 'approved': return 'Aprovado para assinatura';
-      case 'adjustments': return 'Ajustes solicitados';
-      default: return this.version().number === 1 ? 'Aguardando validação' : `Aguardando validação · Versão ${this.version().number}`;
+  private readonly api = inject(PortalApi);
+  private readonly ctx = inject(PortalContext);
+  private readonly state = signal<ContractView>({ signatarios: [], versoes: [], assinado: [] });
+  readonly loading = signal(false);
+  readonly signatories = computed(() => this.state().signatarios);
+  readonly history = computed(() => this.state().versoes);
+  readonly version = computed(() => this.history()[0] ?? null);
+  readonly signed = computed(() => this.state().assinado[0] ?? null);
+  readonly canDecide = computed(
+    () => !this.ctx.admin() && !!this.version() && !this.version()?.decisao,
+  );
+  readonly canPublishVersion = computed(
+    () =>
+      this.ctx.admin() &&
+      this.signatories().length > 0 &&
+      (!this.version() || this.version()?.decisao === 'AJUSTES') &&
+      !this.signed(),
+  );
+  readonly canPublishSigned = computed(
+    () => this.ctx.admin() && this.version()?.decisao === 'APROVADO' && !this.signed(),
+  );
+  readonly status = computed(() =>
+    this.signed()
+      ? 'Contrato assinado'
+      : this.version()?.decisao === 'APROVADO'
+        ? 'Aprovado para assinatura'
+        : this.version()?.decisao === 'AJUSTES'
+          ? 'Ajustes solicitados'
+          : this.version()
+            ? 'Aguardando validação'
+            : 'Aguardando publicação',
+  );
+  readonly guidance = computed(() =>
+    !this.signatories().length
+      ? 'O patrocinador deve informar os signatários.'
+      : !this.version()
+        ? 'A RBS pode publicar a primeira versão.'
+        : this.version()?.decisao === 'AJUSTES'
+          ? 'A RBS deve publicar uma versão corrigida.'
+          : this.version()?.decisao === 'APROVADO'
+            ? 'A assinatura ocorre fora do portal; a RBS publicará o arquivo final.'
+            : 'Confira o arquivo e registre sua decisão.',
+  );
+
+  constructor() {
+    effect(() => {
+      const id = this.ctx.id();
+      this.state.set({ signatarios: [], versoes: [], assinado: [] });
+      if (id) void this.load(id).catch(() => {});
+    });
+  }
+  async load(id = this.ctx.id()): Promise<void> {
+    this.loading.set(true);
+    try {
+      const [view, versoes] = await Promise.all([
+        this.api.get<ContractView>(`/api/parcerias/${id}/contrato`),
+        this.api.get<ContractVersion[]>(`/api/parcerias/${id}/contrato/versoes`),
+      ]);
+      if (id === this.ctx.id()) this.state.set({ ...view, versoes });
+    } finally {
+      if (id === this.ctx.id()) this.loading.set(false);
     }
-  });
-  readonly guidance = computed(() => {
-    if (this.signed()) return 'O arquivo final está disponível para consulta nesta simulação.';
-    switch (this.decision()?.kind) {
-      case 'approved': return 'Assinatura fora do portal · A RBS publicará o arquivo final.';
-      case 'adjustments': return 'RBS · Revise o comentário e publique uma versão corrigida.';
-      default: return this.version().number === 1 ? 'Patrocinador · Confira a versão atual e aprove ou solicite ajustes.' : 'Patrocinador · Confira a nova versão.';
-    }
-  });
-  readonly versionStatus = computed(() => this.statusFor(this.decision()));
-
-  statusFor(decision: ContractDecision | null): string {
-    switch (decision?.kind) {
-      case 'approved': return 'Aprovado pelo patrocinador';
-      case 'adjustments': return 'Ajustes solicitados pelo patrocinador';
-      default: return 'Aguardando validação';
-    }
   }
-
-  approve(): boolean {
-    if (!this.canDecide()) return false;
-    this.recordDecision({ kind: 'approved', recordedAt: new Date() });
-    return true;
+  async saveSignatories(signatarios: Signatario[]): Promise<void> {
+    await this.api.put(this.ctx.url('/contrato/signatarios'), { signatarios });
+    await this.load();
   }
-
-  requestAdjustments(comment: string): boolean {
-    const text = comment.trim();
-    if (!this.canDecide() || !text) return false;
-    this.recordDecision({ kind: 'adjustments', comment: text, recordedAt: new Date() });
-    return true;
+  async decide(decisao: 'APROVADO' | 'AJUSTES', comentario = ''): Promise<void> {
+    const version = this.version();
+    if (!version) throw new Error('Nenhuma versão disponível.');
+    await this.api.post(this.ctx.url(`/contrato/versoes/${version.id}/decisoes`), {
+      decisao,
+      comentario,
+    });
+    await this.load();
   }
-
-  publishCorrection(): boolean {
-    if (!this.canPublishCorrection()) return false;
-    const version: ContractVersion = {
-      number: this.version().number + 1, name: this.correctionFileName(), publishedAt: new Date(), decision: null
-    };
-    this.versionsState.update(versions => [version, ...versions]);
-    return true;
+  async publishVersion(file: File): Promise<void> {
+    await this.api.upload(this.ctx.url('/contrato/versoes'), file);
+    await this.load();
   }
-
-  publishSigned(): boolean {
-    if (!this.canPublishSigned()) return false;
-    this.signedState.set({ name: this.signedFileName(), baseVersion: this.version().number, publishedAt: new Date() });
-    return true;
+  async publishSigned(file: File): Promise<void> {
+    const version = this.version();
+    if (!version) throw new Error('Nenhuma versão aprovada.');
+    await this.api.upload(this.ctx.url('/contrato/assinado'), file, { versaoId: version.id });
+    await this.load();
   }
-
-  private recordDecision(decision: ContractDecision): void {
-    const number = this.version().number;
-    this.versionsState.update(versions => versions.map(version => version.number === number ? { ...version, decision } : version));
+  async download(id: string, name: string): Promise<void> {
+    await this.api.download(this.ctx.url(`/arquivos/${id}`), name);
   }
 }

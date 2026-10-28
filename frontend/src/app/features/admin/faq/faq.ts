@@ -36,13 +36,16 @@ type FaqDialog = 'results' | 'editor' | 'saved' | null;
   ],
 })
 export class RbsFaq {
-  readonly sponsorId: AdminSponsorId = inject(ActivatedRoute).snapshot.data['sponsorId'] ?? 'amarelo';
+  readonly sponsorId: AdminSponsorId =
+    inject(ActivatedRoute).snapshot.data['sponsorId'] ?? 'amarelo';
   readonly preview = inject(FaqPreviewService);
+  readonly saving = signal(false);
   readonly searchField = new FormControl('', { nonNullable: true });
-  readonly categories = ['Todas', ...this.preview.categories] as const;
+  readonly categories = computed(() => ['Todas', ...this.preview.categories()]);
   readonly selection = signal<FaqSelection>({ kind: 'category', category: null });
   readonly dialog = signal<FaqDialog>(null);
   readonly editingId = signal<string | null>(null);
+  readonly editingVersion = signal<number | null>(null);
   readonly form = new FormGroup({
     question: new FormControl('', {
       nonNullable: true,
@@ -57,12 +60,8 @@ export class RbsFaq {
       validators: [Validators.required],
     }),
   });
-  readonly results = computed(() => {
-    const selection = this.selection();
-    return selection.kind === 'search'
-      ? this.preview.search(selection.query)
-      : this.preview.search('', selection.category);
-  });
+  readonly results = signal<readonly FaqEntry[]>([]);
+  readonly loading = signal(false);
   readonly resultTitle = computed(() => {
     const selection = this.selection();
     return selection.kind === 'search'
@@ -86,21 +85,35 @@ export class RbsFaq {
   private returnToResults = false;
   private originId: string | null = null;
 
-  search(): void {
+  async search(): Promise<void> {
     const query = this.searchField.value.trim();
     this.selection.set(query ? { kind: 'search', query } : { kind: 'category', category: null });
     this.dialog.set('results');
+    await this.fetchResults(query);
   }
 
-  showCategory(category: 'Todas' | FaqCategory): void {
+  async showCategory(category: 'Todas' | FaqCategory): Promise<void> {
     this.selection.set({ kind: 'category', category: category === 'Todas' ? null : category });
     this.dialog.set('results');
+    await this.fetchResults('', category === 'Todas' ? null : category);
+  }
+
+  private async fetchResults(query: string, category: string | null = null): Promise<void> {
+    this.loading.set(true);
+    try {
+      this.results.set(await this.preview.load(query, category));
+    } catch {
+      this.results.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   openEditor(entry: FaqEntry | null = null): void {
     this.returnToResults = this.dialog() === 'results';
     this.originId = entry?.id ?? null;
     this.editingId.set(entry?.id ?? null);
+    this.editingVersion.set(entry?.version ?? null);
     this.form.reset(
       entry
         ? { question: entry.question, answer: entry.answer, category: entry.category }
@@ -110,7 +123,7 @@ export class RbsFaq {
     this.focusTitle();
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (this.dialog() !== 'editor') return;
     this.form.markAllAsTouched();
     if (this.form.invalid) {
@@ -123,7 +136,30 @@ export class RbsFaq {
     }
     const value = this.form.getRawValue();
     if (!value.category) return;
-    if (!this.preview.save({ ...value, category: value.category }, this.editingId())) return;
+    if (this.saving()) return;
+    this.saving.set(true);
+    try {
+      const saved = await this.preview.save(
+        { ...value, category: value.category },
+        this.editingId(),
+        this.editingVersion() ?? undefined,
+      );
+      const selection = this.selection();
+      const matches =
+        selection.kind === 'search'
+          ? `${saved.question} ${saved.answer}`
+              .toLocaleLowerCase('pt-BR')
+              .includes(selection.query.toLocaleLowerCase('pt-BR'))
+          : !selection.category || saved.category === selection.category;
+      this.results.update((items) => [
+        ...items.filter((item) => item.id !== saved.id),
+        ...(matches ? [saved] : []),
+      ]);
+    } catch {
+      this.saving.set(false);
+      return;
+    }
+    this.saving.set(false);
     this.form.reset();
     this.dialog.set('saved');
     this.focusTitle();

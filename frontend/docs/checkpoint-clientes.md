@@ -1,5 +1,7 @@
 # Prévias Roxo e Verde — checkpoint e verificação do lote
 
+Registro histórico da etapa visual, anterior à integração. O router atual não expõe as prévias por cor. As funcionalidades usam páginas canônicas e dados da parceria autorizada, conforme [telas-portal.md](telas-portal.md).
+
 Situação em 28/10/2026. Bryan pediu concluir o lote das 19 versões restantes e,
 posteriormente, antecipou um checkpoint de Git para depois de Aplicações de marca
 do Roxo. Somente `frontend/` participa deste checkpoint.

@@ -6,7 +6,7 @@
   [nzTitle]="dialogTitle"
   [nzFooter]="null"
   [nzCentered]="true"
-  [nzWidth]="stage() === 'view' ? 840 : 640"
+  [nzWidth]="840"
   [nzNoAnimation]="true"
   nzClassName="pa-profile-dialog"
   [nzCloseIcon]="closeIcon"
@@ -17,50 +17,145 @@
     </h2></ng-template
   >
   <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
-  <ng-container *nzModalContent>
-    <div class="dialog-content">
-      @switch (stage()) {
-        @case ('overview') {
-          <p>{{ sponsorName() }} · Planeta Atlântida 2027</p>
-          @if (preview.publication(); as publication) {
-            <div class="available-report">
-              <button
-                type="button"
-                class="document-card"
-                [attr.aria-label]="'Abrir ' + publication.name"
-                (click)="showFile()"
-              >
-                <span class="document-icon" aria-hidden="true">▤</span>
-                <span class="document-description"
-                  ><strong>{{ publication.name }}</strong
-                  ><span>Relatório personalizado · publicado pela RBS</span></span
-                >
-                <span class="document-action" aria-hidden="true">Abrir →</span>
-              </button>
-              <button
-                nz-button
-                type="button"
-                class="pill dark-button view-report"
-                (click)="showFile()"
-              >
-                Visualizar relatório
-              </button>
-              <button
-                nz-button
-                type="button"
-                class="pill download-report"
-                disabled
-                title="Download indisponível nesta simulação, sem PDF real"
-              >
-                Baixar relatório
-              </button>
-            </div>
-          } @else {
-            <div class="report-unavailable">
-              <p>O relatório ainda não foi disponibilizado.</p>
-              <p>Você poderá consultar o arquivo assim que a RBS o publicar.</p>
-            </div>
+  <ng-container *nzModalContent
+    ><div class="dialog-content">
+      @if (stage() === 'publish') {
+        <p>O arquivo ficará disponível para {{ sponsorName() }}.</p>
+        <label for="report-file">Arquivo complementar</label
+        ><input id="report-file" type="file" (change)="selectFile($event)" />
+        @if (file) {
+          <p>{{ file.name }}</p>
+        }
+        @if (error()) {
+          <p class="field-error" role="alert">{{ error() }}</p>
+        }
+        <button
+          nz-button
+          type="button"
+          class="pill dark-button publish-file"
+          [disabled]="!file || busy()"
+          (click)="publish()"
+        >
+          Publicar arquivo
+        </button>
+        <button
+          nz-button
+          type="button"
+          class="pill"
+          [disabled]="busy()"
+          (click)="stage.set('overview')"
+        >
+          Voltar
+        </button>
+      } @else {
+        @if (preview.report(); as report) {
+          <p>
+            {{ report.parceria.nome }} · {{ report.parceria.edicao }} · {{ report.parceria.cota }}
+          </p>
+          <p>Dados registrados no portal até {{ report.geradoEm }}.</p>
+          @if (error()) {
+            <p role="alert" class="field-error">{{ error() }}</p>
           }
+          <button
+            nz-button
+            type="button"
+            class="pill dark-button download-report"
+            [disabled]="busy()"
+            (click)="exportHtml()"
+          >
+            Gerar e baixar HTML
+          </button>
+          <section class="report-preview" aria-label="Resumo da parceria">
+            <h3>Entregas</h3>
+            @for (item of report.entregas; track $index) {
+              <article>
+                <h4>{{ item.titulo }}</h4>
+                <p>{{ item.area }} · {{ item.execucao }}</p>
+                <p>{{ item.descricao }}</p>
+                @if (item.responsavel) {
+                  <p>Responsável: {{ item.responsavel }}</p>
+                }
+              </article>
+            } @empty {
+              <p>Nenhuma entrega registrada.</p>
+            }
+            <h3>Comprovações</h3>
+            @for (item of report.comprovacoes; track $index) {
+              <article>
+                <h4>{{ item.entrega }}</h4>
+                <p>{{ item.descricao }}</p>
+                <p>{{ item.criado_em }}</p>
+              </article>
+            } @empty {
+              <p>Nenhuma comprovação registrada.</p>
+            }
+            <h3>Veiculações</h3>
+            @for (item of report.veiculacoes; track $index) {
+              <article>
+                <h4>{{ item.canal }}</h4>
+                <p>{{ item.descricao }}</p>
+                @if (item.veiculado_em) {
+                  <p>{{ item.veiculado_em }}</p>
+                }
+              </article>
+            } @empty {
+              <p>Nenhuma veiculação registrada.</p>
+            }
+            <h3>Perguntas da pesquisa</h3>
+            @for (item of report.perguntas; track $index) {
+              <p>{{ item.ordem }}. {{ item.pergunta }}</p>
+            } @empty {
+              <p>Nenhuma pergunta registrada.</p>
+            }
+            <h3>Cortesias</h3>
+            @for (item of report.cortesias; track $index) {
+              <p>
+                {{ item.quantidade }} {{ item.tipo }} · {{ item.setor }} ·
+                {{ item.destinadas }} destinadas
+                @if (item.dia_evento) {
+                  · {{ item.dia_evento }}
+                }
+                @if (item.periodo_inicio) {
+                  · {{ item.periodo_inicio }} a {{ item.periodo_fim }}
+                }
+              </p>
+            } @empty {
+              <p>Nenhuma cortesia registrada.</p>
+            }
+            <h3>Credenciamento</h3>
+            @for (item of report.credenciamento; track $index) {
+              <p>{{ item.quantidade }} {{ item.tipo }} · {{ item.setor }} · {{ item.publico }}</p>
+            } @empty {
+              <p>Nenhuma credencial registrada.</p>
+            }
+            <h3>Arquivos e resultados publicados</h3>
+            @for (item of report.arquivos; track item.id) {
+              <p>{{ item.nome }} · {{ item.area }} · {{ item.tipo }} · versão {{ item.versao }}</p>
+            } @empty {
+              <p>Nenhum arquivo publicado.</p>
+            }
+          </section>
+          <section class="available-report" aria-labelledby="published-report-title">
+            <h3 id="published-report-title">Relatórios complementares</h3>
+            @for (publication of report.relatoriosPublicados; track publication.id) {
+              <div class="document-card">
+                <span class="document-description"
+                  ><strong>{{ publication.nome }}</strong
+                  ><span>Versão {{ publication.versao }} · {{ publication.criado_em }}</span></span
+                ><button
+                  nz-button
+                  class="pill"
+                  type="button"
+                  [disabled]="busy()"
+                  (click)="download(publication)"
+                >
+                  Baixar arquivo
+                </button>
+              </div>
+            } @empty {
+              <p>Nenhum relatório complementar publicado.</p>
+            }
+          </section>
           @if (admin()) {
             <button
               nz-button
@@ -68,64 +163,23 @@
               class="pill brand-button publish-report"
               (click)="showPublication()"
             >
-              Disponibilizar relatório
-            </button>
-            <hr />
-            <p>Área interna da RBS</p>
-            <a
+              Publicar complemento</button
+            ><a
               nz-button
               class="pill organize-sheets"
-              routerLink="/previa/rbs/amarelo/relatorio-da-parceria"
+              [routerLink]="context.link('relatorio-da-parceria')"
               (click)="close()"
-              >Organizar planilhas de origem</a
+              >Planilhas de origem</a
             >
           }
-        }
-        @case ('publish') {
-          <p>O arquivo ficará disponível para o {{ sponsorName() }}.</p>
-          <div class="document-card selected-file">
-            <span class="document-icon" aria-hidden="true">▤</span>
-            <span class="document-description"
-              ><strong>{{ preview.exampleName }}</strong
-              ><span>Selecionado para publicação</span></span
-            >
-            <span class="document-action" aria-hidden="true">Abrir →</span>
-          </div>
-          <button nz-button type="button" class="pill dark-button publish-file" (click)="publish()">
-            Publicar arquivo
-          </button>
-        }
-        @case ('view') {
-          <p>{{ sponsorName() }} · Arquivo disponibilizado pela RBS</p>
-          <div class="report-preview">
-            <h3>Relatório da parceria</h3>
-            <p>{{ sponsorName() }} · Planeta Atlântida 2027</p>
-            <p>Pré-visualização do arquivo</p>
-          </div>
-          <button
-            nz-button
-            type="button"
-            class="pill dark-button download-button"
-            disabled
-            title="Download indisponível nesta simulação, sem PDF real"
-          >
-            Baixar arquivo
-          </button>
-        }
-        @case ('saved') {
-          <p>As informações foram atualizadas na parceria.</p>
-          <span class="done-badge"
-            ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Concluído</span
-          >
-          <button nz-button type="button" class="pill dark-button finish-button" (click)="close()">
-            Concluir
-          </button>
+        } @else {
+          @if (api.error()) {
+            <p role="alert">{{ api.error() }}</p>
+          } @else {
+            <p role="status">Carregando dados do relatório...</p>
+          }
         }
       }
-      <p class="preview-note">
-        Prévia em memória, sem publicação, PDF ou download real. As planilhas de origem pertencem
-        somente à área administrativa.
-      </p>
-    </div>
-  </ng-container>
+    </div></ng-container
+  >
 </nz-modal>

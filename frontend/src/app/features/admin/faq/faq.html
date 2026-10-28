@@ -37,7 +37,7 @@
     </button>
   </div>
   <div class="faq-categories" role="group" aria-label="Categorias de ajuda">
-    @for (category of categories; track category) {
+    @for (category of categories(); track category) {
       <button
         nz-button
         type="button"
@@ -58,10 +58,7 @@
       />
     }
   </section>
-  <p class="preview-note">
-    Prévia RBS com dados fictícios. Criação e edição ficam somente em memória, sem publicação real.
-    Recarregar restaura as quatro dúvidas iniciais.
-  </p>
+  <p class="preview-note">As dúvidas cadastradas nesta parceria ficam disponíveis após salvar.</p>
 </app-admin-partnership-shell>
 
 <ng-template #faqCard let-entry let-inDialog="inDialog">
@@ -121,16 +118,21 @@
             aria-label="Resultados da consulta"
             tabindex="0"
           >
+            @if (loading()) {
+              <p role="status">Buscando dúvidas...</p>
+            }
             @for (entry of results(); track entry.id) {
               <ng-container
                 [ngTemplateOutlet]="faqCard"
                 [ngTemplateOutletContext]="{ $implicit: entry, inDialog: true }"
               />
             } @empty {
-              <div class="faq-empty" role="status">
-                <h3 class="question-title">Nenhuma dúvida encontrada</h3>
-                <p>Tente outra palavra ou consulte as categorias de ajuda.</p>
-              </div>
+              @if (!loading()) {
+                <div class="faq-empty" role="status">
+                  <h3 class="question-title">Nenhuma dúvida encontrada</h3>
+                  <p>Tente outra palavra ou consulte as categorias de ajuda.</p>
+                </div>
+              }
             }
           </section>
           <button nz-button type="button" class="pill back-button" (click)="close()">
@@ -190,7 +192,9 @@
           </div>
           <div class="editor-field">
             <label for="rbs-faq-category">Categoria</label>
-            <select
+            <input
+              nz-input
+              list="rbs-faq-categories"
               id="rbs-faq-category"
               formControlName="category"
               required
@@ -200,12 +204,12 @@
                   ? 'rbs-category-error'
                   : null
               "
-            >
-              <option value="" disabled>Selecione uma categoria</option>
-              @for (category of preview.categories; track category) {
-                <option [value]="category">{{ category }}</option>
+            />
+            <datalist id="rbs-faq-categories">
+              @for (category of preview.categories(); track category) {
+                <option [value]="category"></option>
               }
-            </select>
+            </datalist>
             @if (form.controls.category.touched && form.controls.category.invalid) {
               <p id="rbs-category-error" class="field-error" role="alert">
                 Selecione uma categoria.
@@ -219,7 +223,7 @@
               class="pill brand-button"
               [class.save-edit]="editingId() !== null"
               [class.save-new]="editingId() === null"
-              [disabled]="form.invalid"
+              [disabled]="form.invalid || saving()"
             >
               {{ editingId() ? 'Salvar alterações' : 'Salvar dúvida' }}
             </button>
@@ -227,9 +231,7 @@
               Cancelar
             </button>
           </div>
-          <p class="preview-note">
-            Alteração simulada, disponível apenas nesta instância da aplicação.
-          </p>
+          <p class="preview-note"></p>
         </form>
       }
       @case ('saved') {
@@ -241,7 +243,6 @@
           <button nz-button type="button" class="pill dark-button finish-button" (click)="close()">
             Concluir
           </button>
-          <p class="preview-note">Salvo somente em memória, sem publicação real.</p>
         </div>
       }
     }

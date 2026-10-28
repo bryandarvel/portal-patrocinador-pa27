@@ -1,28 +1,16 @@
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
 import { LogoDeliveryPreviewService } from '../../partnership/delivery-detail/logo-delivery-preview.service';
-import { PartnershipPreviewService } from '../../partnership/shared/partnership-preview.service';
 import { DeliveryReport } from '../../partnership/shared/delivery-report';
-import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
-import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 import { DeliveryOrganizer } from '../shared/delivery-organizer';
-import { RbsProfilePreviewService } from '../profile/profile-preview.service';
-
-type LogoDialog =
-  | 'document'
-  | 'history'
-  | 'approve'
-  | 'adjust'
-  | 'realize'
-  | 'add-proof'
-  | 'proof'
-  | 'saved'
-  | null;
+import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 
 @Component({
   selector: 'app-rbs-logo-delivery',
@@ -32,9 +20,8 @@ type LogoDialog =
     DeliveryReport,
     RouterLink,
     DatePipe,
-    ReactiveFormsModule,
+    FormsModule,
     NzButtonModule,
-    NzInputModule,
     NzModalModule,
   ],
   templateUrl: './delivery-detail.html',
@@ -47,106 +34,62 @@ type LogoDialog =
 })
 export class RbsLogoDelivery {
   readonly preview = inject(LogoDeliveryPreviewService);
-  readonly partnership = inject(PartnershipPreviewService);
-  readonly profile = inject(RbsProfilePreviewService).profile;
-  readonly dialog = signal<LogoDialog>(null);
+  readonly ctx = inject(PortalContext);
+  readonly api = inject(PortalApi);
+  readonly dialog = signal<'approve' | 'adjust' | 'realize' | 'proof' | 'history' | 'saved' | null>(
+    null,
+  );
   readonly reportOpen = signal(false);
   readonly organizerOpen = signal(false);
-  readonly steps = [
-    'Material do patrocinador',
-    'Análise pela RBS',
-    'Execução da ação',
-    'Comprovação e relatório',
-  ];
-  readonly proofControl = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.pattern(/\S/)],
-  });
-  readonly proofForm = new FormGroup({ description: this.proofControl });
-  readonly proofInput = viewChild<unknown, ElementRef<HTMLTextAreaElement>>('proofInput', {
-    read: ElementRef,
-  });
-  readonly materialHeading = viewChild<ElementRef<HTMLHeadingElement>>('materialHeading');
-  readonly dialogHeading = viewChild<ElementRef<HTMLHeadingElement>>('dialogHeading');
-  readonly sessionDate = new Date();
-  readonly title = computed(
-    () =>
-      ({
-        document: 'Material recebido',
-        history: 'Histórico do material',
-        approve: 'Aprovar material?',
-        adjust: 'Solicitar ajuste no material',
-        realize: 'Registrar realização',
-        'add-proof': 'Registrar comprovação',
-        proof: 'Comprovação da entrega',
-        saved: 'Alterações salvas',
-      })[this.dialog() ?? 'saved'],
-  );
-  private restoreMaterialFocus = false;
-
+  readonly error = signal('');
+  readonly file = signal<File | null>(null);
+  comment = '';
+  description = '';
   constructor() {
-    if (inject(ActivatedRoute).snapshot.queryParamMap.get('exemplo') === 'material-recebido')
-      this.preview.seedReceivedExample();
+    inject(ActivatedRoute)
+      .paramMap.pipe(takeUntilDestroyed(inject(DestroyRef)))
+      .subscribe((params) => {
+        const id = params.get('entregaId');
+        if (id) void this.preview.load(id).catch(() => {});
+      });
   }
-
-  startAnalysis(): void {
-    if (this.preview.startAnalysis()) this.focusMaterial();
-  }
-
-  startExecution(): void {
-    if (this.preview.startExecution()) this.focusMaterial();
-  }
-
-  openProofForm(): void {
-    if (this.preview.stage() !== 'realized') return;
-    this.proofControl.reset(this.preview.proofExample);
-    this.dialog.set('add-proof');
-  }
-
-  confirm(): void {
-    const dialog = this.dialog();
-    const saved =
-      dialog === 'approve'
-        ? this.preview.approveMaterial()
-        : dialog === 'adjust'
-          ? this.preview.requestAdjustment()
-          : dialog === 'realize' && this.preview.realize();
-    if (saved) this.showSaved();
-  }
-
-  publishProof(): void {
-    if (this.dialog() !== 'add-proof') return;
-    this.proofControl.markAsTouched();
-    if (this.proofControl.invalid) {
-      this.proofInput()?.nativeElement.focus();
+  async evaluate(action: 'ANALISAR' | 'APROVAR' | 'AJUSTAR'): Promise<void> {
+    if (action === 'AJUSTAR' && !this.comment.trim()) {
+      this.error.set('Descreva o ajuste solicitado.');
       return;
     }
-    if (this.preview.publishProof(this.proofControl.value)) this.showSaved();
+    try {
+      await this.preview.evaluate(action, this.comment.trim());
+      this.dialog.set(action === 'ANALISAR' ? null : 'saved');
+      this.comment = '';
+      this.error.set('');
+    } catch {}
   }
-
-  close(): void {
-    this.restoreMaterialFocus = this.dialog() === 'saved';
-    this.dialog.set(null);
-    this.proofControl.reset();
+  async execute(state: 'EM_EXECUCAO' | 'REALIZADA'): Promise<void> {
+    try {
+      await this.preview.execute(state);
+      this.dialog.set(state === 'REALIZADA' ? 'saved' : null);
+    } catch {}
   }
-
-  afterClose(): void {
-    if (this.restoreMaterialFocus) this.focusMaterial();
-    this.restoreMaterialFocus = false;
+  select(input: HTMLInputElement): void {
+    this.file.set(input.files?.item(0) ?? null);
   }
-
-  labelDialog(modal: NzModalComponent): void {
-    labelPartnershipDialog(modal, 'rbs-logo-dialog-title');
+  async publishProof(): Promise<void> {
+    if (!this.description.trim()) {
+      this.error.set('Descreva a execução.');
+      return;
+    }
+    try {
+      await this.preview.publishProof(this.description.trim(), this.file());
+      this.dialog.set('saved');
+      this.description = '';
+      this.file.set(null);
+      this.error.set('');
+    } catch {}
   }
-
-  private focusMaterial(): void {
-    requestAnimationFrame(() => this.materialHeading()?.nativeElement.focus());
-  }
-
-  private showSaved(): void {
-    this.dialog.set('saved');
-    requestAnimationFrame(() => {
-      if (this.dialog() === 'saved') this.dialogHeading()?.nativeElement.focus();
-    });
+  async download(id: string, name: string): Promise<void> {
+    try {
+      await this.preview.download(id, name);
+    } catch {}
   }
 }

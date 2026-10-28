@@ -16,7 +16,7 @@ Centralizar materiais, informações e comprovações das entregas aos patrocina
 
 ## Capabilities and Constraints
 
-Angular 22 com NG-ZORRO, backend Spring Boot, organização por domínio e aplicações/Docker separados. Ainda não há autenticação integrada ao Angular. Para o login, o grupo confirmou tela visual e validação somente; autenticação real fica para uma próxima tarefa.
+Angular 22 com NG-ZORRO, backend Spring Boot, organização por domínio e aplicações/Docker separados. Login, ativação e MFA integrados ao backend. As telas dos dois perfis usam dados persistidos, arquivos autorizados e IDs reais de parceria/entrega. Capacidades e limites comerciais vêm da API. As antigas variações por cor eram demonstrações visuais e convergem nas páginas canônicas.
 
 ## Brand Commitments
 

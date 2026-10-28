@@ -1,38 +1,195 @@
-:host { --contract-amber: #8a4b00; --contract-amber-soft: #fff2db; }
-.contract-panels { display: grid; grid-template-columns: minmax(0, 700fr) minmax(0, 388fr); gap: 24px; align-items: start; }
-.contract-card { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; min-width: 0; padding: 24px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface); }
-.contract-card > p, .signatory { color: var(--color-muted); font-size: 14px; line-height: 20px; }
-.contract-card .contract-status { color: var(--color-text); font-size: 20px; line-height: 28px; font-weight: 700; }
-.signatory { display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
-.signatory strong, .version-label { color: var(--color-text); font-weight: 500; }
-.adjust-button { width: 141px; }
-.history-button { width: 169px; }
-.contract-download { width: 154px; }
-.back-validation { width: 152px; }
-.confirm-button { width: 172px; }
-.send-adjustment { width: 151px; }
-.fill-comment-button { width: 180px; }
-.document-name { color: var(--color-text); font-size: 16px; line-height: 24px; overflow-wrap: anywhere; }
-.signed-name { color: var(--color-text); font: 700 20px/28px var(--font-body); overflow-wrap: anywhere; }
-.signed-download { width: 136px; }
-.version-entry { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 16px; background: var(--color-paper); }
-.version-entry h3 { color: var(--color-text); font: 700 20px/28px var(--font-body); overflow-wrap: anywhere; }
-.adjustment-note { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 16px; background: var(--contract-amber-soft); color: var(--contract-amber); }
-.adjustment-note strong { font-size: 11px; line-height: 16px; }
-.adjustment-note p { font-size: 14px; line-height: 20px; }
-.adjustment-note .comment-caption { font-size: 12px; line-height: 18px; }
-.comment-text { white-space: pre-wrap; overflow-wrap: anywhere; }
-.adjustment-form { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; width: 100%; }
-.comment-field { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-.comment-field label { color: var(--color-text); font-weight: 500; }
-.comment-field textarea { width: 100%; min-height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; font: 16px/24px var(--font-body); color: var(--color-text); resize: vertical; }
-.comment-field textarea::placeholder { color: var(--color-muted); opacity: 1; }
-.comment-field textarea:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; }
-.comment-field textarea[aria-invalid="true"] { border-color: var(--color-error); }
-.comment-field.has-comment { min-height: 152px; }
-.comment-field.has-comment textarea { min-height: 82px; }
-@media (max-width: 1199px) { .contract-panels { grid-template-columns: minmax(0, 1fr); } }
+:host {
+  --contract-amber: #8a4b00;
+  --contract-amber-soft: #fff2db;
+}
+.contract-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 700fr) minmax(0, 388fr);
+  gap: 24px;
+  align-items: start;
+}
+.contract-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+.contract-card > p,
+.signatory {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+.contract-card .contract-status {
+  color: var(--color-text);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 700;
+}
+.signatory {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.signatory strong,
+.version-label {
+  color: var(--color-text);
+  font-weight: 500;
+}
+.adjust-button {
+  width: 141px;
+}
+.history-button {
+  width: 169px;
+}
+.contract-download {
+  width: 154px;
+}
+.back-validation {
+  width: 152px;
+}
+.confirm-button {
+  width: 172px;
+}
+.send-adjustment {
+  width: 151px;
+}
+.fill-comment-button {
+  width: 180px;
+}
+.document-name {
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+.signed-name {
+  color: var(--color-text);
+  font: 700 20px/28px var(--font-body);
+  overflow-wrap: anywhere;
+}
+.signed-download {
+  width: 136px;
+}
+.version-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  background: var(--color-paper);
+}
+.version-entry h3 {
+  color: var(--color-text);
+  font: 700 20px/28px var(--font-body);
+  overflow-wrap: anywhere;
+}
+.adjustment-note {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: var(--contract-amber-soft);
+  color: var(--contract-amber);
+}
+.adjustment-note strong {
+  font-size: 11px;
+  line-height: 16px;
+}
+.adjustment-note p {
+  font-size: 14px;
+  line-height: 20px;
+}
+.adjustment-note .comment-caption {
+  font-size: 12px;
+  line-height: 18px;
+}
+.comment-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.adjustment-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+.comment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.comment-field label {
+  color: var(--color-text);
+  font-weight: 500;
+}
+.comment-field textarea {
+  width: 100%;
+  min-height: 58px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font: 16px/24px var(--font-body);
+  color: var(--color-text);
+  resize: vertical;
+}
+.comment-field textarea::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+.comment-field textarea:focus-visible {
+  outline: 2px solid var(--color-accent-text);
+  outline-offset: 3px;
+}
+.comment-field textarea[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+.comment-field.has-comment {
+  min-height: 152px;
+}
+.comment-field.has-comment textarea {
+  min-height: 82px;
+}
+@media (max-width: 1199px) {
+  .contract-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 760px) {
-  .contract-card { padding: 20px; }
-  .comment-field textarea, .comment-field.has-comment textarea { min-height: 106px; }
+  .contract-card {
+    padding: 20px;
+  }
+  .comment-field textarea,
+  .comment-field.has-comment textarea {
+    min-height: 106px;
+  }
+}
+.signatory input,
+.dialog-content textarea,
+.dialog-content input[type='file'] {
+  display: block;
+  width: 100%;
+  margin: 8px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #a9a9a9;
+  border-radius: 8px;
+  background: #fff;
+  color: #1b1b1b;
+  font: inherit;
+}
+
+.signatory input:focus-visible,
+.dialog-content textarea:focus-visible,
+.dialog-content input[type='file']:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }

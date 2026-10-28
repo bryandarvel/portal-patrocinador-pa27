@@ -1,62 +1,101 @@
-import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
-import { StaffPreviewService } from '../../partnership/staff/staff-preview.service';
-import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
+import { PortalApi } from '../../../core/portal-api.service';
+import { PortalContext } from '../../../core/portal-context.service';
+import { Credential, StaffPreviewService } from '../../partnership/staff/staff-preview.service';
 
 @Component({
   selector: 'app-rbs-staff',
-  imports: [AdminPartnershipShell, ReactiveFormsModule, NzButtonModule, NzInputModule, NzModalModule],
+  imports: [AdminPartnershipShell, FormsModule, RouterLink, NzButtonModule],
   templateUrl: './staff.html',
-  styleUrls: ['../../partnership/shared/partnership-ui.css', '../../partnership/shared/material-ui.css', '../../partnership/staff/staff.css', './staff.css']
+  styleUrls: [
+    '../../partnership/shared/partnership-ui.css',
+    '../../partnership/shared/material-ui.css',
+    '../../partnership/staff/staff.css',
+    './staff.css',
+  ],
 })
 export class RbsStaff {
   readonly preview = inject(StaffPreviewService);
+  readonly context = inject(PortalContext);
+  readonly api = inject(PortalApi);
   readonly accreditation = this.preview.accreditation;
-  readonly dialog = signal<'edit' | 'saved' | null>(null);
-  readonly form = new FormGroup({
-    quantity: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(0), control => control.value === null || Number.isSafeInteger(control.value) ? null : { integer: true }]
-    }),
-    sector: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/)] })
-  });
-  readonly formElement = viewChild<unknown, ElementRef<HTMLFormElement>>('formElement', { read: ElementRef });
-  readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('dialogHeading');
-
-  invalid(field: keyof typeof this.form.controls): boolean {
-    return this.form.controls[field].touched && this.form.controls[field].invalid;
+  readonly benefits = computed(
+    () =>
+      this.context.partnership()?.beneficios.filter((item) => item.natureza === 'CREDENCIAL') ?? [],
+  );
+  readonly editing = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly rows = signal<Credential[]>([]);
+  url = '';
+  open(): void {
+    this.rows.set((this.accreditation()?.itens ?? []).map((item) => ({ ...item })));
+    this.url = this.accreditation()?.urlOpenStaff ?? '';
+    this.error.set('');
+    this.editing.set(true);
   }
-
-  openEdit(): void {
-    const { quantity, sector } = this.accreditation();
-    this.form.reset({ quantity, sector });
-    this.dialog.set('edit');
+  add(): void {
+    const benefit = this.benefits()[0];
+    if (benefit)
+      this.rows.update((items) => [
+        ...items,
+        {
+          setor: benefit.setor,
+          tipo: benefit.tipo,
+          publico: benefit.publico,
+          quantidade: 0,
+          beneficioId: benefit.id,
+        },
+      ]);
   }
-
-  save(): void {
-    if (this.dialog() !== 'edit') return;
-    this.form.markAllAsTouched();
-    if (this.form.invalid) {
-      requestAnimationFrame(() => {
-        if (this.dialog() === 'edit') this.formElement()?.nativeElement.querySelector<HTMLInputElement>('input[aria-invalid="true"]')?.focus();
-      });
+  select(row: Credential): void {
+    const benefit = this.benefits().find((item) => item.id === row.beneficioId);
+    if (benefit) {
+      row.tipo = benefit.tipo;
+      row.setor = benefit.setor;
+      row.publico = benefit.publico;
+    }
+  }
+  remove(index: number): void {
+    this.rows.update((items) => items.filter((_, position) => position !== index));
+  }
+  async save(): Promise<void> {
+    if (this.saving()) return;
+    if (!this.preview.validUrl(this.url)) {
+      this.error.set('Informe uma URL http ou https para o Open Staff.');
       return;
     }
-    const { quantity, sector } = this.form.getRawValue();
-    if (quantity === null || !this.preview.update(quantity, sector)) return;
-    this.dialog.set('saved');
-    requestAnimationFrame(() => { if (this.dialog() === 'saved') this.heading()?.nativeElement.focus(); });
-  }
-
-  close(): void {
-    this.dialog.set(null);
-    this.form.reset();
-  }
-
-  labelDialog(modal: NzModalComponent): void {
-    labelPartnershipDialog(modal, 'rbs-staff-dialog-title');
+    if (
+      this.rows().some(
+        (item) =>
+          !this.benefits().some(
+            (benefit) =>
+              benefit.id === item.beneficioId &&
+              benefit.tipo === item.tipo &&
+              benefit.setor === item.setor &&
+              benefit.publico === item.publico,
+          ) ||
+          !Number.isSafeInteger(item.quantidade) ||
+          item.quantidade < 0,
+      )
+    ) {
+      this.error.set('Confira direito e quantidade das credenciais.');
+      return;
+    }
+    this.saving.set(true);
+    this.error.set('');
+    try {
+      await this.preview.update(this.url, this.rows());
+      this.editing.set(false);
+      this.api.notice.set('Credenciamento atualizado.');
+    } catch {
+      this.error.set(this.api.error());
+    } finally {
+      this.saving.set(false);
+    }
   }
 }
