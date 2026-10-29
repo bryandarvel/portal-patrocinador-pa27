@@ -52,7 +52,7 @@
           <p>
             {{ report.parceria.nome }} · {{ report.parceria.edicao }} · {{ report.parceria.cota }}
           </p>
-          <p>Dados registrados no portal até {{ report.geradoEm }}.</p>
+          <p>Dados registrados no portal até {{ formatDate(report.geradoEm) }}.</p>
           @if (error()) {
             <p role="alert" class="field-error">{{ error() }}</p>
           }
@@ -70,7 +70,7 @@
             @for (item of report.entregas; track $index) {
               <article>
                 <h4>{{ item.titulo }}</h4>
-                <p>{{ item.area }} · {{ item.execucao }}</p>
+                <p>{{ areaLabel(item.area) }} · {{ executionLabel(item.execucao) }}</p>
                 <p>{{ item.descricao }}</p>
                 @if (item.responsavel) {
                   <p>Responsável: {{ item.responsavel }}</p>
@@ -84,7 +84,7 @@
               <article>
                 <h4>{{ item.entrega }}</h4>
                 <p>{{ item.descricao }}</p>
-                <p>{{ item.criado_em }}</p>
+                <p>{{ formatDate(item.criado_em) }}</p>
               </article>
             } @empty {
               <p>Nenhuma comprovação registrada.</p>
@@ -95,7 +95,7 @@
                 <h4>{{ item.canal }}</h4>
                 <p>{{ item.descricao }}</p>
                 @if (item.veiculado_em) {
-                  <p>{{ item.veiculado_em }}</p>
+                  <p>{{ formatDate(item.veiculado_em) }}</p>
                 }
               </article>
             } @empty {
@@ -110,13 +110,14 @@
             <h3>Cortesias</h3>
             @for (item of report.cortesias; track $index) {
               <p>
-                {{ item.quantidade }} {{ item.tipo }} · {{ item.setor }} ·
+                {{ item.quantidade }} × {{ benefitLabel(item.tipo) }} · {{ item.setor }} ·
                 {{ item.destinadas }} destinadas
                 @if (item.dia_evento) {
-                  · {{ item.dia_evento }}
+                  · {{ formatDate(item.dia_evento, true) }}
                 }
                 @if (item.periodo_inicio) {
-                  · {{ item.periodo_inicio }} a {{ item.periodo_fim }}
+                  · {{ formatDate(item.periodo_inicio, true) }} a
+                  {{ formatDate(item.periodo_fim, true) }}
                 }
               </p>
             } @empty {
@@ -124,13 +125,19 @@
             }
             <h3>Credenciamento</h3>
             @for (item of report.credenciamento; track $index) {
-              <p>{{ item.quantidade }} {{ item.tipo }} · {{ item.setor }} · {{ item.publico }}</p>
+              <p>
+                {{ item.quantidade }} × {{ benefitLabel(item.tipo) }} · {{ item.setor }} ·
+                {{ item.publico }}
+              </p>
             } @empty {
               <p>Nenhuma credencial registrada.</p>
             }
             <h3>Arquivos e resultados publicados</h3>
             @for (item of report.arquivos; track item.id) {
-              <p>{{ item.nome }} · {{ item.area }} · {{ item.tipo }} · versão {{ item.versao }}</p>
+              <p>
+                {{ item.nome }} · {{ areaLabel(item.area) }} · {{ fileLabel(item.tipo) }} · versão
+                {{ item.versao }}
+              </p>
             } @empty {
               <p>Nenhum arquivo publicado.</p>
             }
@@ -141,7 +148,9 @@
               <div class="document-card">
                 <span class="document-description"
                   ><strong>{{ publication.nome }}</strong
-                  ><span>Versão {{ publication.versao }} · {{ publication.criado_em }}</span></span
+                  ><span
+                    >Versão {{ publication.versao }} · {{ formatDate(publication.criado_em) }}</span
+                  ></span
                 ><button
                   nz-button
                   class="pill"

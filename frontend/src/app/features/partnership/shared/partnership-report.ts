@@ -12,9 +12,15 @@ import { RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PortalApi } from '../../../core/portal-api.service';
-import { PortalContext } from '../../../core/portal-context.service';
+import { PORTAL_AREAS, PortalContext } from '../../../core/portal-context.service';
 import { labelPartnershipDialog } from './modal-accessibility';
 import { PartnershipReportPreviewService, ReportFile } from './partnership-report-preview.service';
+import {
+  formatReportDate,
+  reportBenefitLabel,
+  reportExecutionLabel,
+  reportFileLabel,
+} from './report-format';
 
 @Component({
   selector: 'app-partnership-report',
@@ -33,6 +39,13 @@ export class PartnershipReport {
   readonly busy = signal(false);
   readonly error = signal('');
   readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('dialogHeading');
+  readonly formatDate = formatReportDate;
+  readonly executionLabel = reportExecutionLabel;
+  readonly fileLabel = reportFileLabel;
+  readonly benefitLabel = reportBenefitLabel;
+  areaLabel(value: string): string {
+    return PORTAL_AREAS.find((area) => area.key === value)?.label ?? value;
+  }
   readonly title = computed(() =>
     this.stage() === 'publish' ? 'Publicar relatório complementar' : 'Relatório da parceria',
   );
