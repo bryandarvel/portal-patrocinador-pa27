@@ -1,5 +1,10 @@
 <div class="admin-page">
-  <a class="skip-link" href="#sponsors-content">Ir para o conteúdo</a>
+  <a
+    class="skip-link"
+    [href]="router.url + '#sponsors-content'"
+    (click)="$event.preventDefault(); mainContent.focus()"
+    >Ir para o conteúdo</a
+  >
   <header class="admin-header">
     <img src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="64" height="64" />
     <p class="portal-brand">Portal do Patrocinador</p>
@@ -7,7 +12,7 @@
       >{{ session.user()?.nome }} · {{ admin() ? 'Admin RBS' : 'Patrocinador' }}</a
     ><button nz-button class="pill exit-button" type="button" (click)="logout()">Sair</button>
   </header>
-  <main id="sponsors-content">
+  <main #mainContent id="sponsors-content" tabindex="-1">
     <div class="introduction">
       <div class="heading-copy">
         <h1>{{ admin() ? 'Patrocinadores' : 'Parcerias' }}</h1>

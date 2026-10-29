@@ -1,11 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PartnershipShell } from '../shared/partnership-shell';
 import { ContractPreviewService, Signatario } from './contract-preview.service';
+import { labelPartnershipDialog } from '../shared/modal-accessibility';
 
 @Component({
   selector: 'app-partnership-contract',
@@ -20,6 +21,7 @@ export class PartnershipContract {
   readonly signatories = signal<Signatario[]>([{ nome: '', email: '', cargo: '' }]);
   readonly comment = signal('');
   readonly localError = signal('');
+  readonly modal = viewChild<NzModalComponent>('contractModal');
   readonly title = computed(
     () =>
       ({
@@ -30,6 +32,20 @@ export class PartnershipContract {
         saved: 'Alterações salvas',
       })[this.dialog() ?? 'history'],
   );
+  constructor() {
+    effect(() => {
+      if (this.dialog()) this.focusTitle();
+    });
+  }
+  labelDialog(modal: NzModalComponent): void {
+    labelPartnershipDialog(modal, 'contract-dialog-title');
+    this.focusTitle();
+  }
+  private focusTitle(): void {
+    requestAnimationFrame(() => {
+      this.modal()?.getElement()?.querySelector<HTMLElement>('#contract-dialog-title')?.focus();
+    });
+  }
   openSignatories(): void {
     this.signatories.set(
       this.preview.signatories().length

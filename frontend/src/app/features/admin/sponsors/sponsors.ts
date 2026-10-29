@@ -1,6 +1,6 @@
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
@@ -30,6 +30,7 @@ export class RbsSponsors {
   readonly api = inject(PortalApi);
   readonly session = inject(SessionStore);
   readonly auth = inject(AuthService);
+  readonly router = inject(Router);
   readonly admin = this.session.isAdmin;
   readonly areas = PORTAL_AREAS;
   readonly searchField = new FormControl('', { nonNullable: true });
