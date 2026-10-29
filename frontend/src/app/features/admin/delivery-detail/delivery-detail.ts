@@ -41,6 +41,7 @@ export class RbsLogoDelivery {
   );
   readonly reportOpen = signal(false);
   readonly organizerOpen = signal(false);
+  readonly deliveryId = signal('');
   readonly error = signal('');
   readonly file = signal<File | null>(null);
   comment = '';
@@ -50,6 +51,7 @@ export class RbsLogoDelivery {
       .paramMap.pipe(takeUntilDestroyed(inject(DestroyRef)))
       .subscribe((params) => {
         const id = params.get('entregaId');
+        this.deliveryId.set(id ?? '');
         if (id) void this.preview.load(id).catch(() => {});
       });
   }

@@ -8,6 +8,9 @@
   ><ng-container *nzModalContent
     ><div class="dialog-content">
       @if (stage() === 'choose') {
+        @if (loading()) {
+          <p role="status">Carregando responsáveis…</p>
+        }
         <p>{{ preview.delivery()?.titulo }} · Defina a pessoa responsável.</p>
         <label for="owner-select">Responsável pela entrega</label
         ><select
@@ -15,20 +18,21 @@
           [value]="selected()"
           (change)="selected.set(ownerSelect.value)"
           #ownerSelect
+          [disabled]="loading()"
         >
           <option value="">Selecione</option>
           @for (owner of owners(); track owner.id) {
             <option [value]="owner.id">{{ owner.nome }} · {{ owner.email }}</option>
           }
         </select>
-        @if (!owners().length) {
+        @if (!loading() && !owners().length && !api.error()) {
           <p>Nenhum responsável RBS ativo disponível.</p>
         }
         <button
           nz-button
           class="pill dark-button"
           type="button"
-          [disabled]="!selected() || api.pending() > 0"
+          [disabled]="loading() || !selected() || api.pending() > 0"
           (click)="save()"
         >
           Salvar responsável</button
