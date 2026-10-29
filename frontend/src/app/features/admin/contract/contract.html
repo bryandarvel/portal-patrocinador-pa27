@@ -86,14 +86,23 @@
   </section>
 </app-admin-partnership-shell>
 <nz-modal
+  #contractModal="nzModal"
   [nzVisible]="dialog() !== null"
   (nzOnCancel)="dialog.set(null)"
-  [nzTitle]="title()"
+  (nzAfterOpen)="labelDialog(contractModal)"
+  [nzTitle]="contractTitle"
   [nzFooter]="null"
   [nzCentered]="true"
   [nzWidth]="dialog() === 'history' ? 840 : 640"
+  [nzNoAnimation]="true"
   nzClassName="pa-profile-dialog"
-  ><ng-container *nzModalContent
+>
+  <ng-template #contractTitle>
+    <h2 class="dialog-title" id="rbs-contract-dialog-title" tabindex="-1">
+      {{ title() }}
+    </h2>
+  </ng-template>
+  <ng-container *nzModalContent
     ><div class="dialog-content">
       @if (dialog() === 'history') {
         @for (v of preview.history(); track v.id) {

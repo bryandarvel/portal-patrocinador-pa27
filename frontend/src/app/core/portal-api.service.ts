@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Injector, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { downloadFilename } from './download-filename';
 
 export interface PortalArquivo {
   id: string;
@@ -84,11 +85,14 @@ export class PortalApi {
   }
   download(path: string, name: string): Promise<void> {
     return this.perform(async () => {
-      const blob = await firstValueFrom(this.http.get(path, { responseType: 'blob' }));
-      const url = URL.createObjectURL(blob);
+      const response = await firstValueFrom(
+        this.http.get(path, { responseType: 'blob', observe: 'response' }),
+      );
+      if (!response.body) throw new Error('O arquivo não está disponível para download.');
+      const url = URL.createObjectURL(response.body);
       const link = document.createElement('a');
       link.href = url;
-      link.download = name;
+      link.download = downloadFilename(response.headers.get('Content-Disposition'), name);
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 30000);
     });

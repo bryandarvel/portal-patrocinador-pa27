@@ -134,7 +134,7 @@
   }
 </app-admin-partnership-shell>
 <app-delivery-report [(open)]="reportOpen" [deliveryId]="preview.delivery()?.id ?? ''" />
-<app-delivery-organizer [(open)]="organizerOpen" [deliveryId]="preview.delivery()?.id ?? ''" />
+<app-delivery-organizer [(open)]="organizerOpen" [deliveryId]="deliveryId()" />
 <nz-modal
   [nzVisible]="dialog() !== null"
   (nzOnCancel)="dialog.set(null)"

@@ -1,10 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PortalApi } from '../../../core/portal-api.service';
 import { ContractPreviewService } from '../../partnership/contract/contract-preview.service';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
+import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 
 @Component({
   selector: 'app-rbs-contract',
@@ -23,6 +24,7 @@ export class RbsContract {
   readonly dialog = signal<'history' | 'version' | 'signed' | 'saved' | null>(null);
   readonly file = signal<File | null>(null);
   readonly error = signal('');
+  readonly modal = viewChild<NzModalComponent>('contractModal');
   readonly title = computed(
     () =>
       ({
@@ -32,6 +34,20 @@ export class RbsContract {
         saved: 'Alterações salvas',
       })[this.dialog() ?? 'history'],
   );
+  constructor() {
+    effect(() => {
+      if (this.dialog()) this.focusTitle();
+    });
+  }
+  labelDialog(modal: NzModalComponent): void {
+    labelPartnershipDialog(modal, 'rbs-contract-dialog-title');
+    this.focusTitle();
+  }
+  private focusTitle(): void {
+    requestAnimationFrame(() => {
+      this.modal()?.getElement()?.querySelector<HTMLElement>('#rbs-contract-dialog-title')?.focus();
+    });
+  }
   open(kind: 'version' | 'signed'): void {
     this.file.set(null);
     this.error.set('');

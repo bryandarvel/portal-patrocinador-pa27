@@ -28,6 +28,7 @@ export class DeliveryOrganizer {
   readonly owners = signal<Responsible[]>([]);
   readonly selected = signal('');
   readonly stage = signal<'choose' | 'saved'>('choose');
+  readonly loading = signal(false);
   constructor() {
     effect(() => {
       const id = this.deliveryId(),
@@ -39,6 +40,9 @@ export class DeliveryOrganizer {
     });
   }
   private async load(id: string): Promise<void> {
+    this.loading.set(true);
+    this.owners.set([]);
+    this.selected.set('');
     try {
       const [owners] = await Promise.all([
         this.api.get<Responsible[]>('/api/admin/responsaveis'),
@@ -48,10 +52,13 @@ export class DeliveryOrganizer {
         this.owners.set(owners);
         this.selected.set(this.preview.delivery()?.responsavel_id ?? '');
       }
-    } catch {}
+    } catch {
+    } finally {
+      if (this.deliveryId() === id) this.loading.set(false);
+    }
   }
   async save(): Promise<void> {
-    if (!this.selected()) return;
+    if (this.loading() || !this.selected()) return;
     try {
       await this.preview.assign(this.selected());
       this.stage.set('saved');

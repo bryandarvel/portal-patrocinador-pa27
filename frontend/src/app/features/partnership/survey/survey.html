@@ -41,7 +41,7 @@
             id="survey-question-1"
             formControlName="question1"
             rows="1"
-            [readOnly]="!preview.submissionsOpen()"
+            [readonly]="!preview.submissionsOpen()"
             [attr.aria-invalid]="submitted() && form.invalid"
             [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"
           ></textarea>
@@ -53,7 +53,7 @@
             id="survey-question-2"
             formControlName="question2"
             rows="1"
-            [readOnly]="!preview.submissionsOpen()"
+            [readonly]="!preview.submissionsOpen()"
             [attr.aria-invalid]="submitted() && form.invalid"
             [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"
           ></textarea>
@@ -65,7 +65,7 @@
             id="survey-question-3"
             formControlName="question3"
             rows="1"
-            [readOnly]="!preview.submissionsOpen()"
+            [readonly]="!preview.submissionsOpen()"
             [attr.aria-invalid]="submitted() && form.invalid"
             [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"
           ></textarea>
