@@ -28,3 +28,7 @@ Data: 30/10/2026. Branch: `dev-icaro` (criada a partir de `dev` em `c6a5f2a`).
 - Verificação visual feita com dados sintéticos. Fluxos reais (envio, aprovação, notificações com dados do backend) ainda precisam ser testados na máquina remota.
 - O ponto do sino indica que há notificações da parceria; o backend não tem estado de lida.
 - O login herda os tokens globais: o fundo do painel do formulário ficou levemente azulado e o texto, um pouco mais escuro. Botão e layout não mudaram.
+
+## Envio
+
+`f681161` enviado para `origin/dev-icaro` em 30/10/2026 (avanço rápido a partir de `2a562b1`). Pendentes, conforme `tasks.md` (Workflow follow-up): implantação e teste na máquina remota por ssh e PR de `dev-icaro` para `dev`.

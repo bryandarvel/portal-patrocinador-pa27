@@ -21,7 +21,7 @@
 
 - [x] 4.1 Reescrever `DESIGN.md` como sistema único (login e portal) e linkar este change em `frontend/docs/telas-portal.md`.
 - [x] 4.2 Validar `npm run build`, `npm run test:proxy`, `openspec validate frontend-v2-design --strict --no-interactive` e verificação de acessibilidade (teclado, foco, contraste); registrar em `results.md`.
-- [ ] 4.3 Commit em `dev-icaro` e envio para `origin/dev-icaro`.
+- [x] 4.3 Commit em `dev-icaro` e envio para `origin/dev-icaro`.
 
 ## Workflow follow-up
 
