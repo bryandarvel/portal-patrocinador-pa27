@@ -16,8 +16,8 @@
         Adicionar entrega
       </button>
     </div>
-    <section class="delivery-summary">
-      <h2>Resumo das entregas</h2>
+    <section class="pa-card delivery-summary" aria-labelledby="summary-title">
+      <app-card-heading icon="carry-out" heading="Resumo das entregas" headingId="summary-title" />
       <dl class="delivery-totals">
         @for (total of preview.totals(); track total.state) {
           <div [class]="total.state">
