@@ -11,7 +11,6 @@ export class AdminPartnershipShell {
   readonly title = input.required<string>();
   readonly description = input.required<string>();
   readonly logoSrc = input('/images/pa27-logo.png');
-  readonly sponsorId = input<string>('');
   readonly activeArea = input<string>('01');
   readonly shell = viewChild(PartnershipShell);
   constructor() {

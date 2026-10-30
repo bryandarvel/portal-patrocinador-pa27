@@ -37,3 +37,7 @@ build/
 .env.*
 !.env.example
 !.env.*.example
+
+### Backups locais de backend/scripts/reset-portal.sh ###
+backups/
+__pycache__/

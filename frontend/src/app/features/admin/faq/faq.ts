@@ -12,8 +12,6 @@ import {
 } from '../../partnership/faq/faq-preview.service';
 import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
-import { ActivatedRoute } from '@angular/router';
-import { AdminSponsorId } from '../shared/client-preview.service';
 
 type FaqSelection =
   { kind: 'search'; query: string } | { kind: 'category'; category: FaqCategory | null };
@@ -38,8 +36,6 @@ type FaqDialog = 'results' | 'editor' | 'saved' | null;
   ],
 })
 export class RbsFaq {
-  readonly sponsorId: AdminSponsorId =
-    inject(ActivatedRoute).snapshot.data['sponsorId'] ?? 'amarelo';
   readonly preview = inject(FaqPreviewService);
   readonly saving = signal(false);
   readonly searchField = new FormControl('', { nonNullable: true });

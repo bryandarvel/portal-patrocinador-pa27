@@ -101,7 +101,7 @@ docker compose logs --tail 50 backend frontend
 | PostgreSQL | `db:5432`, acessível pela rede interna do Docker |
 | E-mails de desenvolvimento | http://localhost:8025, caixa local Mailpit; nenhuma entrega externa é feita pelo Compose |
 
-O primeiro início instala dependências. Aguarde os logs de inicialização: um container ativo não comprova que a aplicação está pronta. As portas locais 4200, 8025 e 8080 precisam estar livres; se 4200 ou 8025 já estiverem em uso, defina `FRONTEND_PORT` e `MAILPIT_PORT` no `.env` e acesse o frontend e o Mailpit nas portas escolhidas.
+O primeiro início instala dependências. Aguarde os logs de inicialização: um container ativo não comprova que a aplicação está pronta. As portas locais 4200, 8025 e 8080 precisam estar livres; se alguma já estiver em uso, defina `FRONTEND_PORT`, `MAILPIT_PORT` ou `BACKEND_PORT` no `.env` e acesse os serviços nas portas escolhidas. Os scripts de `backend/scripts/` leem as mesmas variáveis.
 
 Para parar os serviços, preservando os volumes:
 
@@ -125,7 +125,25 @@ Para validar as APIs localmente, com backend, banco e Mailpit ativos e as creden
 python3 backend/scripts/check-portal-api.py
 ```
 
-Esse teste cria contas e parcerias sintéticas com prefixo `Smoke`, verifica caminhos válidos/negados e não remove registros anteriores. O relatório automático está disponível em JSON em `/api/parcerias/{id}/relatorio` e como HTML baixável/imprimível em `/api/parcerias/{id}/relatorio/exportar`.
+Esse teste cria contas e parcerias sintéticas com prefixo `Smoke`, verifica caminhos válidos/negados e não remove registros anteriores.
+
+Para popular a base com dados de demonstração em todas as áreas (três parcerias, uma por cota, com contatos e um segundo Admin RBS já ativados):
+
+```sh
+python3 backend/scripts/seed-portal.py
+```
+
+O comando usa somente a API, não duplica dados ao rodar de novo e cria nomes marcados `(demo)` com e-mails `@example.test`. Os usuários criados entram com `PORTAL_SEED_PASSWORD` ou, se vazia, com a senha do bootstrap.
+
+Para limpar a base (dados e arquivos enviados; schema e migrações são mantidos):
+
+```sh
+backend/scripts/reset-portal.sh --confirmar
+```
+
+Antes de apagar, o comando salva `backups/portal-<data>.sql` e `backups/arquivos-<data>.tar.gz`. Depois, o backend reinicia e o bootstrap recria o primeiro Admin RBS. Para voltar a um backup: `backend/scripts/reset-portal.sh --restaurar <data>`.
+
+O `compose.yaml` fixa o nome do projeto (`desafio-gc-rbs-local`): qualquer cópia do repositório na mesma máquina controla a mesma stack, e os comandos acima atuam nela. Para uma stack isolada de testes, defina no `.env` dessa cópia `COMPOSE_PROJECT_NAME` e portas próprias. O relatório automático está disponível em JSON em `/api/parcerias/{id}/relatorio` e como HTML baixável/imprimível em `/api/parcerias/{id}/relatorio/exportar`.
 
 As telas usam os IDs reais retornados pela API. RBS entra em `/rbs/patrocinadores`; patrocinadores acessam suas parcerias em `/parcerias`. Consulte o [inventário de telas e rotas](frontend/docs/telas-portal.md) e a [validação da integração](docs/integracao-backend.md#integração-angular-solicitada). Os roteiros locais em `frontend/scripts/check-auth-integration.cjs` e `check-portal-integration.cjs` usam Playwright já instalado, Chromium e os serviços Docker ativos. Defina `PLAYWRIGHT_MODULE` para o módulo disponível e, se necessário, `PLAYWRIGHT_CHROMIUM_EXECUTABLE` para o navegador. Eles criam somente dados sintéticos `E2E` e não removem registros anteriores.
 
