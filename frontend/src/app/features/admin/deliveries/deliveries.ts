@@ -1,3 +1,4 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +13,7 @@ import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 @Component({
   selector: 'app-rbs-deliveries',
   imports: [
+    CardHeading,
     AdminPartnershipShell,
     RouterLink,
     FormsModule,

@@ -4,18 +4,14 @@ import base64
 import hashlib
 import hmac
 import json
-import re
 import secrets
 import time
 import uuid
 import struct
-from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-ROOT = Path(__file__).resolve().parents[2]
-BASE = 'http://127.0.0.1:8080'
-MAIL = 'http://127.0.0.1:8025'
+from portal_api import BASE, ENV, MAIL, activation_token
 AREAS = ['perfil', 'marca', 'midia', 'cortesias', 'credenciamento', 'pesquisa', 'contrato']
 checks = 0
 
@@ -53,8 +49,7 @@ def request(method, path, body=None, token=None, expected=200, fields=None):
 
 
 def run():
-    env = dict(line.split('=', 1) for line in (ROOT / '.env').read_text().splitlines() if '=' in line and not line.startswith('#'))
-    admin = request('POST', '/api/auth/login', {'email': env['PORTAL_BOOTSTRAP_EMAIL'], 'senha': env['PORTAL_BOOTSTRAP_PASSWORD']})['token']
+    admin = request('POST', '/api/auth/login', {'email': ENV['PORTAL_BOOTSTRAP_EMAIL'], 'senha': ENV['PORTAL_BOOTSTRAP_PASSWORD']})['token']
     me = request('GET', '/api/auth/me', token=admin)
     request('GET', '/api/parcerias', expected=401)
     suffix = uuid.uuid4().hex[:10]
@@ -64,18 +59,7 @@ def run():
         email = f'smoke-{suffix}-{index}@example.test'
         request('POST', '/api/auth/cadastro', {'nome': 'Validação sintética', 'email': email, 'senha': password}, token=admin)
         request('POST', '/api/auth/login', {'email': email, 'senha': password}, expected=401)
-        verification = None
-        for attempt in range(10):
-            messages = request('GET', MAIL + '/api/v1/messages')['messages']
-            for message in messages:
-                if any(to['Address'] == email for to in message.get('To', [])):
-                    text = request('GET', MAIL + '/api/v1/message/' + message['ID'])['Text']
-                    verification = re.search(r'token=([a-zA-Z0-9-]+)', text).group(1)
-                    break
-            if verification:
-                break
-            time.sleep(0.2)
-        assert verification, 'E-mail de ativação não chegou ao SMTP local.'
+        verification = activation_token(email)
         request('GET', '/api/auth/verificar?token=' + verification)
         request('GET', '/api/auth/verificar?token=' + verification, expected=400)
         token = request('POST', '/api/auth/login', {'email': email, 'senha': password})['token']

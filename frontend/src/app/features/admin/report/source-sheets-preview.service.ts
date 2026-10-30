@@ -1,9 +1,7 @@
-import { effect, inject, Injectable, InjectionToken, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { PortalArquivo, PortalApi } from '../../../core/portal-api.service';
 import { PortalContext } from '../../../core/portal-context.service';
-import type { AdminSponsorId } from '../shared/client-preview.service';
 
-export const SOURCE_SHEETS_CLIENT = new InjectionToken<AdminSponsorId>('SOURCE_SHEETS_CLIENT');
 export interface SourceSheetPreview {
   id: string;
   name: string;
