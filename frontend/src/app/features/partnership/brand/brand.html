@@ -4,29 +4,17 @@
   description="Da identidade da sua marca às aplicações realizadas no evento."
   [pageUrl]="ctx.link('aplicacoes-de-marca')"
 >
-  <section
-    class="submission-status"
-    [class.is-closed]="!preview.brandSubmissionsOpen()"
-    aria-label="Disponibilidade de envio"
-    role="status"
-  >
-    <p>
-      {{
-        preview.brandSubmissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS'
-      }}
-    </p>
-    <p>
-      {{
-        preview.brandSubmissionsOpen()
-          ? 'Os materiais podem ser enviados ou substituídos.'
-          : 'A equipe RBS pode reabrir o envio para correção.'
-      }}
-    </p>
-  </section>
+  <app-submission-status [open]="preview.brandSubmissionsOpen()"> </app-submission-status>
 
   <div class="brand-panels">
-    <section class="brand-card" aria-labelledby="brand-materials-title">
-      <h2 #materialsHeading id="brand-materials-title" tabindex="-1">Materiais da marca</h2>
+    <section class="pa-card brand-card" aria-labelledby="brand-materials-title">
+      <app-card-heading
+        #materialsHeading
+        icon="tag"
+        heading="Materiais da marca"
+        headingId="brand-materials-title"
+        [focusable]="true"
+      />
 
       @if (preview.currentMiv(); as miv) {
         <div class="received-material">
@@ -36,12 +24,14 @@
             (click)="dialog.set('document')"
             [attr.aria-label]="'Abrir ' + miv.name"
           >
-            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
             <span class="document-description"
               ><strong>{{ miv.name }}</strong
               ><span>Versão {{ miv.version }} · Histórico disponível</span></span
             >
-            <span class="document-action" aria-hidden="true">Abrir →</span>
+            <span class="document-action" aria-hidden="true"
+              >Abrir <nz-icon nzType="right" aria-hidden="true"
+            /></span>
           </button>
           @if (preview.brandSubmissionsOpen()) {
             <button nz-button class="pill replace-button" type="button" (click)="openUpload()">
@@ -68,7 +58,7 @@
               (click)="openUpload()"
               aria-label="Enviar MIV"
             >
-              <span class="upload-arrow" aria-hidden="true">↑</span>
+              <nz-icon class="upload-arrow" nzType="cloud-upload" aria-hidden="true" />
               <strong>Enviar MIV</strong>
               <span>Clique para selecionar um arquivo</span>
             </button>
@@ -79,17 +69,26 @@
       }
     </section>
 
-    <section class="brand-card delivery-card" aria-labelledby="brand-delivery-title">
-      <h2 id="brand-delivery-title">Entregas de marca</h2>
+    <section class="pa-card brand-card delivery-card" aria-labelledby="brand-delivery-title">
+      <app-card-heading
+        icon="carry-out"
+        heading="Entregas de marca"
+        headingId="brand-delivery-title"
+      />
       <p>Consulte materiais, execução e comprovações na área Entregas.</p>
-      <a nz-button class="pill dark-button follow-button" [routerLink]="ctx.link('entregas')"
+      <a nz-button class="pill primary-button follow-button" [routerLink]="ctx.link('entregas')"
         >Acompanhar entregas</a
       >
     </section>
   </div>
 
-  <section class="brand-card evidence-card" aria-labelledby="evidence-title">
-    <h2 id="evidence-title">Comprovações das aplicações</h2>
+  <section class="pa-card brand-card evidence-card" aria-labelledby="evidence-title">
+    <app-card-heading
+      icon="check-circle"
+      tone="green"
+      heading="Comprovações das aplicações"
+      headingId="evidence-title"
+    />
     @for (publication of preview.publications(); track publication.id) {
       <div class="history-version">
         <strong>{{ publication.titulo }}</strong>
@@ -132,7 +131,7 @@
       {{ dialogTitle() }}
     </h2></ng-template
   >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
       @if (dialog() === 'upload' || dialog() === 'replace') {
@@ -146,7 +145,7 @@
         @if (selected(); as file) {
           <p>Confira o arquivo antes de continuar.</p>
           <div class="document-card selected-file" aria-label="Arquivo selecionado">
-            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
             <span class="document-description"
               ><strong>{{ file.name }}</strong
               ><span>Selecionado · pronto para enviar</span></span
@@ -156,7 +155,7 @@
           <div class="dialog-actions">
             <button
               nz-button
-              class="pill brand-button"
+              class="pill primary-button"
               type="button"
               (click)="send()"
               [disabled]="busy()"
@@ -175,7 +174,7 @@
             (click)="fileInput.click()"
             aria-label="Selecionar arquivo"
           >
-            <span class="upload-arrow" aria-hidden="true">↑</span>
+            <nz-icon class="upload-arrow" nzType="cloud-upload" aria-hidden="true" />
             <strong>Selecionar arquivo</strong>
             <span>Escolha o arquivo no seu dispositivo</span>
           </button>
@@ -190,12 +189,14 @@
       @if (dialog() === 'progress') {
         <p role="status">Aguarde enquanto o arquivo é enviado.</p>
         <div class="document-card selected-file">
-          <span class="document-icon" aria-hidden="true">▤</span>
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
           <span class="document-description"
             ><strong>{{ selected()?.name }}</strong
             ><span>Envio em andamento</span></span
           >
-          <span class="document-action" aria-disabled="true">Abrir →</span>
+          <span class="document-action" aria-disabled="true"
+            >Abrir <nz-icon nzType="right" aria-hidden="true"
+          /></span>
         </div>
       }
       @if (dialog() === 'received' || dialog() === 'cancelled') {
@@ -207,7 +208,7 @@
         <span class="done-badge"
           ><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span
         >
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
           Concluir
         </button>
       }
@@ -226,7 +227,7 @@
         @if (!preview.mivVersions().length) {
           <p>Nenhuma versão enviada.</p>
         }
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
           Concluir
         </button>
       }
@@ -238,7 +239,7 @@
         </div>
         <button
           nz-button
-          class="pill dark-button download-button"
+          class="pill primary-button download-button"
           type="button"
           (click)="download()"
         >

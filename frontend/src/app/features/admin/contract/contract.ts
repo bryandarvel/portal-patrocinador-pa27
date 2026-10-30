@@ -1,3 +1,5 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -9,7 +11,14 @@ import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibi
 
 @Component({
   selector: 'app-rbs-contract',
-  imports: [AdminPartnershipShell, DatePipe, NzButtonModule, NzModalModule],
+  imports: [
+    CardHeading,
+    NzIconModule,
+    AdminPartnershipShell,
+    DatePipe,
+    NzButtonModule,
+    NzModalModule,
+  ],
   templateUrl: './contract.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

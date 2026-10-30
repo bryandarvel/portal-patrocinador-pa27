@@ -9,7 +9,7 @@
       <p>Consulte o andamento e defina responsáveis.</p>
       <button
         nz-button
-        class="pill dark-button"
+        class="pill primary-button"
         type="button"
         (click)="createOpen.set(!createOpen())"
       >
@@ -56,7 +56,7 @@
       @if (error()) {
         <p role="alert">{{ error() }}</p>
       }
-      <button nz-button class="pill dark-button" type="submit" [disabled]="api.pending() > 0">
+      <button nz-button class="pill primary-button" type="submit" [disabled]="api.pending() > 0">
         Salvar entrega
       </button>
     </form>

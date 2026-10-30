@@ -4,8 +4,12 @@
   description="Acompanhe o documento, os ajustes e a formalização da parceria."
 >
   <div class="contract-panels">
-    <section class="contract-card" aria-labelledby="rbs-contract-validation-title">
-      <h2 id="rbs-contract-validation-title">Validação do contrato</h2>
+    <section class="pa-card contract-card" aria-labelledby="rbs-contract-validation-title">
+      <app-card-heading
+        icon="file-text"
+        heading="Validação do contrato"
+        headingId="rbs-contract-validation-title"
+      />
       <p class="contract-status" role="status">{{ preview.status() }}</p>
       <p>{{ preview.guidance() }}</p>
       @if (preview.version(); as v) {
@@ -14,11 +18,11 @@
           type="button"
           (click)="download(v.arquivo_id, 'contrato-v' + v.numero)"
         >
-          <span class="document-icon" aria-hidden="true">▤</span
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
           ><span class="document-description"
             ><strong>Contrato versão {{ v.numero }}</strong
             ><span>Publicado em {{ v.criado_em | date: 'dd/MM/yyyy HH:mm' }}</span></span
-          ><span class="document-action">Baixar →</span>
+          ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
         </button>
         @if (v.comentario) {
           <div class="adjustment-note">
@@ -30,7 +34,7 @@
       @if (preview.canPublishVersion()) {
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="open('version')"
@@ -41,7 +45,7 @@
       @if (preview.canPublishSigned()) {
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="open('signed')"
@@ -54,8 +58,13 @@
         Histórico de versões
       </button>
     </section>
-    <section class="contract-card" aria-labelledby="rbs-contract-signatories-title">
-      <h2 id="rbs-contract-signatories-title">Quem assina</h2>
+    <section class="pa-card contract-card" aria-labelledby="rbs-contract-signatories-title">
+      <app-card-heading
+        icon="user"
+        tone="pink"
+        heading="Quem assina"
+        headingId="rbs-contract-signatories-title"
+      />
       @for (s of preview.signatories(); track s.id ?? $index) {
         <div class="signatory">
           <strong>{{ s.nome }}</strong>
@@ -66,19 +75,24 @@
       }
     </section>
   </div>
-  <section class="contract-card" aria-labelledby="rbs-contract-signed-title">
-    <h2 id="rbs-contract-signed-title">Contrato final assinado</h2>
+  <section class="pa-card contract-card" aria-labelledby="rbs-contract-signed-title">
+    <app-card-heading
+      icon="check-circle"
+      tone="green"
+      heading="Contrato final assinado"
+      headingId="rbs-contract-signed-title"
+    />
     @if (preview.signed(); as signed) {
       <button
         class="document-card"
         type="button"
         (click)="download(signed.arquivo_id, 'contrato-assinado')"
       >
-        <span class="document-icon" aria-hidden="true">▤</span
+        <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
         ><span class="document-description"
           ><strong>Contrato assinado</strong
           ><span>Publicado em {{ signed.criado_em | date: 'dd/MM/yyyy HH:mm' }}</span></span
-        ><span class="document-action">Baixar →</span>
+        ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
       </button>
     } @else {
       <p>O arquivo será disponibilizado após a assinatura externa.</p>
@@ -143,7 +157,7 @@
         }
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="publish()"
@@ -153,7 +167,7 @@
       }
       @if (dialog() === 'saved') {
         <p role="status">O arquivo foi publicado na parceria.</p>
-        <button nz-button class="pill dark-button" type="button" (click)="dialog.set(null)">
+        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
           Concluir
         </button>
       }

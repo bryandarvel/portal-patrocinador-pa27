@@ -1,3 +1,6 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { SubmissionStatus } from '../../partnership/shared/submission-status';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { DatePipe } from '@angular/common';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -34,6 +37,9 @@ type MediaDialog =
 @Component({
   selector: 'app-rbs-media',
   imports: [
+    CardHeading,
+    SubmissionStatus,
+    NzIconModule,
     AdminPartnershipShell,
     NzButtonModule,
     NzInputModule,
@@ -225,14 +231,12 @@ export class RbsMedia {
 
   openEdit(): void {
     this.placementsDraft.set(
-      this.preview
-        .placements()
-        .map((p) => ({
-          canal: p.canal,
-          descricao: p.descricao,
-          url: p.url,
-          veiculadoEm: p.veiculadoEm,
-        })),
+      this.preview.placements().map((p) => ({
+        canal: p.canal,
+        descricao: p.descricao,
+        url: p.url,
+        veiculadoEm: p.veiculadoEm,
+      })),
     );
     this.dialog.set('edit');
   }

@@ -5,13 +5,7 @@
     (click)="$event.preventDefault(); mainContent.focus()"
     >Ir para o conteúdo</a
   >
-  <header class="admin-header">
-    <img src="/images/pa27-logo.png" alt="Planeta Atlântida 2027" width="64" height="64" />
-    <p class="portal-brand">Portal do Patrocinador</p>
-    <a class="role-label" routerLink="/conta" aria-label="Minha conta"
-      >{{ session.user()?.nome }} · {{ admin() ? 'Admin RBS' : 'Patrocinador' }}</a
-    ><button nz-button class="pill exit-button" type="button" (click)="logout()">Sair</button>
-  </header>
+  <app-portal-header />
   <main #mainContent id="sponsors-content" tabindex="-1">
     <div class="introduction">
       <div class="heading-copy">
@@ -19,10 +13,9 @@
         <p class="intro-text">
           Selecione uma parceria para acompanhar materiais, entregas e documentos.
         </p>
-      </div>
-      <div class="festival-card" aria-hidden="true">
-        <p>Juntos, fazemos<br />o Planeta acontecer.</p>
-        <div class="checker"></div>
+        <div class="festival-stripe" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
       </div>
     </div>
     <div class="search-and-register">
@@ -39,7 +32,7 @@
       @if (admin()) {
         <button
           nz-button
-          class="pill dark-button register-button"
+          class="pill primary-button register-button"
           type="button"
           (click)="openRegistration()"
         >
@@ -152,7 +145,7 @@
     ><h2 #dialogHeading id="sponsors-dialog-title" class="dialog-title" tabindex="-1">
       {{ title() }}
     </h2></ng-template
-  ><ng-template #closeIcon><span aria-hidden="true">×</span></ng-template
+  ><ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template
   ><ng-container *nzModalContent
     ><div class="dialog-content">
       @if (dialog() === 'register') {
@@ -242,7 +235,7 @@
           }
           <button
             nz-button
-            class="pill dark-button"
+            class="pill primary-button"
             type="submit"
             [disabled]="busy() || !preview.quotas().length"
           >
@@ -254,14 +247,14 @@
         <p role="status">{{ registered()?.name }} · {{ registered()?.quota }} cadastrada.</p>
         <a
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           [routerLink]="'/rbs/parcerias/' + registered()?.id + '/perfil'"
           (click)="closeDialog()"
           >Abrir parceria</a
         >
       }
       @if (dialog() === 'quotas') {
-        <button nz-button class="pill dark-button" type="button" (click)="openQuota()">
+        <button nz-button class="pill primary-button" type="button" (click)="openQuota()">
           Nova cota
         </button>
         @for (q of preview.quotas(); track q.id) {
@@ -401,7 +394,7 @@
           }
           <button
             nz-button
-            class="pill dark-button"
+            class="pill primary-button"
             type="button"
             (click)="saveQuota()"
             [disabled]="busy()"
@@ -444,7 +437,7 @@
           @if (localError()) {
             <p class="field-error" role="alert">{{ localError() }}</p>
           }
-          <button nz-button class="pill dark-button" type="submit" [disabled]="busy()">
+          <button nz-button class="pill primary-button" type="submit" [disabled]="busy()">
             Convidar equipe
           </button>
         </form>

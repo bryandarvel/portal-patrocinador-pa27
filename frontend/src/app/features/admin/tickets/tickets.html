@@ -5,9 +5,13 @@
 >
   <section class="courtesies" aria-labelledby="rbs-courtesies-title">
     <div class="courtesies-heading">
-      <h2 id="rbs-courtesies-title">Cortesias da parceria</h2>
-      <button nz-button class="pill add-button" type="button" (click)="open()">
-        Adicionar cortesia
+      <app-card-heading
+        icon="gift"
+        heading="Cortesias da parceria"
+        headingId="rbs-courtesies-title"
+      />
+      <button nz-button class="pill primary-button add-button" type="button" (click)="open()">
+        <nz-icon nzType="gift" aria-hidden="true" />Adicionar cortesia
       </button>
     </div>
     <ul class="courtesy-list">
@@ -147,7 +151,12 @@
           <label for="event-day">Dia do evento</label
           ><input id="event-day" name="eventDay" type="date" [(ngModel)]="eventDay" required />
         }
-        <button nz-button class="pill save-button" type="submit" [disabled]="saving()">
+        <button
+          nz-button
+          class="pill primary-button save-button"
+          type="submit"
+          [disabled]="saving()"
+        >
           Salvar cortesia</button
         ><button nz-button class="pill cancel-button" type="button" (click)="formOpen.set(false)">
           Cancelar

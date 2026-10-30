@@ -1,157 +1,208 @@
 ---
 name: Portal do Patrocinador
-description: Identidade PA27 aplicada a uma entrada clara e acessível ao portal.
+description: Identidade PA27 aplicada a um portal claro, de operação, para patrocinadores e equipe RBS.
 colors:
-  primary: "#e2047d"
-  pink: "#ff8bda"
-  blue: "#009ee5"
-  green: "#06a883"
-  orange: "#e84f15"
-  light-orange: "#ff8617"
-  yellow: "#ffde03"
-  text: "#242424"
-  text-secondary: "#595959"
-  placeholder: "#686868"
+  primary: "#0b6bf2"
+  primary-hover: "#0a60da"
+  magenta: "#e2047d"
+  magenta-on-dark: "#ff5aa8"
+  pa-blue: "#009ee5"
+  pa-green: "#06a883"
+  pa-yellow: "#ffde03"
+  pa-pink: "#ff8bda"
+  text: "#101828"
+  text-secondary: "#556070"
   surface: "#ffffff"
-  photo-base: "#071a23"
-  error: "#b42318"
+  paper: "#f4f6fa"
+  nav: "#f7f8fb"
+  border: "#e2e6ee"
+  border-strong: "#c9d1dd"
+  dark: "#0f1a2e"
+  header-base: "#0a1326"
+  success: "#077a52"
+  success-soft: "#e3f6ee"
+  error: "#a62b30"
+  error-soft: "#fff0ee"
+  tone-blue-soft: "#e8f0fe"
+  tone-pink-soft: "#fde8f2"
+typography:
+  display:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif"
+    fontSize: "70px"
+    fontWeight: 700
+    lineHeight: 1.03
+    letterSpacing: "0.02em"
+  card-title:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', sans-serif"
+    fontSize: "32px"
+    fontWeight: 700
+    lineHeight: 1.125
+  brand:
+    fontFamily: "Roboto, -apple-system, 'Segoe UI', Arial, sans-serif"
+    fontSize: "25px"
+    fontWeight: 700
+    lineHeight: 1.2
+    letterSpacing: "0.01em"
+  body:
+    fontFamily: "Roboto, -apple-system, 'Segoe UI', Arial, sans-serif"
+    fontSize: "15px"
+    fontWeight: 400
+    lineHeight: 1.47
+  label:
+    fontFamily: "Roboto, -apple-system, 'Segoe UI', Arial, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
+  trail:
+    fontFamily: "Roboto, -apple-system, 'Segoe UI', Arial, sans-serif"
+    fontSize: "13px"
+    fontWeight: 500
+    letterSpacing: "0.08em"
 rounded:
-  sm: "4px"
-  md: "8px"
-  badge: "6px"
+  control: "12px"
+  card: "16px"
+  nav-item: "10px"
+  pill: "999px"
 spacing:
   sm: "8px"
   md: "16px"
-  lg: "24px"
-  xl: "40px"
-  2xl: "48px"
-typography:
-  display:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "clamp(48px, 5.8vw, 84px)"
-    fontWeight: 800
-    lineHeight: 0.98
-    letterSpacing: "-0.035em"
-  headline:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "clamp(28px, 2.8vw, 44px)"
-    fontWeight: 800
-    lineHeight: 1.1
-    letterSpacing: "-0.035em"
-  body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "16px"
-    fontWeight: 400
-    lineHeight: 1.6
-  label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "14px"
-    fontWeight: 500
+  lg: "20px"
+  xl: "28px"
+  content-x: "40px"
 components:
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.surface}"
     typography: "{typography.label}"
-    rounded: "{rounded.md}"
-    height: "50px"
-    width: "100%"
-  input:
+    rounded: "{rounded.pill}"
+    height: "48px"
+    padding: "0 22px"
+  button-primary-hover:
+    backgroundColor: "{colors.primary-hover}"
+  button-secondary:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
-    rounded: "{rounded.md}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
     height: "48px"
-    padding: "0 12px"
+    padding: "0 22px"
+  card:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.card}"
+    padding: "28px"
+  nav-item-active:
+    backgroundColor: "{colors.dark}"
+    textColor: "{colors.surface}"
+    rounded: "{rounded.nav-item}"
+    height: "52px"
+  quota-tag:
+    backgroundColor: "{colors.pa-yellow}"
+    textColor: "{colors.text}"
+    rounded: "{rounded.pill}"
+  login-submit:
+    backgroundColor: "{colors.text}"
+    textColor: "{colors.surface}"
+    rounded: "{rounded.pill}"
+    height: "44px"
 ---
 
 # Design System: Portal do Patrocinador
 
 ## Overview
 
-**Creative North Star: "A energia do festival, com acesso simples."**
+**Creative North Star: "A energia do festival na moldura, a tarefa no centro."**
 
-A identidade oficial Planeta Atlântida 2027 combina fotografia de palco e fogos com a marca original. A tela de entrada usa essa energia no painel visual e mantém o formulário claro, legível e direto. A tipografia segue a pilha de sistema usada pelo NG-ZORRO.
+O portal é uma ferramenta de operação. Patrocinadores e equipe RBS entram para enviar materiais, acompanhar entregas e conferir documentos. A identidade Planeta Atlântida 2027 fica na moldura: cabeçalho marinho com luz azul e magenta, faixa de quatro cores sob o título e números magenta na navegação. O conteúdo fica em cartões brancos, claros e previsíveis.
 
-As imagens vêm do material PA27 fornecido para o desafio. A fotografia ilustra a identidade visual e não deve ser apresentada como registro de uma edição futura. O login preserva essa identidade e autentica no backend, com ativação de conta e MFA.
+A referência v2 aprovada em 30/10/2026 é a tela "Mídia e conteúdo" do Admin RBS; toda tela autenticada segue o mesmo layout. O login mantém a composição fotográfica própria, descrita em Components. Contrato da mudança: `openspec/changes/frontend-v2-design/`.
 
 **Key Characteristics:**
-- Marca e fotografia oficiais PA27.
-- Magenta na ação principal; campos claros e texto escuro.
-- Composição dividida no desktop e cabeçalho compacto em telas estreitas.
+- Um layout para os dois perfis: cabeçalho, barra lateral numerada e conteúdo.
+- Ação principal azul; magenta só como destaque da identidade.
+- Títulos condensados em caixa alta; texto em Roboto.
+- Cartões brancos com quadrado de ícone colorido no cabeçalho.
+- Ícones de linha do NG-ZORRO (Ant Design outline), nunca glifos Unicode.
 
 ## Colors
 
-A paleta PA27 aparece na ação principal, na faixa inferior, na camada magenta/azul e nas faixas diagonais difusas das fotos. A última referência PA27 substitui a moldura: composição em tela cheia, painel visual imersivo à esquerda e acesso branco à direita. A marca original aparece acima do formulário no desktop, com sombra fina para a inscrição branca disponível no asset oficial. Copy permanece do Portal do Patrocinador.
+Os tokens vivem em `frontend/src/styles.less`: variáveis Less do NG-ZORRO (`@primary-color`, `@text-color`) e variáveis CSS em `:root` (`--color-*`, `--tone-*`, `--radius-*`, `--shadow-card`). Telas não declaram cores próprias para padrões compartilhados.
 
 ### Primary
-- **Magenta PA27** (`{colors.primary}`): ação principal e realces da identidade.
+- **Azul de ação** (`{colors.primary}`): botão primário, foco visível, links, upload ativo e quadrado de ícone azul.
 
 ### Secondary
-- **Rosa PA27** (`{colors.pink}`): cor complementar da paleta; a faixa da marca usa magenta, azul, verde e amarelo.
+- **Magenta PA27** (`{colors.magenta}`): quadrado de ícone rosa e faixa de cores. Sobre marinho, usa `{colors.magenta-on-dark}` (número e ícone da área ativa, subtítulo do cabeçalho).
+- **Faixa PA27**: azul `{colors.pa-blue}`, verde `{colors.pa-green}`, magenta e amarelo `{colors.pa-yellow}`, nas proporções 608:335:203:132.
+- **Amarelo PA27**: selo da cota.
 
 ### Neutral
-- **Branco** (`{colors.surface}`): painel do formulário e campos.
-- **Carvão** (`{colors.text}`): títulos e texto principal.
-- **Cinza de leitura** (`{colors.text-secondary}`): texto auxiliar.
-- **Cinza de placeholder** (`{colors.placeholder}`): instrução dentro dos campos.
-- **Azul-marinho fotográfico** (`{colors.photo-base}`): base escura sob a fotografia.
-- **Vermelho de erro** (`{colors.error}`): mensagens de validação.
+- **Tinta** (`{colors.text}`) e **cinza de leitura** (`{colors.text-secondary}`, 5,9:1 sobre o fundo).
+- **Papel** (`{colors.paper}`) no fundo do conteúdo; **nav** (`{colors.nav}`) na barra lateral; **branco** nos cartões.
+- **Marinho** (`{colors.dark}`) no item ativo e no destaque de entregas.
+
+### Estados
+- **Sucesso** e **erro** com fundo suave próprio, usados na faixa de envio e em selos de estado.
+
+**The Blue Action Rule.** Só a ação principal de cada bloco é azul cheia; as demais são pílulas brancas.
 
 ## Typography
 
-**Display Font:** pilha de sistema NG-ZORRO (termina em `sans-serif`)
-**Body Font:** mesma pilha de sistema
-**Label/Mono Font:** não há fonte mono distinta.
-
-**Character:** sans-serif de sistema, com títulos fortes e compactos e texto de apoio mais leve.
+**Display Font:** Barlow Condensed 700, hospedada em `public/fonts`.
+**Body Font:** Roboto variável (400 a 700), hospedada em `public/fonts`.
 
 ### Hierarchy
-- **Display** (800, `clamp(48px, 5.8vw, 84px)`, line-height 0.98): frase sobre a fotografia; no mobile usa `clamp(22px, 3.7svh, 30px)`.
-- **Headline** (800, `clamp(28px, 2.8vw, 44px)`, line-height 1.1): título centralizado do formulário, reduzido a 28px em janelas baixas.
-- **Body** (400, 16px): introdução com line-height 1.5; apoio com 1.6. Em alturas até 700px, a introdução usa 14px.
-- **Label** (500, 14px): rótulos e ação principal; o botão usa 15px e peso 600.
+- **Display** (70px/72px, caixa alta, +0.02em): título da página; 52px até 1199px e 40px até 959px.
+- **Card title** (32px/36px): título do cartão, em caixa normal; 26px no mobile.
+- **Brand** (25px, 700, caixa alta): "Portal do Patrocinador" no cabeçalho, com subtítulo magenta de 14px e +0.14em.
+- **Trail** (13px, 500, caixa alta, +0.08em): trilha "Parceria / nome / edição" acima do título.
+- **Body** (15px a 19px): 19px na introdução da página, 15px a 16px no restante.
+- **Label** (15px, 500): botões e itens da navegação (16px).
 
 ## Layout
 
-No desktop, grid de 57%/43% com altura mínima de 100svh, sem moldura externa. Formulário de até 440px; logo, identificação magenta e título centralizados; campos e labels alinhados à esquerda. Logo do acesso escala pela altura útil e reduz a 72px em até 700px de altura. Em até 760px de largura, grid empilha, logo duplicado do acesso é ocultado e cabeçalho visual usa `clamp(116px, 17svh, 160px)`. Em até 700px de altura, espaços diminuem e cabeçalho visual ocupa 116px. Preserve rolagem natural quando zoom ou teclado virtual exigirem mais espaço.
-
-Copy vigente: “Entre na sua conta” e “Entre para acompanhar materiais e entregas do seu patrocínio.”, com identificação “Portal do Patrocinador”. O slogan oficial e a identidade PA27 vêm dos materiais fornecidos; o tom considera também as páginas História e Experiências do site oficial. Textos de apoio são redação original do portal. Fontes e medidas anteriores estão em `docs/login.md`; contrato visual em `openspec/changes/refine-login-carousel/` e correção vigente da pausa em `openspec/changes/corrigir-acessibilidade-login/`.
+- **Desktop:** cabeçalho de 92px; barra lateral de 316px (280px até 1199px); conteúdo com até 1360px, padding 32px 38px 120px 42px e intervalos de 28px.
+- **Conteúdo da página:** trilha, título, introdução e faixa PA27; em seguida a faixa de status (quando a área recebe envio) e os cartões.
+- **Grade da mídia:** 798fr/460fr com 20px de intervalo; uma coluna até 1199px.
+- **Até 959px:** cabeçalho de 72px com botão de menu; a barra lateral vira painel `nz-drawer` de 320px pela esquerda, com foco preso e Esc; o conteúdo vira uma coluna sem rolagem horizontal.
+- **Navegação:** áreas habilitadas numeradas de 01 a 07 e "Entregas da parceria" como 08; o número acompanha a área, mesmo quando outra está desabilitada.
 
 ## Elevation & Depth
 
-Contraste entre fotografia escura e painel branco separa as áreas. Faixas de cor nas bordas usam blur estático contido no painel visual; formulário permanece sem sombra decorativa, com contornos simples nos campos.
+Cartões e controles da barra lateral usam `--shadow-card` (`0 1px 2px #1018280a, 0 8px 24px #1018280a`) e borda de 1px. O botão primário tem sombra azul suave; o item ativo, sombra marinho. A única profundidade decorativa é o gradiente do cabeçalho.
 
 ## Shapes
 
-Campos e ação principal têm cantos suavemente arredondados (8px); o controle de mostrar senha é mais contido (4px), e o selo da edição usa 6px. Os campos permanecem claros com contorno visível.
+- Cartões: 16px. Controles, quadrados de ícone, área de envio e cartões de documento: 12px (ícone de documento: 10px). Itens da navegação: 10px.
+- Botões, selos e cota: pílula (999px). Botões de ícone do cabeçalho e o botão de ajuda: círculo.
 
 ## Components
 
+Componentes compartilhados (use-os em vez de repetir HTML ou CSS):
+
+- **`app-portal-header`** (`frontend/src/app/shared/portal-header.ts`): cabeçalho único. No layout da parceria, mostra menu e sino (`nz-badge` com ponto quando há notificações da parceria); nas telas avulsas (`/parcerias`, `/rbs/patrocinadores`, `/conta`, `/sem-acesso`), mostra a conta conectada e Sair.
+- **`app-partnership-shell`**: barra lateral (voltar, identidade com `nz-tag` da cota, áreas com ícone, relatório, conta com `nz-avatar` e Sair), trilha, título, faixa PA27 e botão de ajuda flutuante (`nz-button` circular) que abre a FAQ.
+- **`app-card-heading`** (`features/partnership/shared/card-heading.ts`): quadrado de ícone de 56px com tom `blue`, `pink`, `green` ou `yellow`, título de cartão e descrição opcional. `focusable` permite devolver o foco ao título.
+- **`app-submission-status`** (`features/partnership/shared/submission-status.ts`): faixa "Envio de materiais aberto/encerrado" com ícone e espaço para a ação do Admin RBS.
+- **Classes globais** (`partnership-ui.css`, `material-ui.css`): `.pa-card`, `.pill`, `.primary-button`, `.card-actions`, `.document-card`, `.upload-zone`, `.done-badge`.
+- **Ícones:** `registerPortalIcons()` (`shared/portal-icons.ts`) registra os ícones outline no serviço global; é chamado nos layouts para não pesar no bundle do login. Ícone novo entra nessa lista.
+
 ### Buttons
-- **Primary:** botão magenta de largura total, altura 50px, texto branco em peso 600 e ícone de seta.
-- **Hover / Focus:** hover e foco mudam o fundo para a cor magenta escurecida do tema; foco visível usa contorno de 2px com deslocamento de 3px.
-- **Password toggle:** controle transparente de 36px, com ícone de olho e nome acessível que alterna entre mostrar e ocultar.
+- **Primary:** `.pill.primary-button`, azul, texto branco 15px/500, ícone opcional de 20px antes do texto. Hover escurece o azul; desabilitado fica cinza.
+- **Secondary:** `.pill`, branco com borda; hover clareia o fundo e reforça a borda.
+- **Foco:** contorno de 2px na cor de foco, deslocado 3px (branco sobre o cabeçalho).
 
-### Inputs / Fields
-- **Style:** campo branco, altura mínima 48px, cantos de 8px e texto de 15px.
-- **Focus:** contorno visível de 2px na cor primária, deslocado 3px.
-- **Error:** borda de erro e mensagem curta associada ao campo.
-
-### Signature Component
-- **Painel do festival:** três fotos oficiais com camada escura e cores magenta/azul, marca fixa no alto, frase branca e faixa inferior com cores PA27. Três barras clicáveis e controle discreto de pausa/retomada, todos com alvos de 44px. No mobile, a frase fica à direita e a legenda desaparece; a frase usa `clamp(22px, 3.7svh, 30px)`.
-
-## Motion
-
-Carrossel local: dissolução de 500ms, cena a cada 3s, aproximação de 3% durante a cena. Seleção manual muda a cena; ao sair do painel, o loop continua somente se não estiver pausado pelo usuário. O controle de pausa interrompe troca e zoom até retomada explícita. Hover, foco no painel e aba oculta suspendem o timer. Movimento reduzido desativa autoplay, zoom e dissolução, mantendo seleção manual. Estado de formulário não depende do carrossel. Fotos e textos comerciais são materiais e redação do portal; não prometem métricas nem representam uma edição futura.
+### Login
+Composição dividida em tela cheia: carrossel fotográfico PA27 à esquerda e formulário à direita, com botão "Entrar no portal" carvão (`login-submit`). Fotos e textos comerciais são materiais e redação do portal; não prometem métricas nem representam a edição futura. Detalhes do carrossel e da pausa estão em `docs/login.md` e `openspec/changes/corrigir-acessibilidade-login/`.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** preserve a marca e a paleta oficial PA27.
-- **Do** manter contraste alto entre formulário branco, texto escuro e ação magenta.
-- **Do** manter foco visível, rótulos e mensagens de erro próximos aos campos.
-- **Do** tratar a foto como imagem ilustrativa do material PA27 fornecido.
+- **Do** usar `app-card-heading`, `app-submission-status` e `.pa-card` em toda seção nova.
+- **Do** deixar a largura dos botões vir do conteúdo; sem `width` fixa.
+- **Do** manter cada área com o mesmo ícone na navegação e no cabeçalho dos cartões relacionados.
+- **Do** conferir contraste mínimo de 4,5:1 para texto e 3:1 para ícones.
 
 ### Don't:
-- **Don't** apresentar a fotografia como registro da edição de 2027.
-- **Don't** mostrar confirmação de acesso antes da autenticação e consulta de identidade no backend.
-- **Don't** acrescentar cadastro ou recuperação de senha com destinos ainda inexistentes.
+- **Don't** usar magenta como cor de ação; ele é destaque da identidade.
+- **Don't** redefinir borda, raio ou sombra de cartão no CSS da tela.
+- **Don't** usar glifos (▤, ↑, →, ×) como ícone.
+- **Don't** apresentar a fotografia do login como registro da edição de 2027.

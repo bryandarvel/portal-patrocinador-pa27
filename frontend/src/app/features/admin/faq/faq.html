@@ -29,7 +29,7 @@
     <button
       nz-button
       type="button"
-      class="pill brand-button new-button"
+      class="pill primary-button new-button"
       aria-haspopup="dialog"
       (click)="openEditor()"
     >
@@ -42,7 +42,7 @@
         nz-button
         type="button"
         class="pill category-button"
-        [class.dark-button]="category === 'Todas'"
+        [class.primary-button]="category === 'Todas'"
         aria-haspopup="dialog"
         (click)="showCategory(category)"
       >
@@ -107,7 +107,7 @@
       {{ title() }}
     </h2></ng-template
   >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent>
     @switch (dialog()) {
       @case ('results') {
@@ -220,7 +220,7 @@
             <button
               nz-button
               type="submit"
-              class="pill brand-button"
+              class="pill primary-button"
               [class.save-edit]="editingId() !== null"
               [class.save-new]="editingId() === null"
               [disabled]="form.invalid || saving()"
@@ -240,7 +240,12 @@
           <span class="saved-badge"
             ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Atualizado</span
           >
-          <button nz-button type="button" class="pill dark-button finish-button" (click)="close()">
+          <button
+            nz-button
+            type="button"
+            class="pill primary-button finish-button"
+            (click)="close()"
+          >
             Concluir
           </button>
         </div>

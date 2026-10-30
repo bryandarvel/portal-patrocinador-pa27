@@ -1,3 +1,4 @@
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -14,6 +15,7 @@ type FaqSelection =
 @Component({
   selector: 'app-partnership-faq',
   imports: [
+    NzIconModule,
     NgTemplateOutlet,
     ReactiveFormsModule,
     NzButtonModule,

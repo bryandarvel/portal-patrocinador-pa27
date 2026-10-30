@@ -1,3 +1,4 @@
+import { CardHeading } from '../shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -7,7 +8,7 @@ import { CourtesyPreview, TicketsPreviewService } from './tickets-preview.servic
 
 @Component({
   selector: 'app-partnership-tickets',
-  imports: [PartnershipShell, FormsModule, NzButtonModule],
+  imports: [CardHeading, PartnershipShell, FormsModule, NzButtonModule],
   templateUrl: './tickets.html',
   styleUrls: ['../shared/partnership-ui.css', './tickets.css'],
 })

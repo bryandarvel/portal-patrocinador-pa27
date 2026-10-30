@@ -9,8 +9,8 @@
       <h2>Entregas contratadas</h2>
       <p>Consulte materiais, execução e comprovações de cada entrega.</p>
     </div>
-    <section class="delivery-summary" aria-labelledby="summary-title">
-      <h2 id="summary-title">Resumo das entregas</h2>
+    <section class="pa-card delivery-summary" aria-labelledby="summary-title">
+      <app-card-heading icon="carry-out" heading="Resumo das entregas" headingId="summary-title" />
       <dl class="delivery-totals">
         @for (total of preview.totals(); track total.state) {
           <div [class]="total.state">

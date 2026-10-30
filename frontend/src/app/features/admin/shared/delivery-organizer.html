@@ -30,7 +30,7 @@
         }
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="loading() || !selected() || api.pending() > 0"
           (click)="save()"
@@ -39,7 +39,7 @@
         ><button nz-button class="pill" type="button" (click)="open.set(false)">Cancelar</button>
       } @else {
         <p role="status">O responsável foi atualizado na parceria.</p>
-        <button nz-button class="pill dark-button" type="button" (click)="open.set(false)">
+        <button nz-button class="pill primary-button" type="button" (click)="open.set(false)">
           Concluir
         </button>
       }

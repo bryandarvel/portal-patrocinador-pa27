@@ -1,3 +1,5 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +17,8 @@ import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 @Component({
   selector: 'app-rbs-logo-delivery',
   imports: [
+    CardHeading,
+    NzIconModule,
     AdminPartnershipShell,
     DeliveryOrganizer,
     DeliveryReport,

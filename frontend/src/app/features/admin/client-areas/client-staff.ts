@@ -1,3 +1,4 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
 import {
   afterNextRender,
   Component,
@@ -24,6 +25,7 @@ import {
 @Component({
   selector: 'app-client-staff',
   imports: [
+    CardHeading,
     AdminPartnershipShell,
     ReactiveFormsModule,
     NzButtonModule,

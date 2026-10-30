@@ -1,3 +1,6 @@
+import { SubmissionStatus } from '../../partnership/shared/submission-status';
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
@@ -15,7 +18,14 @@ type SurveyDialog = 'close' | 'reopen' | 'publish' | 'saved' | 'document' | null
 
 @Component({
   selector: 'app-rbs-survey',
-  imports: [AdminPartnershipShell, NzButtonModule, NzModalModule],
+  imports: [
+    CardHeading,
+    SubmissionStatus,
+    NzIconModule,
+    AdminPartnershipShell,
+    NzButtonModule,
+    NzModalModule,
+  ],
   templateUrl: './survey.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

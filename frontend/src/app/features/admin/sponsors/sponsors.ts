@@ -1,3 +1,5 @@
+import { PortalHeader } from '../../../shared/portal-header';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -6,7 +8,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PORTAL_AREAS } from '../../../core/portal-context.service';
-import { AuthService, SessionStore } from '../../../core/session.service';
+import { SessionStore } from '../../../core/session.service';
 import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 import {
   Quota,
@@ -21,7 +23,15 @@ const passwordValid = (value: string) =>
   value.length >= 12 && value.length <= 128 && new TextEncoder().encode(value).length <= 72;
 @Component({
   selector: 'app-rbs-sponsors',
-  imports: [RouterLink, ReactiveFormsModule, NzButtonModule, NzInputModule, NzModalModule],
+  imports: [
+    PortalHeader,
+    NzIconModule,
+    RouterLink,
+    ReactiveFormsModule,
+    NzButtonModule,
+    NzInputModule,
+    NzModalModule,
+  ],
   templateUrl: './sponsors.html',
   styleUrls: ['../../partnership/shared/partnership-ui.css', './sponsors.css'],
 })
@@ -29,7 +39,6 @@ export class RbsSponsors {
   readonly preview = inject(SponsorsPreviewService);
   readonly api = inject(PortalApi);
   readonly session = inject(SessionStore);
-  readonly auth = inject(AuthService);
   readonly router = inject(Router);
   readonly admin = this.session.isAdmin;
   readonly areas = PORTAL_AREAS;
@@ -290,8 +299,5 @@ export class RbsSponsors {
   }
   labelDialog(modal: NzModalComponent): void {
     labelPartnershipDialog(modal, 'sponsors-dialog-title');
-  }
-  logout(): void {
-    this.auth.logout();
   }
 }

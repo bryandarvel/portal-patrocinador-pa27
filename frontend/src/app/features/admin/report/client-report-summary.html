@@ -31,18 +31,20 @@
               [attr.aria-label]="'Abrir ' + sponsorId() + '_report.pdf'"
               (click)="change('view')"
             >
-              <span class="document-icon" aria-hidden="true">▤</span
+              <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
               ><span class="document-description"
                 ><strong>{{ sponsorId() }}_report.pdf</strong
                 ><span>Publicado para {{ profile().name }}</span></span
-              ><span class="document-action" aria-hidden="true">Abrir →</span>
+              ><span class="document-action" aria-hidden="true"
+                >Abrir <nz-icon nzType="right" aria-hidden="true"
+              /></span>
             </button>
           } @else {
             <p>O relatório ainda não foi disponibilizado.</p>
           }
           <button
             nz-button
-            class="pill dark-button publish-report"
+            class="pill primary-button publish-report"
             type="button"
             (click)="change('publish')"
           >
@@ -61,13 +63,20 @@
         @case ('publish') {
           <p>{{ profile().name }}</p>
           <div class="document-card selected-file">
-            <span class="document-icon" aria-hidden="true">▤</span
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
             ><span class="document-description"
               ><strong>{{ sponsorId() }}_reportPublish.pdf</strong
               ><span>Arquivo selecionado</span></span
-            ><span class="document-action">Abrir →</span>
+            ><span class="document-action"
+              >Abrir <nz-icon nzType="right" aria-hidden="true"
+            /></span>
           </div>
-          <button nz-button class="pill dark-button publish-file" type="button" (click)="publish()">
+          <button
+            nz-button
+            class="pill primary-button publish-file"
+            type="button"
+            (click)="publish()"
+          >
             Publicar arquivo
           </button>
           <button nz-button class="pill finish-button" type="button" (click)="change('summary')">

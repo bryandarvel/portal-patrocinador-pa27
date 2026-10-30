@@ -1,12 +1,6 @@
-.submission-control { flex-direction: row; align-items: flex-start; gap: 16px; }
-.submission-copy { display: flex; flex-direction: column; gap: 4px; flex: 0 1 720px; }
-.submission-copy p:first-child { color: var(--color-success); font-weight: 500; }
-.submission-copy p:last-child { color: var(--color-muted); }
-.is-closed .submission-copy p:first-child { color: var(--color-error); }
-.submission-button { width: 130px; flex-shrink: 0; }
-.publish-button { width: 162px; }.publish-file-button { width: 142px; }
+.submission-button { flex-shrink: 0; }
 .received-question { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .received-question h3 { margin: 0; font: 500 14px/20px var(--font-body); }
 .received-question p { min-height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-paper); color: var(--color-muted); font: 16px/24px var(--font-body); white-space: pre-wrap; overflow-wrap: anywhere; }
-.example-file { cursor: default; }.example-file:hover { border-color: var(--color-border); }
-@media (max-width: 760px) { .submission-control { flex-wrap: wrap; }.submission-copy { flex-basis: 100%; } }
+.example-file { cursor: default; }
+.example-file:hover { border-color: var(--color-border); }

@@ -3,8 +3,8 @@
   title="Cortesias"
   description="Confira e destine as cortesias da sua parceria."
 >
-  <section class="courtesies" aria-labelledby="courtesies-title">
-    <h2 id="courtesies-title">Cortesias da parceria</h2>
+  <section class="pa-card courtesies" aria-labelledby="courtesies-title">
+    <app-card-heading icon="gift" heading="Cortesias da parceria" headingId="courtesies-title" />
     <ul class="courtesy-list">
       @for (item of courtesies(); track item.id) {
         <li class="courtesy-item">
@@ -71,7 +71,7 @@
           maxlength="500"
           [(ngModel)]="destination"
           required
-        /><button nz-button class="pill dark-button" type="submit" [disabled]="saving()">
+        /><button nz-button class="pill primary-button" type="submit" [disabled]="saving()">
           Confirmar destinação</button
         ><button nz-button class="pill" type="button" (click)="selected.set(null)">Cancelar</button>
       </form>

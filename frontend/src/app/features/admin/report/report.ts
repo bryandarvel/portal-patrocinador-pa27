@@ -1,3 +1,4 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
@@ -6,7 +7,7 @@ import { SourceSheetsPreviewService } from './source-sheets-preview.service';
 
 @Component({
   selector: 'app-rbs-report',
-  imports: [AdminPartnershipShell, NzButtonModule],
+  imports: [CardHeading, AdminPartnershipShell, NzButtonModule],
   templateUrl: './report.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

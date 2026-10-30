@@ -31,7 +31,7 @@
         nz-button
         type="button"
         class="pill category-button"
-        [class.dark-button]="category === 'Todas'"
+        [class.primary-button]="category === 'Todas'"
         aria-haspopup="dialog"
         (click)="showCategory(category)"
       >
@@ -80,7 +80,7 @@
   <ng-template #dialogTitle
     ><h2 id="faq-dialog-title" class="dialog-title">{{ resultTitle() }}</h2></ng-template
   >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
       <section class="faq-results" aria-label="Resultados da consulta" tabindex="0">

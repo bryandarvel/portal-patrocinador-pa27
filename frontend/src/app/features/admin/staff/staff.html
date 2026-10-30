@@ -4,8 +4,8 @@
   description="Gerencie credenciais e endereço do Open Staff desta parceria."
 >
   <div class="staff-panels">
-    <section class="staff-card" aria-labelledby="rbs-staff-title">
-      <h2 id="rbs-staff-title">Credenciais previstas</h2>
+    <section class="pa-card staff-card" aria-labelledby="rbs-staff-title">
+      <app-card-heading icon="idcard" heading="Credenciais previstas" headingId="rbs-staff-title" />
       @for (item of accreditation()?.itens ?? []; track $index) {
         <div class="staff-details">
           <p class="quantity">{{ item.quantidade }}</p>
@@ -31,12 +31,12 @@
         Editar credenciamento
       </button>
     </section>
-    <section class="staff-card external-guidance">
+    <section class="pa-card staff-card external-guidance">
       <h2>Open Staff</h2>
       @if (preview.validUrl(accreditation()?.urlOpenStaff)) {
         <a
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           [href]="accreditation()!.urlOpenStaff"
           target="_blank"
           rel="noopener noreferrer"
@@ -48,8 +48,13 @@
     </section>
   </div>
   @if (editing()) {
-    <section class="staff-card" aria-labelledby="staff-edit-title">
-      <h2 id="staff-edit-title">Editar credenciamento</h2>
+    <section class="pa-card staff-card" aria-labelledby="staff-edit-title">
+      <app-card-heading
+        icon="idcard"
+        tone="pink"
+        heading="Editar credenciamento"
+        headingId="staff-edit-title"
+      />
       <form (ngSubmit)="save()">
         <label for="staff-url">URL do Open Staff</label
         ><input
@@ -100,7 +105,12 @@
             <a [routerLink]="context.link('perfil')">perfil da parceria</a> antes de incluir linhas.
           </p>
         }
-        <button nz-button class="pill dark-button save-button" type="submit" [disabled]="saving()">
+        <button
+          nz-button
+          class="pill primary-button save-button"
+          type="submit"
+          [disabled]="saving()"
+        >
           Salvar informações</button
         ><button nz-button class="pill" type="button" (click)="editing.set(false)">Cancelar</button>
       </form>
@@ -111,7 +121,7 @@
       }
     </section>
   }
-  <section class="staff-card">
+  <section class="pa-card staff-card">
     <h2>Histórico</h2>
     @for (revision of accreditation()?.historico ?? []; track revision.versao) {
       <p>

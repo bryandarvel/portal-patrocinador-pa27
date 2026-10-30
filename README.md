@@ -101,7 +101,7 @@ docker compose logs --tail 50 backend frontend
 | PostgreSQL | `db:5432`, acessível pela rede interna do Docker |
 | E-mails de desenvolvimento | http://localhost:8025, caixa local Mailpit; nenhuma entrega externa é feita pelo Compose |
 
-O primeiro início instala dependências. Aguarde os logs de inicialização: um container ativo não comprova que a aplicação está pronta. As portas locais 4200 e 8080 precisam estar livres.
+O primeiro início instala dependências. Aguarde os logs de inicialização: um container ativo não comprova que a aplicação está pronta. As portas locais 4200, 8025 e 8080 precisam estar livres; se 4200 ou 8025 já estiverem em uso, defina `FRONTEND_PORT` e `MAILPIT_PORT` no `.env` e acesse o frontend e o Mailpit nas portas escolhidas.
 
 Para parar os serviços, preservando os volumes:
 

@@ -1,3 +1,4 @@
+import { CardHeading } from '../shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -8,7 +9,7 @@ import { DeliveriesPreviewService } from './deliveries-preview.service';
 
 @Component({
   selector: 'app-partnership-deliveries',
-  imports: [PartnershipShell, RouterLink, NzButtonModule, DeliveryReport],
+  imports: [CardHeading, PartnershipShell, RouterLink, NzButtonModule, DeliveryReport],
   templateUrl: './deliveries.html',
   styleUrls: ['../shared/partnership-ui.css', './deliveries.css'],
 })

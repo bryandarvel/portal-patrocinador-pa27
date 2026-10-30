@@ -3,8 +3,12 @@
   description="Informações que identificam a parceria e seus documentos comerciais."
 >
   <div class="profile-panels">
-    <section class="profile-card" aria-labelledby="rbs-registration-title">
-      <h2 id="rbs-registration-title">Cadastro do patrocinador</h2>
+    <section class="pa-card profile-card" aria-labelledby="rbs-registration-title">
+      <app-card-heading
+        icon="user"
+        heading="Cadastro do patrocinador"
+        headingId="rbs-registration-title"
+      />
       <form class="profile-form" (ngSubmit)="save()">
         <div class="profile-field">
           <label for="rbs-sponsor-name">Nome do patrocinador</label
@@ -39,7 +43,7 @@
         <div class="profile-actions">
           <button
             nz-button
-            class="pill dark-button save-button"
+            class="pill primary-button save-button"
             type="submit"
             [disabled]="api.pending() > 0"
           >
@@ -50,8 +54,16 @@
         </div>
       </form>
     </section>
-    <section class="profile-card commercial-documents" aria-labelledby="rbs-documents-title">
-      <h2 id="rbs-documents-title">Documentos comerciais</h2>
+    <section
+      class="pa-card profile-card commercial-documents"
+      aria-labelledby="rbs-documents-title"
+    >
+      <app-card-heading
+        icon="file-text"
+        tone="pink"
+        heading="Documentos comerciais"
+        headingId="rbs-documents-title"
+      />
       <p>Arquivos disponibilizados pela RBS para esta parceria.</p>
       @for (document of preview.documents(); track document.id) {
         <button
@@ -61,11 +73,11 @@
           (click)="download(document.id, document.nome)"
           [attr.aria-label]="'Baixar ' + document.nome"
         >
-          <span class="document-icon" aria-hidden="true">▤</span
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
           ><span class="document-description"
             ><strong>{{ document.nome }}</strong
             ><span>Versão {{ document.versao }}</span></span
-          ><span class="document-action">Baixar →</span>
+          ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
         </button>
       } @empty {
         <p>Nenhum documento disponibilizado.</p>
@@ -80,8 +92,13 @@
       </button>
     </section>
   </div>
-  <section class="profile-card rights-card" aria-labelledby="rights-title">
-    <h2 id="rights-title">Direitos desta parceria</h2>
+  <section class="pa-card profile-card rights-card" aria-labelledby="rights-title">
+    <app-card-heading
+      icon="check-circle"
+      tone="green"
+      heading="Direitos desta parceria"
+      headingId="rights-title"
+    />
     <p>
       A troca de cota não altera áreas e benefícios já contratados. Ajuste-os aqui quando
       necessário.
@@ -115,7 +132,7 @@
         </fieldset>
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="saveAreas()"
@@ -186,7 +203,7 @@
             required
           /><button
             nz-button
-            class="pill dark-button"
+            class="pill primary-button"
             type="button"
             [disabled]="api.pending() > 0"
             (click)="addBenefit()"
@@ -275,7 +292,7 @@
           Criar convite</button
         ><button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="saveAccess()"
@@ -296,7 +313,7 @@
         <p>{{ file()?.name ?? 'Nenhum arquivo selecionado' }}</p>
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="publish()"
@@ -311,7 +328,7 @@
         <p role="status">As informações foram atualizadas na parceria.</p>
         <button
           nz-button
-          class="pill dark-button finish-button"
+          class="pill primary-button finish-button"
           type="button"
           (click)="closeDialog()"
         >

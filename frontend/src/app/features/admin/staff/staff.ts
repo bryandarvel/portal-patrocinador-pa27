@@ -1,3 +1,4 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { Credential, StaffPreviewService } from '../../partnership/staff/staff-p
 
 @Component({
   selector: 'app-rbs-staff',
-  imports: [AdminPartnershipShell, FormsModule, RouterLink, NzButtonModule],
+  imports: [CardHeading, AdminPartnershipShell, FormsModule, RouterLink, NzButtonModule],
   templateUrl: './staff.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

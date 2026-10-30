@@ -5,8 +5,8 @@
   [description]="'Cliente ' + clientName + ' · Informações e materiais desta parceria.'"
   logoSrc="/images/pa27-logo-figma.png"
 >
-  <section class="profile-card" aria-labelledby="client-staff-heading">
-    <h2 id="client-staff-heading">Credenciamento</h2>
+  <section class="pa-card profile-card" aria-labelledby="client-staff-heading">
+    <app-card-heading icon="idcard" heading="Credenciamento" headingId="client-staff-heading" />
     @if (staff(); as data) {
       <strong class="staff-quantity">{{ data.quantity }}</strong>
       <p>Setor informado: {{ data.sector }}</p>
@@ -84,7 +84,7 @@
               </p>
             }
           </div>
-          <button nz-button class="pill dark-button publish-confirm" type="submit">
+          <button nz-button class="pill primary-button publish-confirm" type="submit">
             Salvar para esta parceria
           </button>
         </form>

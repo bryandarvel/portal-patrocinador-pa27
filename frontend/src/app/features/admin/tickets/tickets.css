@@ -1,29 +1,7 @@
 .courtesies-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 808px) 155px;
-  gap: 24px;
+  display: flex;
   align-items: center;
-}
-.courtesies-heading h2 {
-  text-transform: uppercase;
-}
-.add-button {
-  width: 155px;
-}
-.edit-button {
-  width: 131px;
-}
-.add-button,
-.save-button {
-  background: var(--pa-magenta);
-  border-color: var(--pa-magenta);
-  color: #fff;
-}
-.add-button:not([aria-disabled]):hover,
-.save-button:not([aria-disabled]):hover {
-  background: var(--color-accent-text);
-  border-color: var(--color-accent-text);
-  color: #fff;
+  gap: 24px;
 }
 .courtesy-form {
   display: flex;
@@ -67,14 +45,8 @@
   flex-wrap: wrap;
   gap: 12px;
 }
-.save-button {
-  width: 131px;
-}
 .save-button.editing {
   width: 148px;
-}
-.cancel-button {
-  width: 100px;
 }
 @media (max-width: 760px) {
   .courtesies-heading {

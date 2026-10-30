@@ -4,7 +4,7 @@ services:
   mailpit:
     image: axllent/mailpit:v1.30.3
     ports:
-      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
 
   db:
     image: postgres:17-alpine
@@ -58,7 +58,7 @@ services:
     working_dir: /workspace
     command: ["sh", "-c", "npm ci && npm start -- --host 0.0.0.0"]
     ports:
-      - "127.0.0.1:4200:4200"
+      - "127.0.0.1:${FRONTEND_PORT:-4200}:4200"
     environment:
       API_PROXY_TARGET: http://backend:8080
       NG_CLI_ANALYTICS: "false"

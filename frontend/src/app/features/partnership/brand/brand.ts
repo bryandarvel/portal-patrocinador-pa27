@@ -1,6 +1,9 @@
+import { SubmissionStatus } from '../shared/submission-status';
+import { CardHeading } from '../shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PartnershipShell } from '../shared/partnership-shell';
@@ -17,7 +20,16 @@ type BrandDialog =
 
 @Component({
   selector: 'app-brand-applications',
-  imports: [PartnershipShell, NzButtonModule, NzModalModule, DatePipe, RouterLink],
+  imports: [
+    CardHeading,
+    SubmissionStatus,
+    NzIconModule,
+    PartnershipShell,
+    NzButtonModule,
+    NzModalModule,
+    DatePipe,
+    RouterLink,
+  ],
   templateUrl: './brand.html',
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './brand.css'],
 })
@@ -29,7 +41,7 @@ export class BrandApplications {
   readonly selected = signal<MaterialSelection | null>(null);
   readonly inputError = signal('');
   readonly modal = viewChild<NzModalComponent>('brandModal');
-  readonly materialsHeading = viewChild<ElementRef<HTMLElement>>('materialsHeading');
+  readonly materialsHeading = viewChild<CardHeading>('materialsHeading');
   readonly dialogTitle = computed(() => {
     switch (this.dialog()) {
       case 'upload':
@@ -124,7 +136,7 @@ export class BrandApplications {
 
   afterClose(): void {
     if (this.focusMaterialsAfterClose) {
-      this.materialsHeading()?.nativeElement.focus();
+      this.materialsHeading()?.focus();
       this.focusMaterialsAfterClose = false;
     }
   }

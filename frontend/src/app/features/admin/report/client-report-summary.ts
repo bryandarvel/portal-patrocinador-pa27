@@ -1,3 +1,4 @@
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import {
   afterNextRender,
   Component,
@@ -22,7 +23,7 @@ import {
 
 @Component({
   selector: 'app-client-report-summary',
-  imports: [RouterLink, NzButtonModule, NzModalModule],
+  imports: [NzIconModule, RouterLink, NzButtonModule, NzModalModule],
   templateUrl: './client-report-summary.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
