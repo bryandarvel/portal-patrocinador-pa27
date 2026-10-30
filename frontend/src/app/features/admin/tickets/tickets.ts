@@ -1,3 +1,5 @@
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,7 +13,7 @@ import {
 
 @Component({
   selector: 'app-rbs-tickets',
-  imports: [AdminPartnershipShell, FormsModule, NzButtonModule],
+  imports: [AdminPartnershipShell, CardHeading, FormsModule, NzButtonModule, NzIconModule],
   templateUrl: './tickets.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

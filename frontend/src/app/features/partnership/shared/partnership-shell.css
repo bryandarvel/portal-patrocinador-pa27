@@ -1,75 +1,375 @@
-.profile-page { height: 100svh; background: var(--color-paper); display: flex; flex-direction: column; }
-.portal-header { height: 92px; flex: 0 0 92px; padding: 14px 20px; display: grid; grid-template-columns: 64px minmax(220px, 540px) 306px 200px 76px; align-items: center; gap: 24px; background: var(--color-dark); color: #fff; }
-.portal-logo { width: 64px; height: 64px; object-fit: contain; }
-.portal-brand { display: flex; flex-direction: column; gap: 4px; }
-.portal-brand p { font-family: var(--font-brand); font-size: 20px; font-weight: 800; line-height: 24px; text-transform: uppercase; }
-.portal-brand span { color: var(--pa-pink); font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
-.header-actions { display: flex; gap: 24px; }
-.account { display: flex; flex-direction: column; gap: 4px; }
-.account p { font-size: 14px; font-weight: 500; line-height: 20px; }
-.account span { font-size: 12px; line-height: 18px; }
-.faq-button { width: 162px; }
-.notifications-button { width: 120px; }
-.exit-button { width: 76px; }
-.portal-body { min-height: 0; flex: 1; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
-.partnership-sidebar { display: flex; flex-direction: column; gap: 8px; padding: 16px; background: var(--color-nav); overflow-y: auto; }
-.partnership-identity { display: flex; flex-direction: column; gap: 8px; padding: 12px; background: #fff; border-radius: 8px; }
-.partnership-identity p { font-size: 20px; line-height: 28px; font-weight: 700; }
-.quota { width: 150px; max-width: 100%; padding: 4px; border-radius: 4px; background: var(--pa-yellow); font-size: 11px; line-height: 16px; font-weight: 700; text-transform: uppercase; }
-.deliveries-button { width: 100%; flex-shrink: 0; }
-/* NG-ZORRO define padding-top com !important em a.ant-btn. */
-.pill.deliveries-button, .pill.faq-button { padding-top: 11px !important; }
-nav { display: flex; flex-direction: column; gap: 8px; }
-.area-link { width: 100%; padding: 12px; border: 0; border-radius: 8px; background: transparent; color: var(--color-text); display: flex; align-items: center; gap: 12px; text-align: left; font-size: 14px; line-height: 20px; font-weight: 500; }
-.area-number { flex: 0 0 auto; font-size: 11px; font-weight: 700; line-height: 16px; color: var(--color-muted); }
-.area-link.active { background: var(--color-text); color: #fff; }
-.area-link.active .area-number { color: var(--pa-pink); }
-.festival-signature { display: flex; flex-direction: column; gap: 8px; }
-.checker { width: 96px; height: 12px; background: repeating-linear-gradient(90deg, var(--color-text) 0 12px, #fff 12px 24px); }
-.festival-signature p { color: var(--color-muted); font-size: 11px; font-weight: 700; line-height: 16px; text-transform: uppercase; }
-.profile-scroll { min-width: 0; overflow-y: auto; }
-.profile-content { padding: 40px; display: flex; flex-direction: column; gap: 24px; }
-.page-heading { display: flex; flex-direction: column; gap: 12px; }
-.context-row { display: grid; grid-template-columns: max-content minmax(0, 450px) 170px; align-items: center; gap: 16px; }
-.report-button { grid-column: 3; width: 170px; }
-h1 { font-family: var(--font-display); font-size: 48px; line-height: 50px; font-weight: 700; text-transform: uppercase; }
-.page-intro { font-size: 16px; line-height: 24px; color: var(--color-muted); }
-.festival-stripe { display: grid; grid-template-columns: 536fr 300fr 180fr 96fr; height: 4px; }
-.festival-stripe span:nth-child(1) { background: var(--pa-blue); }
-.festival-stripe span:nth-child(2) { background: var(--pa-green); }
-.festival-stripe span:nth-child(3) { background: var(--pa-magenta); }
-.festival-stripe span:nth-child(4) { background: var(--pa-yellow); }
-.portal-header :focus-visible { outline-color: var(--pa-pink); }
-.skip-link { position: fixed; top: -80px; left: 16px; z-index: 1001; padding: 12px; background: #fff; color: var(--color-text); }
-.skip-link:focus { top: 16px; }
-.notification-preview { width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; background: #fff0ee; color: #a62b30; }
-.notification-preview h3 { color: inherit; font-size: 20px; line-height: 28px; font-weight: 700; }
-.report-unavailable { display: flex; flex-direction: column; gap: 16px; }
-.report-unavailable p:first-child { font-size: 16px; line-height: 24px; color: var(--color-text); }
-@media (max-width: 1199px) {
-  .portal-header { grid-template-columns: 64px minmax(180px, 1fr) auto 76px; gap: 16px; }
-  .header-actions { gap: 12px; }
-  .account { display: none; }
-  .profile-content { padding: 24px; }
-  .context-row { display: flex; flex-wrap: wrap; }
+.profile-page {
+  height: 100svh;
+  background: var(--color-paper);
+  display: flex;
+  flex-direction: column;
 }
-@media (max-width: 760px) {
-  .profile-page { height: auto; min-height: 100svh; }
-  .portal-header { height: auto; flex-basis: auto; grid-template-columns: 48px minmax(0, 1fr) 64px; padding: 16px; gap: 12px; }
-  .portal-logo { width: 48px; height: 48px; }
-  .portal-brand p { font-size: 14px; line-height: 18px; }
-  .portal-brand span { font-size: 9px; line-height: 14px; letter-spacing: .6px; }
-  .exit-button { width: 64px; grid-column: 3; grid-row: 1; }
-  .header-actions { grid-column: 1 / -1; grid-row: 2; flex-wrap: wrap; }
-  .portal-body { display: block; }
-  .partnership-sidebar { overflow: visible; }
-  .partnership-identity { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
-  .quota { width: auto; }
-  nav { flex-direction: row; overflow-x: auto; padding: 4px; }
-  .area-link { width: auto; flex: 0 0 auto; }
-  .festival-signature { display: none; }
-  .profile-scroll { overflow: visible; }
-  .profile-content { padding: 24px 16px; }
-  .context-row { display: flex; flex-wrap: wrap; gap: 12px; }
-  h1 { font-size: 36px; line-height: 38px; }
+
+.portal-body {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 316px minmax(0, 1fr);
+}
+
+/* Barra lateral */
+.partnership-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 18px 16px;
+  background: var(--color-nav);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+.side-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.back-link {
+  min-height: 46px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  transition: border-color 0.2s;
+}
+.back-link:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+.back-link nz-icon {
+  font-size: 18px;
+}
+.partnership-identity {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.identity-icon {
+  flex: 0 0 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tone-blue-soft);
+  color: var(--tone-blue);
+  font-size: 26px;
+}
+.identity-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.identity-copy p {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 500;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+.quota {
+  max-width: 100%;
+  margin: 0;
+  padding: 2px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pa-yellow);
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.areas-title {
+  margin-top: 8px;
+  padding: 0 6px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.area-link {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  font: 500 16px/24px var(--font-body);
+  cursor: pointer;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.area-link:hover {
+  background: #e9edf4;
+  color: var(--color-text);
+}
+.area-number {
+  flex: 0 0 22px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.area-icon {
+  flex: 0 0 auto;
+  font-size: 22px;
+}
+.area-link.active {
+  background: var(--color-dark);
+  color: #fff;
+  box-shadow: 0 6px 16px #0f1a2e33;
+}
+.area-link.active .area-number,
+.area-link.active .area-icon {
+  color: var(--tone-pink-on-dark);
+}
+.side-divider {
+  height: 1px;
+  margin: 8px 6px;
+  background: var(--color-border);
+}
+.report-link .chevron {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+.report-link.active .chevron {
+  color: #fff;
+}
+.account {
+  margin-top: auto;
+  padding: 12px 8px 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-link {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--color-text);
+  border-radius: 8px;
+}
+.account-link:hover {
+  color: var(--color-text);
+}
+.account-link nz-avatar {
+  flex: 0 0 auto;
+  background: #8b94a3;
+}
+.account-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.account-copy strong {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.account-copy span {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+.logout-button {
+  min-height: 44px;
+  padding: 0 8px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-left: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font: 500 14px/20px var(--font-body);
+  cursor: pointer;
+}
+.logout-button nz-icon {
+  font-size: 20px;
+}
+.logout-button:hover {
+  color: var(--color-primary);
+}
+.partnership-sidebar :focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Conteúdo */
+.profile-scroll {
+  min-width: 0;
+  overflow-y: auto;
+}
+.profile-content {
+  max-width: 1360px;
+  padding: 32px 38px 120px 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.page-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.trail {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+h1 {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: 70px;
+  line-height: 72px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-wrap: balance;
+}
+.page-intro {
+  font-size: 19px;
+  line-height: 28px;
+  color: var(--color-muted);
+}
+.festival-stripe {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 608fr 335fr 203fr 132fr;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.festival-stripe span:nth-child(1) {
+  background: var(--pa-blue);
+}
+.festival-stripe span:nth-child(2) {
+  background: var(--pa-green);
+}
+.festival-stripe span:nth-child(3) {
+  background: var(--pa-magenta);
+}
+.festival-stripe span:nth-child(4) {
+  background: var(--pa-yellow);
+}
+
+.help-button.ant-btn {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 10;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  box-shadow: 0 10px 24px #0b6bf259;
+}
+.help-button.ant-btn nz-icon {
+  font-size: 38px;
+}
+
+.skip-link {
+  position: fixed;
+  top: -80px;
+  left: 16px;
+  z-index: 1001;
+  padding: 12px;
+  background: #fff;
+  color: var(--color-text);
+}
+.skip-link:focus {
+  top: 16px;
+}
+
+.in-drawer {
+  min-height: 100%;
+  border-right: 0;
+}
+
+@media (max-width: 1199px) {
+  .portal-body {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+  .profile-content {
+    padding: 28px 24px 112px;
+  }
+  h1 {
+    font-size: 52px;
+    line-height: 54px;
+  }
+}
+@media (max-width: 959px) {
+  .profile-page {
+    height: auto;
+    min-height: 100svh;
+  }
+  .portal-body {
+    display: block;
+  }
+  .portal-body > .partnership-sidebar {
+    display: none;
+  }
+  .profile-scroll {
+    overflow: visible;
+  }
+  .profile-content {
+    padding: 24px 16px 104px;
+    gap: 20px;
+  }
+  h1 {
+    margin-top: 8px;
+    font-size: 40px;
+    line-height: 42px;
+  }
+  .page-intro {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .help-button.ant-btn {
+    right: 16px;
+    bottom: 16px;
+    width: 56px;
+    height: 56px;
+  }
+  .help-button.ant-btn nz-icon {
+    font-size: 30px;
+  }
+}
+app-api-status:empty {
+  display: none;
 }

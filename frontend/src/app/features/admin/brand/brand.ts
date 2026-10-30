@@ -1,3 +1,6 @@
+import { SubmissionStatus } from '../../partnership/shared/submission-status';
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
@@ -29,7 +32,16 @@ type BrandDialog =
 
 @Component({
   selector: 'app-rbs-brand-applications',
-  imports: [AdminPartnershipShell, RouterLink, NzButtonModule, NzModalModule, DatePipe],
+  imports: [
+    CardHeading,
+    SubmissionStatus,
+    NzIconModule,
+    AdminPartnershipShell,
+    RouterLink,
+    NzButtonModule,
+    NzModalModule,
+    DatePipe,
+  ],
   templateUrl: './brand.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
@@ -50,7 +62,7 @@ export class RbsBrandApplications {
   readonly selected = signal<MaterialSelection | null>(null);
   readonly inputError = signal('');
   readonly modal = viewChild<NzModalComponent>('brandModal');
-  readonly materialsHeading = viewChild<ElementRef<HTMLElement>>('materialsHeading');
+  readonly materialsHeading = viewChild<CardHeading>('materialsHeading');
   readonly submissionButton = viewChild<ElementRef<HTMLButtonElement>>('submissionButton');
   readonly dialogTitle = computed(() => {
     switch (this.dialog()) {
@@ -157,7 +169,7 @@ export class RbsBrandApplications {
 
   afterClose(): void {
     const target = this.focusMaterialsAfterClose
-      ? this.materialsHeading()?.nativeElement
+      ? this.materialsHeading()
       : this.focusSubmissionAfterClose
         ? this.submissionButton()?.nativeElement
         : null;

@@ -1,3 +1,6 @@
+import { SubmissionStatus } from '../shared/submission-status';
+import { CardHeading } from '../shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import {
   AbstractControl,
@@ -26,7 +29,16 @@ function atLeastOneQuestion(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-partnership-survey',
-  imports: [PartnershipShell, ReactiveFormsModule, NzButtonModule, NzInputModule, NzModalModule],
+  imports: [
+    CardHeading,
+    SubmissionStatus,
+    NzIconModule,
+    PartnershipShell,
+    ReactiveFormsModule,
+    NzButtonModule,
+    NzInputModule,
+    NzModalModule,
+  ],
   templateUrl: './survey.html',
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './survey.css'],
 })

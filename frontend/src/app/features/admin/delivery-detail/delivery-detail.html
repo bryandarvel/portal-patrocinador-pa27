@@ -3,14 +3,20 @@
   [title]="preview.delivery()?.titulo ?? 'Entrega'"
   description="Da preparação do material à comprovação da entrega."
 >
-  <a nz-button class="pill back-button" [routerLink]="ctx.link('entregas')">← Todas as entregas</a>
+  <a nz-button class="pill back-button" [routerLink]="ctx.link('entregas')"
+    ><nz-icon nzType="arrow-left" aria-hidden="true" />Todas as entregas</a
+  >
   @if (preview.loading()) {
     <p role="status">Carregando entrega…</p>
   }
   @if (preview.delivery(); as d) {
     <div class="delivery-panels">
-      <section class="delivery-card">
-        <h2>Material da entrega</h2>
+      <section class="pa-card delivery-card" aria-labelledby="delivery-material-title">
+        <app-card-heading
+          icon="picture"
+          heading="Material da entrega"
+          headingId="delivery-material-title"
+        />
         <p [class]="'material-badge ' + preview.tone()" role="status">
           <img [src]="preview.icon()" alt="" width="6" height="6" />{{ preview.badge() }}
         </p>
@@ -19,7 +25,7 @@
           @case ('received') {
             <button
               nz-button
-              class="pill dark-button"
+              class="pill primary-button"
               type="button"
               [disabled]="api.pending() > 0"
               (click)="evaluate('ANALISAR')"
@@ -30,7 +36,7 @@
           @case ('analysis') {
             <button
               nz-button
-              class="pill dark-button"
+              class="pill primary-button"
               type="button"
               (click)="dialog.set('approve')"
             >
@@ -42,7 +48,7 @@
           @case ('approved') {
             <button
               nz-button
-              class="pill dark-button"
+              class="pill primary-button"
               type="button"
               [disabled]="api.pending() > 0"
               (click)="execute('EM_EXECUCAO')"
@@ -53,7 +59,7 @@
           @case ('executing') {
             <button
               nz-button
-              class="pill dark-button"
+              class="pill primary-button"
               type="button"
               (click)="dialog.set('realize')"
             >
@@ -67,11 +73,13 @@
             type="button"
             (click)="download(m.arquivo_id, 'material-v' + m.numero)"
           >
-            <span class="document-icon" aria-hidden="true">▤</span
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
             ><span class="document-description"
               ><strong>Material versão {{ m.numero }}</strong
               ><span>{{ m.estado }}</span></span
-            ><span class="document-action">Baixar →</span></button
+            ><span class="document-action"
+              >Baixar <nz-icon nzType="right" aria-hidden="true"
+            /></span></button
           ><button
             nz-button
             class="pill history-button"
@@ -88,8 +96,13 @@
           }
         }
       </section>
-      <section class="delivery-card">
-        <h2>Jornada da entrega</h2>
+      <section class="pa-card delivery-card" aria-labelledby="delivery-journey-title">
+        <app-card-heading
+          icon="carry-out"
+          tone="pink"
+          heading="Jornada da entrega"
+          headingId="delivery-journey-title"
+        />
         <p>{{ d.descricao }}</p>
         <p>Responsável: {{ preview.owner() }}</p>
         <p>Execução: {{ d.execucao }}</p>
@@ -105,8 +118,13 @@
         </button>
       </section>
     </div>
-    <section class="delivery-card">
-      <h2>Comprovação da execução</h2>
+    <section class="pa-card delivery-card" aria-labelledby="delivery-proofs-title">
+      <app-card-heading
+        icon="check-circle"
+        tone="green"
+        heading="Comprovação da execução"
+        headingId="delivery-proofs-title"
+      />
       @for (p of d.comprovacoes; track p.id) {
         <div class="execution-record">
           <p>{{ p.descricao }}</p>
@@ -126,7 +144,7 @@
         <p>Comprovação ainda não publicada.</p>
       }
       @if (d.execucao === 'REALIZADA') {
-        <button nz-button class="pill dark-button" type="button" (click)="dialog.set('proof')">
+        <button nz-button class="pill primary-button" type="button" (click)="dialog.set('proof')">
           Adicionar comprovação
         </button>
       }
@@ -160,7 +178,7 @@
         <p>A aprovação libera a preparação da ação.</p>
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="evaluate('APROVAR')"
@@ -173,7 +191,7 @@
         ><textarea id="adjust-comment" [(ngModel)]="comment" required maxlength="2000"></textarea
         ><button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="evaluate('AJUSTAR')"
@@ -185,7 +203,7 @@
         <p>Confirme que a entrega foi realizada.</p>
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="execute('REALIZADA')"
@@ -204,7 +222,7 @@
         ><label for="proof-file">Anexo opcional</label
         ><input #proofFile id="proof-file" type="file" (change)="select(proofFile)" /><button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="publishProof()"
@@ -238,7 +256,7 @@
       }
       @if (dialog() === 'saved') {
         <p role="status">As informações foram salvas na parceria.</p>
-        <button nz-button class="pill dark-button" type="button" (click)="dialog.set(null)">
+        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
           Concluir
         </button>
       }

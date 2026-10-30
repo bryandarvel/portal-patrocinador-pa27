@@ -34,15 +34,18 @@
 @pa-light-orange: #ff8617;
 @pa-yellow: #ffde03;
 
-@primary-color: @pa-magenta;
+@pa-action-blue: #0b6bf2;
+
+@primary-color: @pa-action-blue;
+@border-radius-base: 8px;
 @primary-color-hover: darken(@primary-color, 5%);
 @primary-color-active: darken(@primary-color, 10%);
 @link-color: @primary-color;
 @link-hover-color: @primary-color-hover;
 @link-active-color: @primary-color-active;
-@text-color: #242424;
+@text-color: #101828;
 @heading-color: @text-color;
-@text-color-secondary: #595959;
+@text-color-secondary: #556070;
 
 :root {
   --font-body: @font-family;
@@ -56,18 +59,33 @@
   --pa-light-orange: @pa-light-orange;
   --pa-yellow: @pa-yellow;
   --color-primary: @primary-color;
+  --color-primary-hover: @primary-color-hover;
+  --color-focus: @primary-color;
   --color-text: @text-color;
   --color-surface: #fff;
-  --color-paper: #f6f5f2;
-  --color-border: #dfdfdb;
+  --color-paper: #f4f6fa;
+  --color-border: #e2e6ee;
+  --color-border-strong: #c9d1dd;
   --color-muted: @text-color-secondary;
   --color-accent-text: #aa0059;
-  --color-dark: #101619;
-  --color-nav: #fafaf8;
-  --color-success: #08674c;
-  --color-success-soft: #e6f5ed;
+  --color-dark: #0f1a2e;
+  --color-nav: #f7f8fb;
+  --color-success: #077a52;
+  --color-success-soft: #e3f6ee;
   --color-error: #a62b30;
   --color-error-soft: #fff0ee;
+  --tone-blue: @primary-color;
+  --tone-blue-soft: #e8f0fe;
+  --tone-pink: @pa-magenta;
+  --tone-pink-soft: #fde8f2;
+  --tone-pink-on-dark: #ff5aa8;
+  --tone-green: #077a52;
+  --tone-green-soft: #e3f6ee;
+  --tone-yellow: #8a6a00;
+  --tone-yellow-soft: #fff6c7;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --shadow-card: 0 1px 2px #1018280a, 0 8px 24px #1018280a;
 }
 
 .ant-btn-primary:not(:disabled):hover,
@@ -99,3 +117,8 @@
     .ant-modal-close { top: 24px; right: 24px; }
   }
 }
+
+::selection { background: #0b6bf233; }
+
+// Painel de navegação mobile do layout da parceria; o NG-ZORRO o renderiza fora do host.
+.pa-nav-drawer .ant-drawer-body { padding: 0; background: var(--color-nav); }

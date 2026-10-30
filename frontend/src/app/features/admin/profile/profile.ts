@@ -1,3 +1,5 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -10,7 +12,15 @@ import { RbsProfilePreviewService, SponsorUser } from './profile-preview.service
 
 @Component({
   selector: 'app-rbs-profile',
-  imports: [AdminPartnershipShell, FormsModule, NzButtonModule, NzInputModule, NzModalModule],
+  imports: [
+    CardHeading,
+    NzIconModule,
+    AdminPartnershipShell,
+    FormsModule,
+    NzButtonModule,
+    NzInputModule,
+    NzModalModule,
+  ],
   templateUrl: './profile.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

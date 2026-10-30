@@ -27,6 +27,8 @@ Em 28/10/2026, as áreas usam sessão, dados e arquivos reais. Os IDs vêm da AP
 
 Escritas e dados internos seguem o papel e os contratos em [backend-api.md](../../docs/backend-api.md). A aparência PA27 permanece; as variações antigas convergem conforme os dados/capacidades. Não há um mapeamento de cores para contas de produção.
 
+Desde 30/10/2026 as telas autenticadas seguem o layout v2 (cabeçalho, barra lateral numerada com Entregas como 08, ajuda flutuante e cartões com ícone). Padrões e tokens: [DESIGN.md](../../DESIGN.md); contrato e verificação: [frontend-v2-design](../../openspec/changes/frontend-v2-design/).
+
 ## Histórico da pré-aprovação visual
 
 O inventário anterior registrava **43 páginas principais pré-aprovadas por Bryan** como interfaces demonstrativas, incluindo 19 versões do último lote. Os links históricos abaixo deixam de exibir exemplos e encaminham à seleção autorizada. Para uso atual, siga as rotas da tabela acima.

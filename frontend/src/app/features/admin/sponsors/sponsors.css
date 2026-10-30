@@ -4,49 +4,6 @@
   flex-direction: column;
   background: var(--color-paper);
 }
-.admin-header {
-  flex: 0 0 92px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 14px 20px;
-  background: var(--color-dark);
-  color: #fff;
-}
-.admin-header img {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-}
-.portal-brand {
-  width: 760px;
-  max-width: 54vw;
-  font-family: var(--font-brand);
-  font-size: 20px;
-  line-height: 24px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-.role-label {
-  color: inherit;
-  text-decoration: underline;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.notifications-button {
-  width: 120px;
-  flex-shrink: 0;
-}
-.exit-button {
-  width: 100px;
-  flex-shrink: 0;
-  padding-top: 11px !important;
-}
-.admin-header :focus-visible {
-  outline-color: var(--pa-pink);
-}
 main {
   min-height: 0;
   overflow-y: auto;
@@ -58,11 +15,6 @@ main {
 main > * {
   flex-shrink: 0;
 }
-.introduction {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 352px;
-  gap: 32px;
-}
 .heading-copy {
   display: flex;
   flex-direction: column;
@@ -70,36 +22,36 @@ main > * {
 }
 h1 {
   font-family: var(--font-display);
-  font-size: 48px;
-  line-height: 50px;
+  font-size: 70px;
+  line-height: 72px;
   font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 .intro-text {
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 19px;
+  line-height: 28px;
   color: var(--color-muted);
 }
-.festival-card {
-  padding: 24px;
-  border-radius: 12px;
-  background: linear-gradient(90deg, var(--pa-blue), var(--pa-green));
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.festival-stripe {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 608fr 335fr 203fr 132fr;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
 }
-.festival-card p {
-  font-family: var(--font-display);
-  font-size: 30px;
-  line-height: 34px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--color-dark);
+.festival-stripe span:nth-child(1) {
+  background: var(--pa-blue);
 }
-.checker {
-  width: 96px;
-  height: 8px;
-  background: repeating-linear-gradient(90deg, var(--color-text) 0 12px, #fff 12px 24px);
+.festival-stripe span:nth-child(2) {
+  background: var(--pa-green);
+}
+.festival-stripe span:nth-child(3) {
+  background: var(--pa-magenta);
+}
+.festival-stripe span:nth-child(4) {
+  background: var(--pa-yellow);
 }
 .search-and-register {
   display: flex;
@@ -189,8 +141,9 @@ h1 {
 .table-scroll {
   overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: #fff;
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
 }
 table {
   width: 100%;
@@ -257,13 +210,6 @@ td {
 .received {
   color: var(--color-success);
 }
-.open-button {
-  width: 180px;
-}
-a.open-button,
-a.open-result {
-  padding-top: 11px !important;
-}
 .preview-note {
   font-size: 12px;
   line-height: 18px;
@@ -314,7 +260,7 @@ a.open-result {
   color: inherit;
 }
 .table-scroll:focus-visible {
-  outline: 2px solid var(--color-accent-text);
+  outline: 2px solid var(--color-focus);
   outline-offset: 3px;
 }
 .skip-link {
@@ -343,12 +289,6 @@ a.open-result {
   main {
     padding: 24px;
   }
-  .portal-brand {
-    flex: 1;
-  }
-  .introduction {
-    grid-template-columns: minmax(0, 1fr) 300px;
-  }
   table {
     min-width: 840px;
   }
@@ -358,34 +298,17 @@ a.open-result {
     height: auto;
     min-height: 100svh;
   }
-  .admin-header {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .admin-header img {
-    width: 48px;
-    height: 48px;
-  }
-  .portal-brand {
-    max-width: none;
-    font-size: 14px;
-    line-height: 18px;
-    flex-basis: calc(100% - 72px);
-  }
-  .role-label {
-    flex: 1;
-  }
   main {
     padding: 24px 16px;
     overflow: visible;
   }
-  .introduction {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
   h1 {
-    font-size: 36px;
-    line-height: 38px;
+    font-size: 40px;
+    line-height: 42px;
+  }
+  .intro-text {
+    font-size: 16px;
+    line-height: 24px;
   }
   .search-and-register {
     flex-direction: column;

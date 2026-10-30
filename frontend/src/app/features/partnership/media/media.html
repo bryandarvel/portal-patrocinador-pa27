@@ -4,27 +4,16 @@
   description="Materiais, veiculações e comprovações reunidos no mesmo lugar."
   [pageUrl]="ctx.link('midia-e-conteudo')"
 >
-  <section
-    class="submission-status"
-    [class.is-closed]="!preview.submissionsOpen()"
-    aria-label="Disponibilidade de envio"
-    role="status"
-  >
-    <p>
-      {{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}
-    </p>
-    <p>
-      {{
-        preview.submissionsOpen()
-          ? 'Os materiais podem ser enviados ou substituídos.'
-          : 'A equipe RBS pode reabrir o envio para correção.'
-      }}
-    </p>
-  </section>
+  <app-submission-status [open]="preview.submissionsOpen()"> </app-submission-status>
 
   <div class="media-panels">
-    <section class="media-card" aria-labelledby="media-materials-title">
-      <h2 id="media-materials-title">Materiais e textos</h2>
+    <section class="pa-card media-card" aria-labelledby="media-materials-title">
+      <app-card-heading
+        icon="picture"
+        heading="Materiais e textos"
+        headingId="media-materials-title"
+        [description]="preview.currentFile() ? '' : 'Nenhum arquivo de mídia enviado.'"
+      />
       @if (preview.currentFile(); as file) {
         <button
           class="document-card"
@@ -32,15 +21,15 @@
           (click)="openDocument(file.name)"
           [attr.aria-label]="'Abrir ' + file.name"
         >
-          <span class="document-icon" aria-hidden="true">▤</span>
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
           <span class="document-description"
             ><strong>{{ file.name }}</strong
             ><span>Versão {{ file.version }} · Histórico disponível</span></span
           >
-          <span class="document-action" aria-hidden="true">Abrir →</span>
+          <span class="document-action" aria-hidden="true"
+            >Abrir <nz-icon nzType="right" aria-hidden="true"
+          /></span>
         </button>
-      } @else {
-        <p>Nenhum arquivo de mídia enviado.</p>
       }
       @if (preview.submissionsOpen()) {
         <button
@@ -49,23 +38,37 @@
           (click)="openUpload()"
           aria-label="Enviar arquivo de mídia"
         >
-          <span class="upload-arrow" aria-hidden="true">↑</span>
+          <nz-icon class="upload-arrow" nzType="cloud-upload" aria-hidden="true" />
           <strong>Enviar arquivo de mídia</strong>
           <span>Clique para selecionar um arquivo</span>
-        </button>
-        <button nz-button class="pill briefing-button" type="button" (click)="openBriefing()">
-          Enviar texto / briefing
         </button>
       } @else {
         <p>Envio encerrado</p>
       }
-      <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">
-        Histórico de versões
-      </button>
+      <div class="card-actions">
+        @if (preview.submissionsOpen()) {
+          <button
+            nz-button
+            class="pill primary-button briefing-button"
+            type="button"
+            (click)="openBriefing()"
+          >
+            <nz-icon nzType="file-text" aria-hidden="true" />Enviar texto / briefing
+          </button>
+        }
+        <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">
+          <nz-icon nzType="clock-circle" aria-hidden="true" />Histórico de versões
+        </button>
+      </div>
     </section>
 
-    <section class="media-card" aria-labelledby="media-publications-title">
-      <h2 id="media-publications-title">Publicações da RBS</h2>
+    <section class="pa-card media-card" aria-labelledby="media-publications-title">
+      <app-card-heading
+        icon="file-text"
+        tone="pink"
+        heading="Publicações da RBS"
+        headingId="media-publications-title"
+      />
       @for (publication of preview.publications(); track publication.id) {
         <div class="history-version">
           <strong>{{ publication.titulo }}</strong>
@@ -90,8 +93,13 @@
     </section>
   </div>
 
-  <section class="media-card" aria-labelledby="media-comparison-title">
-    <h2 id="media-comparison-title">Veiculações registradas</h2>
+  <section class="pa-card media-card" aria-labelledby="media-comparison-title">
+    <app-card-heading
+      icon="send"
+      tone="green"
+      heading="Veiculações registradas"
+      headingId="media-comparison-title"
+    />
     @if (preview.placements().length) {
       <table aria-labelledby="media-comparison-title">
         <thead>
@@ -143,7 +151,7 @@
       {{ dialogTitle() }}
     </h2></ng-template
   >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
       @if (dialog() === 'upload') {
@@ -157,7 +165,7 @@
         @if (selected(); as file) {
           <p>Confira o arquivo antes de continuar.</p>
           <div class="document-card selected-file" aria-label="Arquivo selecionado">
-            <span class="document-icon" aria-hidden="true">▤</span>
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
             <span class="document-description"
               ><strong>{{ file.name }}</strong
               ><span>Selecionado · pronto para enviar</span></span
@@ -167,7 +175,7 @@
           <div class="dialog-actions">
             <button
               nz-button
-              class="pill brand-button"
+              class="pill primary-button"
               type="button"
               (click)="send()"
               [disabled]="busy()"
@@ -186,7 +194,8 @@
             (click)="fileInput.click()"
             aria-label="Selecionar arquivo"
           >
-            <span class="upload-arrow" aria-hidden="true">↑</span><strong>Selecionar arquivo</strong
+            <nz-icon class="upload-arrow" nzType="cloud-upload" aria-hidden="true" /><strong
+              >Selecionar arquivo</strong
             ><span>Escolha o arquivo no seu dispositivo</span>
           </button>
           <button nz-button class="pill finish-button" type="button" (click)="cancel()">
@@ -200,12 +209,14 @@
       @if (dialog() === 'progress') {
         <p role="status">Aguarde enquanto o arquivo é enviado.</p>
         <div class="document-card selected-file">
-          <span class="document-icon" aria-hidden="true">▤</span>
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
           <span class="document-description"
             ><strong>{{ selected()?.name }}</strong
             ><span>Envio em andamento</span></span
           >
-          <span class="document-action" aria-disabled="true">Abrir →</span>
+          <span class="document-action" aria-disabled="true"
+            >Abrir <nz-icon nzType="right" aria-hidden="true"
+          /></span>
         </div>
       }
       @if (dialog() === 'received' || dialog() === 'saved' || dialog() === 'cancelled') {
@@ -219,7 +230,7 @@
         <span class="done-badge"
           ><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span
         >
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
           Concluir
         </button>
       }
@@ -256,7 +267,7 @@
           </div>
           <button
             nz-button
-            class="pill dark-button send-text-button"
+            class="pill primary-button send-text-button"
             type="submit"
             [disabled]="busy()"
           >
@@ -281,7 +292,7 @@
         @if (!preview.versions().length) {
           <p>Nenhuma versão enviada.</p>
         }
-        <button nz-button class="pill dark-button finish-button" type="button" (click)="close()">
+        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
           Concluir
         </button>
       }
@@ -293,7 +304,7 @@
         </div>
         <button
           nz-button
-          class="pill dark-button download-button"
+          class="pill primary-button download-button"
           type="button"
           (click)="download()"
         >

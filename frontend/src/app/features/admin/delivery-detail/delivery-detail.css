@@ -1,36 +1,3 @@
-.back-button {
-  width: 173px;
-}
-.analysis-button {
-  width: 127px;
-}
-.approve-button {
-  width: 145px;
-}
-.adjust-button {
-  width: 134px;
-}
-.execution-button {
-  width: 143px;
-}
-.realize-button {
-  width: 165px;
-}
-.add-proof-button {
-  width: 189px;
-}
-.view-proof-button {
-  width: 191px;
-}
-.request-button {
-  width: 151px;
-}
-.confirm-realize-button {
-  width: 171px;
-}
-.publish-proof-button {
-  width: 181px;
-}
 .proof-form,
 .proof-field {
   width: 100%;

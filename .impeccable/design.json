@@ -1,147 +1,272 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-02T03:24:21Z",
+  "generatedAt": "2026-10-30T18:37:09Z",
   "title": "Design System: Portal do Patrocinador",
   "extensions": {
     "colorMeta": {
       "primary": {
         "role": "primary",
+        "displayName": "Azul de ação",
+        "canonical": "#0b6bf2"
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Azul de ação (hover)",
+        "canonical": "#0a60da"
+      },
+      "magenta": {
+        "role": "secondary",
         "displayName": "Magenta PA27",
         "canonical": "#e2047d"
       },
-      "pink": {
+      "magenta-on-dark": {
         "role": "secondary",
-        "displayName": "Rosa PA27",
-        "canonical": "#ff8bda"
+        "displayName": "Magenta sobre marinho",
+        "canonical": "#ff5aa8"
       },
-      "blue": {
+      "pa-blue": {
         "role": "secondary",
         "displayName": "Azul PA27",
         "canonical": "#009ee5"
       },
-      "green": {
+      "pa-green": {
         "role": "secondary",
         "displayName": "Verde PA27",
         "canonical": "#06a883"
       },
-      "orange": {
-        "role": "secondary",
-        "displayName": "Laranja PA27",
-        "canonical": "#e84f15"
-      },
-      "light-orange": {
-        "role": "secondary",
-        "displayName": "Laranja claro PA27",
-        "canonical": "#ff8617"
-      },
-      "yellow": {
+      "pa-yellow": {
         "role": "secondary",
         "displayName": "Amarelo PA27",
         "canonical": "#ffde03"
       },
+      "pa-pink": {
+        "role": "secondary",
+        "displayName": "Rosa PA27",
+        "canonical": "#ff8bda"
+      },
       "text": {
         "role": "neutral",
-        "displayName": "Carvão",
-        "canonical": "#242424"
+        "displayName": "Tinta",
+        "canonical": "#101828"
       },
       "text-secondary": {
         "role": "neutral",
         "displayName": "Cinza de leitura",
-        "canonical": "#595959"
-      },
-      "placeholder": {
-        "role": "neutral",
-        "displayName": "Cinza de placeholder",
-        "canonical": "#686868"
+        "canonical": "#556070"
       },
       "surface": {
         "role": "neutral",
         "displayName": "Branco",
         "canonical": "#ffffff"
       },
-      "photo-base": {
+      "paper": {
         "role": "neutral",
-        "displayName": "Azul-marinho fotográfico",
-        "canonical": "#071a23"
+        "displayName": "Papel",
+        "canonical": "#f4f6fa"
+      },
+      "nav": {
+        "role": "neutral",
+        "displayName": "Fundo da navegação",
+        "canonical": "#f7f8fb"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Borda",
+        "canonical": "#e2e6ee"
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "Borda forte",
+        "canonical": "#c9d1dd"
+      },
+      "dark": {
+        "role": "neutral",
+        "displayName": "Marinho",
+        "canonical": "#0f1a2e"
+      },
+      "header-base": {
+        "role": "neutral",
+        "displayName": "Base do cabeçalho",
+        "canonical": "#0a1326"
+      },
+      "success": {
+        "role": "success",
+        "displayName": "Verde de sucesso",
+        "canonical": "#077a52"
+      },
+      "success-soft": {
+        "role": "success",
+        "displayName": "Fundo de sucesso",
+        "canonical": "#e3f6ee"
       },
       "error": {
         "role": "error",
         "displayName": "Vermelho de erro",
-        "canonical": "#b42318"
+        "canonical": "#a62b30"
+      },
+      "error-soft": {
+        "role": "error",
+        "displayName": "Fundo de erro",
+        "canonical": "#fff0ee"
+      },
+      "tone-blue-soft": {
+        "role": "neutral",
+        "displayName": "Quadrado azul",
+        "canonical": "#e8f0fe"
+      },
+      "tone-pink-soft": {
+        "role": "neutral",
+        "displayName": "Quadrado rosa",
+        "canonical": "#fde8f2"
       }
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Frase sobre a fotografia",
-        "purpose": "Destaque visual no painel do festival."
+        "displayName": "Título da página",
+        "purpose": "Nome da área, em caixa alta."
       },
-      "headline": {
-        "displayName": "Título de acesso",
-        "purpose": "Título principal do formulário."
+      "card-title": {
+        "displayName": "Título do cartão",
+        "purpose": "Cabeçalho de cada cartão de seção."
+      },
+      "brand": {
+        "displayName": "Marca do portal",
+        "purpose": "Portal do Patrocinador no cabeçalho."
       },
       "body": {
-        "displayName": "Texto de apoio",
-        "purpose": "Introdução e orientação do formulário."
+        "displayName": "Texto",
+        "purpose": "Descrições, estados vazios e leitura."
       },
       "label": {
         "displayName": "Rótulo e ação",
-        "purpose": "Rótulos de campo e controles do formulário."
+        "purpose": "Botões, navegação e rótulos."
+      },
+      "trail": {
+        "displayName": "Trilha",
+        "purpose": "Parceria / nome / edição acima do título."
       }
     },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px #1018280a, 0 8px 24px #1018280a",
+        "purpose": "Cartões e controles da barra lateral."
+      },
+      {
+        "name": "primary",
+        "value": "0 6px 16px #0b6bf238",
+        "purpose": "Botão primário azul."
+      },
+      {
+        "name": "nav-active",
+        "value": "0 6px 16px #0f1a2e33",
+        "purpose": "Item ativo da navegação."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Hover de navegação e botões do cabeçalho, 200ms."
+      }
+    ],
     "breakpoints": [
+      {
+        "name": "compact",
+        "value": "1199px"
+      },
+      {
+        "name": "drawer",
+        "value": "959px"
+      },
       {
         "name": "mobile",
         "value": "760px"
       },
       {
-        "name": "compact-height",
-        "value": "700px"
+        "name": "narrow",
+        "value": "420px"
       }
     ]
   },
   "components": [
     {
-      "name": "Ação principal",
+      "name": "Botão primário",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Envio do formulário de acesso, em largura total.",
-      "html": "<button class=\"ds-primary-button\" type=\"button\">Entrar no portal</button>",
-      "css": ".ds-primary-button { width: 100%; height: 50px; display: inline-flex; align-items: center; justify-content: center; background: var(--color-primary); color: #fff; border: 1px solid var(--color-primary); border-radius: 8px; font: 600 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; cursor: pointer; } .ds-primary-button:hover { background: #c9046f; border-color: #c9046f; } .ds-primary-button:active { background: #b00361; border-color: #b00361; } .ds-primary-button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }"
+      "description": "Ação principal do bloco, com ícone opcional.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Enviar texto / briefing</button>",
+      "css": ".ds-btn-primary{height:48px;padding:0 22px;border:1px solid #0b6bf2;border-radius:999px;background:#0b6bf2;color:#fff;font:500 15px/20px Roboto,Arial,sans-serif;box-shadow:0 6px 16px #0b6bf238;cursor:pointer;transition:background-color .2s}.ds-btn-primary:hover{background:#0a60da;border-color:#0a60da}.ds-btn-primary:focus-visible{outline:2px solid #0b6bf2;outline-offset:3px}"
     },
     {
-      "name": "Campo de e-mail",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Campo claro com rótulo visível e orientação curta.",
-      "html": "<label class=\"ds-email-field\"><span class=\"ds-email-label\">E-mail</span><input class=\"ds-email-input\" type=\"email\" placeholder=\"voce@empresa.com.br\" /></label>",
-      "css": ".ds-email-field { display: grid; gap: 8px; color: #242424; font: 500 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; } .ds-email-input { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 8px; background: #fff; color: #242424; font: 400 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; } .ds-email-input::placeholder { color: #686868; } .ds-email-input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }"
+      "name": "Botão secundário",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Demais ações do bloco.",
+      "html": "<button class=\"ds-btn\" type=\"button\">Histórico de versões</button>",
+      "css": ".ds-btn{height:48px;padding:0 22px;border:1px solid #e2e6ee;border-radius:999px;background:#fff;color:#101828;font:500 15px/20px Roboto,Arial,sans-serif;box-shadow:0 1px 2px #1018280d;cursor:pointer;transition:border-color .2s,background-color .2s}.ds-btn:hover{border-color:#c9d1dd;background:#f8fafc}.ds-btn:focus-visible{outline:2px solid #0b6bf2;outline-offset:3px}"
+    },
+    {
+      "name": "Cartão com cabeçalho de ícone",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Seção de conteúdo: app-card-heading dentro de .pa-card.",
+      "html": "<section class=\"ds-card\"><div class=\"ds-head\"><span class=\"ds-tile\"><svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"m3 16 5-5 4 4 3-3 6 6\"/></svg></span><div><h2>Materiais e textos</h2><p>Nenhum arquivo de mídia enviado.</p></div></div></section>",
+      "css": ".ds-card{padding:28px;border:1px solid #e2e6ee;border-radius:16px;background:#fff;box-shadow:0 1px 2px #1018280a,0 8px 24px #1018280a}.ds-head{display:flex;gap:20px;align-items:flex-start}.ds-tile{flex:0 0 56px;height:56px;display:grid;place-items:center;border-radius:12px;background:#e8f0fe;color:#0b6bf2}.ds-head h2{margin:4px 0 6px;font:700 32px/36px 'Barlow Condensed','Arial Narrow',sans-serif;color:#101828}.ds-head p{margin:0;color:#556070;font:15px/22px Roboto,Arial,sans-serif}"
+    },
+    {
+      "name": "Item de navegação",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Área numerada da barra lateral; ativa em marinho com número magenta.",
+      "html": "<a class=\"ds-nav ds-active\" href=\"#\"><span class=\"ds-n\">03</span>Mídia e conteúdo</a><a class=\"ds-nav\" href=\"#\"><span class=\"ds-n\">04</span>Cortesias</a>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:16px;min-height:52px;padding:12px 14px;border-radius:10px;color:#101828;font:500 16px/24px Roboto,Arial,sans-serif;text-decoration:none;transition:background-color .2s cubic-bezier(.16,1,.3,1)}.ds-nav:hover{background:#e9edf4}.ds-n{width:22px;color:#556070;font-size:15px;font-weight:400}.ds-active{background:#0f1a2e;color:#fff;box-shadow:0 6px 16px #0f1a2e33}.ds-active .ds-n{color:#ff5aa8}.ds-nav:focus-visible{outline:2px solid #0b6bf2;outline-offset:2px}"
+    },
+    {
+      "name": "Selo da cota",
+      "kind": "chip",
+      "refersTo": "quota-tag",
+      "description": "Cota da parceria na identidade lateral.",
+      "html": "<span class=\"ds-quota\">Cota Master</span>",
+      "css": ".ds-quota{display:inline-block;padding:2px 12px;border-radius:999px;background:#ffde03;color:#101828;font:700 12px/18px Roboto,Arial,sans-serif;text-transform:uppercase}"
+    },
+    {
+      "name": "Faixa de envio",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "app-submission-status: disponibilidade de envio da área.",
+      "html": "<div class=\"ds-status\"><span class=\"ds-ico\"><svg viewBox=\"0 0 24 24\" width=\"28\" height=\"28\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M4 12 20 4l-4 16-4-7-8-1Z\"/></svg></span><div><p class=\"ds-t\">Envio de materiais aberto</p><p>Os materiais podem ser enviados ou substituídos.</p></div></div>",
+      "css": ".ds-status{display:flex;align-items:center;gap:24px;padding:20px 28px 20px 24px;border:1px solid #e2e6ee;border-radius:16px;background:linear-gradient(90deg,#f4fbf8,#fff 55%)}.ds-ico{flex:0 0 64px;height:64px;display:grid;place-items:center;border-radius:50%;background:#e3f6ee;color:#077a52}.ds-status p{margin:0;color:#556070;font:16px/24px Roboto,Arial,sans-serif}.ds-status .ds-t{color:#077a52;font-size:19px;font-weight:700}"
     }
   ],
   "narrative": {
-    "northStar": "A energia do festival, com acesso simples.",
-    "overview": "A identidade oficial Planeta Atlântida 2027 combina fotografia de palco e fogos com a marca original. A tela de entrada usa essa energia no painel visual e mantém o formulário claro, legível e direto. A tipografia segue a pilha de sistema usada pelo NG-ZORRO. As imagens vêm do material PA27 fornecido para o desafio; a fotografia ilustra a identidade visual e não deve ser apresentada como registro de uma edição futura. Esta documentação descreve a superfície de login implementada; autenticação real ainda não está integrada.",
+    "northStar": "A energia do festival na moldura, a tarefa no centro.",
+    "overview": "O portal é uma ferramenta de operação. Patrocinadores e equipe RBS entram para enviar materiais, acompanhar entregas e conferir documentos. A identidade Planeta Atlântida 2027 fica na moldura: cabeçalho marinho com luz azul e magenta, faixa de quatro cores sob o título e números magenta na navegação. O conteúdo fica em cartões brancos, claros e previsíveis.\n\nA referência v2 aprovada em 30/10/2026 é a tela \"Mídia e conteúdo\" do Admin RBS; toda tela autenticada segue o mesmo layout. O login mantém a composição fotográfica própria, descrita em Components. Contrato da mudança: `openspec/changes/frontend-v2-design/`.",
     "keyCharacteristics": [
-      "Marca e fotografia oficiais PA27.",
-      "Magenta na ação principal; campos claros e texto escuro.",
-      "Composição dividida no desktop e cabeçalho compacto em telas estreitas.",
-      "Carrossel de três fotos PA27: dissolução de 500ms a cada 3s, zoom de 3%, apenas três indicadores clicáveis. Movimento reduzido elimina autoplay e animação; foco, hover e aba oculta suspendem rotação. Tela cheia em 57%/43%, faixas diagonais coloridas nas bordas da foto, marca acima do formulário no desktop e título centralizado. Painel direito branco; cabeçalho móvel mínimo de 116px, sem marca duplicada do acesso."
+      "Um layout para os dois perfis: cabeçalho, barra lateral numerada e conteúdo.",
+      "Ação principal azul; magenta só como destaque da identidade.",
+      "Títulos condensados em caixa alta; texto em Roboto.",
+      "Cartões brancos com quadrado de ícone colorido no cabeçalho.",
+      "Ícones de linha do NG-ZORRO (Ant Design outline), nunca glifos Unicode."
     ],
     "rules": [
       {
-        "name": "A Regra da Origem Visual",
-        "body": "Preserve a marca PA27 e trate a fotografia como imagem ilustrativa do material fornecido.",
+        "name": "The Blue Action Rule",
+        "body": "Só a ação principal de cada bloco é azul cheia; as demais são pílulas brancas.",
         "section": "colors"
       }
     ],
     "dos": [
-      "Do preserve a marca e a paleta oficial PA27.",
-      "Do manter contraste alto entre formulário branco, texto escuro e ação magenta.",
-      "Do manter foco visível, rótulos e mensagens de erro próximos aos campos."
+      "**Do** usar `app-card-heading`, `app-submission-status` e `.pa-card` em toda seção nova.",
+      "**Do** deixar a largura dos botões vir do conteúdo; sem `width` fixa.",
+      "**Do** manter cada área com o mesmo ícone na navegação e no cabeçalho dos cartões relacionados.",
+      "**Do** conferir contraste mínimo de 4,5:1 para texto e 3:1 para ícones."
     ],
     "donts": [
-      "Don't apresentar a fotografia como registro da edição de 2027.",
-      "Don't sugerir que o login já autentica ou concede acesso.",
-      "Don't acrescentar cadastro ou recuperação de senha com destinos ainda inexistentes."
+      "**Don't** usar magenta como cor de ação; ele é destaque da identidade.",
+      "**Don't** redefinir borda, raio ou sombra de cartão no CSS da tela.",
+      "**Don't** usar glifos (▤, ↑, →, ×) como ícone.",
+      "**Don't** apresentar a fotografia do login como registro da edição de 2027."
     ]
   }
 }

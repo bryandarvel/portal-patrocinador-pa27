@@ -1,3 +1,4 @@
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import {
   afterNextRender,
   Component,
@@ -40,7 +41,7 @@ type MaterialArea = keyof typeof AREAS;
 
 @Component({
   selector: 'app-client-material',
-  imports: [AdminPartnershipShell, NzButtonModule, NzModalModule],
+  imports: [NzIconModule, AdminPartnershipShell, NzButtonModule, NzModalModule],
   templateUrl: './client-material.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

@@ -1,3 +1,6 @@
+import { CardHeading } from '../shared/card-heading';
+import { SubmissionStatus } from '../shared/submission-status';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { DatePipe } from '@angular/common';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,6 +28,9 @@ type MediaDialog =
 @Component({
   selector: 'app-partnership-media',
   imports: [
+    CardHeading,
+    SubmissionStatus,
+    NzIconModule,
     PartnershipShell,
     NzButtonModule,
     NzInputModule,

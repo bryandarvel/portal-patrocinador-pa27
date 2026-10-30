@@ -12,22 +12,6 @@
   width: 240px;
   flex: 0 0 240px;
 }
-.brand-button {
-  background: var(--pa-magenta);
-  border-color: var(--pa-magenta);
-  color: #fff;
-}
-.brand-button:not(:disabled):hover {
-  background: #bf0068;
-  border-color: #bf0068;
-  color: #fff;
-}
-.brand-button:disabled {
-  background: #e9e8e4;
-  border-color: #e9e8e4;
-  color: var(--color-muted);
-  cursor: not-allowed;
-}
 .category-actions {
   display: flex;
   align-items: flex-start;

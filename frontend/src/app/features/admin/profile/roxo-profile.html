@@ -5,8 +5,12 @@
   [description]="'Cliente ' + clientName + ' · Informações e materiais desta parceria.'"
 >
   <div class="roxo-profile-panels">
-    <section class="profile-card" aria-labelledby="roxo-partnership-title">
-      <h2 id="roxo-partnership-title">Dados da parceria</h2>
+    <section class="pa-card profile-card" aria-labelledby="roxo-partnership-title">
+      <app-card-heading
+        icon="user"
+        heading="Dados da parceria"
+        headingId="roxo-partnership-title"
+      />
       <form #profileForm class="profile-form" [formGroup]="form" (ngSubmit)="save()">
         <div class="profile-field">
           <label for="roxo-sponsor-name">Patrocinador</label>
@@ -55,13 +59,21 @@
             <p id="roxo-email-error" class="field-error" role="alert">Informe um e-mail válido.</p>
           }
         </div>
-        <button nz-button type="submit" class="pill dark-button save-button">
+        <button nz-button type="submit" class="pill primary-button save-button">
           Salvar alterações
         </button>
       </form>
     </section>
-    <section class="profile-card commercial-documents" aria-labelledby="roxo-documents-title">
-      <h2 id="roxo-documents-title">Documentos comerciais</h2>
+    <section
+      class="pa-card profile-card commercial-documents"
+      aria-labelledby="roxo-documents-title"
+    >
+      <app-card-heading
+        icon="file-text"
+        tone="pink"
+        heading="Documentos comerciais"
+        headingId="roxo-documents-title"
+      />
       @if (preview.publicationConfirmed()) {
         <button
           type="button"
@@ -69,11 +81,13 @@
           [attr.aria-label]="'Abrir ' + preview.exampleName"
           (click)="openDocument()"
         >
-          <span class="document-icon" aria-hidden="true">▤</span
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
           ><span class="document-description"
             ><strong>{{ preview.exampleName }}</strong
             ><span>Publicado para {{ preview.profile().name }}</span></span
-          ><span class="document-action" aria-hidden="true">Abrir →</span>
+          ><span class="document-action" aria-hidden="true"
+            >Abrir <nz-icon nzType="right" aria-hidden="true"
+          /></span>
         </button>
       } @else {
         <p>Nenhum documento comercial foi disponibilizado.</p>
@@ -84,8 +98,8 @@
     </section>
   </div>
   <p class="preview-note">
-    Prévia RBS do Cliente {{ clientName }}. Dados e publicação do exemplo ficam em memória, sem alterar contas,
-    permissões ou arquivos reais. Recarregar restaura o estado inicial.
+    Prévia RBS do Cliente {{ clientName }}. Dados e publicação do exemplo ficam em memória, sem
+    alterar contas, permissões ou arquivos reais. Recarregar restaura o estado inicial.
   </p>
 </app-admin-partnership-shell>
 
@@ -116,16 +130,18 @@
             Voltar
           </button>
           <div class="document-card selected-file">
-            <span class="document-icon" aria-hidden="true">▤</span
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
             ><span class="document-description"
               ><strong>{{ preview.exampleName }}</strong
               ><span>Selecionado para {{ preview.profile().name }}</span></span
-            ><span class="document-action" aria-hidden="true">Abrir →</span>
+            ><span class="document-action" aria-hidden="true"
+              >Abrir <nz-icon nzType="right" aria-hidden="true"
+            /></span>
           </div>
           <button
             nz-button
             type="button"
-            class="pill dark-button publish-confirm"
+            class="pill primary-button publish-confirm"
             (click)="publish()"
           >
             Salvar para esta parceria

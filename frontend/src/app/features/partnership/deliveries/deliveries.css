@@ -7,9 +7,8 @@
 .delivery-status { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 280px)); gap: 24px; margin: 0; }
 .delivery-status div { display: flex; flex-direction: column; gap: 4px; }
 .delivery-status dd { margin: 0; font-size: 14px; line-height: 20px; font-weight: 500; }
-.follow-button { width: 182px; }
 .featured-delivery :focus-visible { outline-color: var(--pa-pink); }
-.delivery-summary { align-self: start; display: flex; flex-direction: column; gap: 16px; padding: 24px; border-radius: 12px; background: #fff; color: var(--color-text); }
+.delivery-summary { align-self: start; }
 .delivery-summary h2 { text-transform: uppercase; }
 .delivery-totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; }
 .delivery-totals div { display: flex; flex-direction: column; gap: 4px; }
@@ -23,9 +22,6 @@
 .delivery-card { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 24px; border: 1px solid var(--color-border); border-radius: 12px; background: #fff; color: var(--color-muted); font-size: 14px; line-height: 20px; }
 .status-badge { width: 212px; max-width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 999px; background: var(--delivery-amber-soft); color: var(--delivery-amber); font-size: 12px; line-height: 18px; }
 .status-badge.done { background: var(--color-success-soft); color: var(--color-success); }
-.area-button { width: 102px; }
-/* Mantém o alinhamento apesar do padding-top !important de a.ant-btn. */
-a.pill { padding-top: 11px !important; }
 .material-pending { display: flex; align-items: flex-start; gap: 24px; padding: 20px; border-radius: 8px; background: var(--color-error-soft); color: var(--color-error); font-size: 14px; line-height: 20px; }
 .material-pending > div { flex: 1; }
 .material-pending h3 { margin-bottom: 4px; color: inherit; font-size: 14px; line-height: 20px; font-weight: 500; }
@@ -39,7 +35,6 @@ a.pill { padding-top: 11px !important; }
   .featured-delivery { padding: 24px; gap: 24px; }
   .featured-content h2 { font-size: 36px; line-height: 38px; }
   .delivery-areas { grid-template-columns: 1fr; }
-  .delivery-summary { padding: 20px; }
   .delivery-totals { gap: 8px; }
   .material-pending { flex-direction: column; gap: 16px; }
 }

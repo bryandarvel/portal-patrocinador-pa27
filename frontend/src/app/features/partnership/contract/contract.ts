@@ -1,3 +1,5 @@
+import { CardHeading } from '../shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -10,7 +12,15 @@ import { labelPartnershipDialog } from '../shared/modal-accessibility';
 
 @Component({
   selector: 'app-partnership-contract',
-  imports: [PartnershipShell, FormsModule, DatePipe, NzButtonModule, NzModalModule],
+  imports: [
+    CardHeading,
+    NzIconModule,
+    PartnershipShell,
+    FormsModule,
+    DatePipe,
+    NzButtonModule,
+    NzModalModule,
+  ],
   templateUrl: './contract.html',
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './contract.css'],
 })

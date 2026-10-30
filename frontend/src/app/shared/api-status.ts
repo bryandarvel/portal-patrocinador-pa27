@@ -25,16 +25,19 @@ import { PortalApi } from '../core/portal-api.service';
     }
     .api-loading,
     .api-notice {
+      margin: 0;
       padding: 12px 16px;
-      background: #f4f4f4;
-      border-radius: 8px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-control);
+      background: var(--color-surface);
+      color: var(--color-muted);
     }
     .api-error {
       padding: 12px 16px;
       background: #fff0ed;
       color: #8c2216;
       border: 1px solid #b42318;
-      border-radius: 8px;
+      border-radius: var(--radius-control);
       margin: 12px 0;
     }
     .api-error p {
@@ -43,7 +46,7 @@ import { PortalApi } from '../core/portal-api.service';
     .api-error button {
       font: inherit;
       border: 1px solid currentColor;
-      border-radius: 4px;
+      border-radius: 999px;
       background: white;
       color: inherit;
       min-height: 36px;

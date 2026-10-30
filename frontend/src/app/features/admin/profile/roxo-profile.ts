@@ -1,3 +1,5 @@
+import { CardHeading } from '../../partnership/shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import {
   afterNextRender,
   Component,
@@ -15,11 +17,17 @@ import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 import { ActivatedRoute } from '@angular/router';
-import { CLIENT_NAMES, ClientPreviewService, previewClientId } from '../shared/client-preview.service';
+import {
+  CLIENT_NAMES,
+  ClientPreviewService,
+  previewClientId,
+} from '../shared/client-preview.service';
 
 @Component({
   selector: 'app-rbs-roxo-profile',
   imports: [
+    CardHeading,
+    NzIconModule,
     AdminPartnershipShell,
     ReactiveFormsModule,
     NzButtonModule,
@@ -74,10 +82,11 @@ export class RbsRoxoProfile {
   save(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
-      const firstInvalid = (Object.keys(this.form.controls) as (keyof typeof this.form.controls)[])
-        .find((field) => this.form.controls[field].invalid);
-      this.profileForm()?.nativeElement
-        .querySelector<HTMLElement>(`[formControlName="${firstInvalid}"]`)
+      const firstInvalid = (
+        Object.keys(this.form.controls) as (keyof typeof this.form.controls)[]
+      ).find((field) => this.form.controls[field].invalid);
+      this.profileForm()
+        ?.nativeElement.querySelector<HTMLElement>(`[formControlName="${firstInvalid}"]`)
         ?.focus();
       return;
     }

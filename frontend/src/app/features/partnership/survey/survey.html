@@ -4,27 +4,15 @@
   description="Perguntas personalizadas e resultados da pesquisa da ativação."
   [pageUrl]="ctx.link('pesquisa-da-ativacao')"
 >
-  <section
-    class="submission-status"
-    aria-label="Disponibilidade de envio"
-    [class.is-closed]="!preview.submissionsOpen()"
-    role="status"
-  >
-    <p>
-      {{ preview.submissionsOpen() ? 'Envio de materiais aberto' : 'Envio encerrado pela RBS' }}
-    </p>
-    <p>
-      {{
-        preview.submissionsOpen()
-          ? 'Os materiais podem ser enviados ou substituídos.'
-          : 'A equipe RBS pode reabrir o envio para correção.'
-      }}
-    </p>
-  </section>
+  <app-submission-status [open]="preview.submissionsOpen()"> </app-submission-status>
 
   <div class="survey-panels">
-    <section class="survey-card" aria-labelledby="survey-questions-title">
-      <h2 id="survey-questions-title">Perguntas personalizadas</h2>
+    <section class="pa-card survey-card" aria-labelledby="survey-questions-title">
+      <app-card-heading
+        icon="bar-chart"
+        heading="Perguntas personalizadas"
+        headingId="survey-questions-title"
+      />
       <p id="survey-questions-help">Envie de uma a três perguntas para a pesquisa da ativação.</p>
       <form
         [formGroup]="form"
@@ -78,7 +66,7 @@
         @if (preview.submissionsOpen()) {
           <button
             nz-button
-            class="pill dark-button send-questions-button"
+            class="pill primary-button send-questions-button"
             type="submit"
             [disabled]="busy()"
           >
@@ -87,8 +75,13 @@
         }
       </form>
     </section>
-    <section class="survey-card" aria-labelledby="survey-results-title">
-      <h2 id="survey-results-title">Resultados da pesquisa</h2>
+    <section class="pa-card survey-card" aria-labelledby="survey-results-title">
+      <app-card-heading
+        icon="bar-chart"
+        tone="green"
+        heading="Resultados da pesquisa"
+        headingId="survey-results-title"
+      />
       @if (preview.resultsPublished()) {
         <button
           class="document-card"
@@ -96,11 +89,11 @@
           (click)="documentOpen.set(true)"
           aria-label="Abrir Resultados da ativação"
         >
-          <span class="document-icon" aria-hidden="true">▤</span
+          <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
           ><span class="document-description"
             ><strong>{{ preview.resultsFileName() }}</strong
             ><span>Arquivo publicado pela RBS</span></span
-          ><span class="document-action">Abrir →</span>
+          ><span class="document-action">Abrir <nz-icon nzType="right" aria-hidden="true" /></span>
         </button>
       } @else {
         <p>A RBS ainda não disponibilizou os resultados desta parceria.</p>
@@ -127,7 +120,7 @@
       {{ documentOpen() ? 'Documento da parceria' : 'Perguntas enviadas' }}
     </h2></ng-template
   >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
       @if (documentOpen()) {
@@ -138,7 +131,7 @@
         </div>
         <button
           nz-button
-          class="pill dark-button download-button"
+          class="pill primary-button download-button"
           type="button"
           (click)="download()"
         >
@@ -158,7 +151,7 @@
         >
         <button
           nz-button
-          class="pill dark-button finish-button"
+          class="pill primary-button finish-button"
           type="button"
           (click)="closeDialog()"
         >

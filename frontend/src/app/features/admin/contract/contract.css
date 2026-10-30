@@ -1,4 +1,4 @@
 .correction-button { width: 197px; max-width: 100%; }
 .signed-button { width: 207px; max-width: 100%; }
-.publish-button { width: 142px; }
-.example-file { cursor: default; }.example-file:hover { border-color: var(--color-border); }
+.example-file { cursor: default; }
+.example-file:hover { border-color: var(--color-border); }

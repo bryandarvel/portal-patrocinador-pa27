@@ -6,8 +6,10 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { AuthService, SessionStore } from '../../../core/session.service';
 import { PortalApi } from '../../../core/portal-api.service';
 import { ApiStatus } from '../../../shared/api-status';
+import { PortalHeader } from '../../../shared/portal-header';
 
-const accountStyles = `:host{display:block;min-height:100svh;background:var(--color-surface,#fff);padding:clamp(24px,6vw,80px)}main{max-width:680px;margin:auto}h1{margin-bottom:24px}input{display:block;margin:12px 0 24px;max-width:440px}button,a{margin:8px 12px 8px 0}img{max-width:240px;width:100%;height:auto}code{display:block;overflow-wrap:anywhere;padding:12px;background:#f3f3f3}label{display:block}`;
+// Telas avulsas da conta: mesmo cabeçalho e cartão do portal (tokens em src/styles.less).
+const accountStyles = `:host{display:flex;flex-direction:column;min-height:100svh;background:var(--color-paper);color:var(--color-text)}main{width:min(680px,calc(100% - 32px));margin:clamp(24px,6vw,64px) auto;padding:clamp(20px,4vw,36px);border:1px solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}h1{margin:0 0 24px;font-family:var(--font-display);font-size:clamp(36px,5vw,48px);line-height:1.05;font-weight:700;text-transform:uppercase}h2{margin:32px 0 8px;font-family:var(--font-display);font-size:28px;line-height:32px;font-weight:700}p{color:var(--color-muted);font-size:15px;line-height:22px}input{display:block;margin:12px 0 24px;max-width:440px}.ant-btn{height:48px;margin:8px 12px 8px 0;padding:0 22px;border-radius:999px;font-weight:500}a.ant-btn{display:inline-flex;align-items:center}img{max-width:240px;width:100%;height:auto}code{display:block;overflow-wrap:anywhere;padding:12px;border-radius:8px;background:var(--color-paper)}label{display:block}:focus-visible{outline:2px solid var(--color-focus);outline-offset:3px}`;
 
 @Component({
   imports: [NzButtonModule, ApiStatus],
@@ -45,50 +47,58 @@ export class VerifyAccount {
 }
 
 @Component({
-  imports: [RouterLink, NzButtonModule, NzInputModule, ReactiveFormsModule, ApiStatus],
-  template: `<main>
-    <h1>Minha conta</h1>
-    <app-api-status />
-    <p>{{ session.user()?.nome }}</p>
-    <p>{{ session.user()?.email }}</p>
-    <h2>Autenticação em duas etapas</h2>
-    @if (!configured()) {
-      <p>Associe sua conta a um aplicativo autenticador.</p>
-      <button nz-button type="button" [disabled]="api.pending() > 0" (click)="setup()">
-        Configurar autenticador
-      </button>
-    }
-    @if (qr()) {
-      <img [src]="qr()" alt="QR Code para configurar seu autenticador" /><label
-        >Chave para configuração manual</label
-      ><code>{{ secret() }}</code>
-      <form (submit)="$event.preventDefault(); confirm()">
-        <label for="account-otp">Código do autenticador</label
-        ><input
-          nz-input
-          id="account-otp"
-          [formControl]="code"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          maxlength="6"
-        /><button
-          nz-button
-          nzType="primary"
-          type="submit"
-          [disabled]="api.pending() > 0 || code.invalid"
-        >
-          Ativar autenticação em duas etapas
+  imports: [
+    RouterLink,
+    NzButtonModule,
+    NzInputModule,
+    ReactiveFormsModule,
+    ApiStatus,
+    PortalHeader,
+  ],
+  template: `<app-portal-header />
+    <main>
+      <h1>Minha conta</h1>
+      <app-api-status />
+      <p>{{ session.user()?.nome }}</p>
+      <p>{{ session.user()?.email }}</p>
+      <h2>Autenticação em duas etapas</h2>
+      @if (!configured()) {
+        <p>Associe sua conta a um aplicativo autenticador.</p>
+        <button nz-button type="button" [disabled]="api.pending() > 0" (click)="setup()">
+          Configurar autenticador
         </button>
-      </form>
-    }
-    @if (configured()) {
-      <p role="status">Autenticação em duas etapas configurada.</p>
-    }
-    <p>
-      <a nz-button [routerLink]="auth.home()">Voltar ao portal</a
-      ><button nz-button type="button" (click)="auth.logout()">Sair</button>
-    </p>
-  </main>`,
+      }
+      @if (qr()) {
+        <img [src]="qr()" alt="QR Code para configurar seu autenticador" /><label
+          >Chave para configuração manual</label
+        ><code>{{ secret() }}</code>
+        <form (submit)="$event.preventDefault(); confirm()">
+          <label for="account-otp">Código do autenticador</label
+          ><input
+            nz-input
+            id="account-otp"
+            [formControl]="code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+          /><button
+            nz-button
+            nzType="primary"
+            type="submit"
+            [disabled]="api.pending() > 0 || code.invalid"
+          >
+            Ativar autenticação em duas etapas
+          </button>
+        </form>
+      }
+      @if (configured()) {
+        <p role="status">Autenticação em duas etapas configurada.</p>
+      }
+      <p>
+        <a nz-button [routerLink]="auth.home()">Voltar ao portal</a
+        ><button nz-button type="button" (click)="auth.logout()">Sair</button>
+      </p>
+    </main>`,
   styles: accountStyles,
 })
 export class Account {
@@ -127,22 +137,23 @@ export class Account {
 }
 
 @Component({
-  imports: [RouterLink, NzButtonModule, ApiStatus],
-  template: `<main>
-    <h1>{{ retry ? 'Não foi possível carregar a parceria' : 'Acesso indisponível' }}</h1>
-    <app-api-status />
-    @if (retry) {
-      <p>A conexão com o servidor falhou. Tente carregar esta página novamente.</p>
-      <a nz-button [routerLink]="retry">Tentar novamente</a>
-    } @else {
-      <p>
-        Esta área não está disponível para sua conta ou parceria. Selecione uma parceria autorizada
-        ou entre novamente.
-      </p>
-    }
-    <a nz-button [routerLink]="auth.home()">Selecionar parceria</a
-    ><button nz-button type="button" (click)="auth.logout()">Ir para o login</button>
-  </main>`,
+  imports: [RouterLink, NzButtonModule, ApiStatus, PortalHeader],
+  template: `<app-portal-header />
+    <main>
+      <h1>{{ retry ? 'Não foi possível carregar a parceria' : 'Acesso indisponível' }}</h1>
+      <app-api-status />
+      @if (retry) {
+        <p>A conexão com o servidor falhou. Tente carregar esta página novamente.</p>
+        <a nz-button [routerLink]="retry">Tentar novamente</a>
+      } @else {
+        <p>
+          Esta área não está disponível para sua conta ou parceria. Selecione uma parceria
+          autorizada ou entre novamente.
+        </p>
+      }
+      <a nz-button [routerLink]="auth.home()">Selecionar parceria</a
+      ><button nz-button type="button" (click)="auth.logout()">Ir para o login</button>
+    </main>`,
   styles: accountStyles,
 })
 export class AccessUnavailable {

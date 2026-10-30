@@ -17,15 +17,6 @@
   flex-wrap: wrap;
   gap: 12px;
 }
-.save-button {
-  width: 148px;
-}
-.access-button {
-  width: 149px;
-}
-.publish-button {
-  width: 200px;
-}
 .field-error {
   color: var(--color-error);
   font-size: 14px;
@@ -40,9 +31,6 @@
 }
 .access-form .profile-field {
   width: 100%;
-}
-.access-save-button {
-  width: 128px;
 }
 .example-file {
   cursor: default;

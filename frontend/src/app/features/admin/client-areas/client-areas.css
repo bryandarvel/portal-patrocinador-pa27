@@ -12,15 +12,8 @@
 .publish-confirm {
   width: 196px;
 }
-.staff-button {
-  width: 215px;
-}
 .consult-profile {
   width: 137px;
-  padding-top: 11px !important;
-}
-.contract-button {
-  width: 182px;
 }
 .contract-button:disabled {
   background: #e9e8e4;

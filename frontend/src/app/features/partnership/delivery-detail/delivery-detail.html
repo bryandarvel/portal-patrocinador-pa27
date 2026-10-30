@@ -4,14 +4,20 @@
   description="Acompanhe o material, a execução e a comprovação."
   pageUrl="/entregas"
 >
-  <a nz-button class="pill back-button" [routerLink]="ctx.link('entregas')">← Todas as entregas</a>
+  <a nz-button class="pill back-button" [routerLink]="ctx.link('entregas')"
+    ><nz-icon nzType="arrow-left" aria-hidden="true" />Todas as entregas</a
+  >
   @if (preview.loading()) {
     <p role="status">Carregando entrega…</p>
   }
   @if (preview.delivery(); as delivery) {
     <div class="delivery-panels">
-      <section class="delivery-card">
-        <h2>Material da entrega</h2>
+      <section class="pa-card delivery-card" aria-labelledby="delivery-material-title">
+        <app-card-heading
+          icon="picture"
+          heading="Material da entrega"
+          headingId="delivery-material-title"
+        />
         <p [class]="'material-badge ' + preview.tone()" role="status">
           <img [src]="preview.icon()" alt="" width="6" height="6" />{{ preview.badge() }}
         </p>
@@ -22,11 +28,13 @@
             type="button"
             (click)="download(m.arquivo_id, 'material-' + delivery.titulo + '-v' + m.numero)"
           >
-            <span class="document-icon" aria-hidden="true">▤</span
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
             ><span class="document-description"
               ><strong>Material versão {{ m.numero }}</strong
               ><span>{{ m.estado }}</span></span
-            ><span class="document-action">Baixar →</span></button
+            ><span class="document-action"
+              >Baixar <nz-icon nzType="right" aria-hidden="true"
+            /></span></button
           ><button
             nz-button
             class="pill history-button"
@@ -45,7 +53,7 @@
         @if (preview.canUpload()) {
           <button
             nz-button
-            class="pill dark-button"
+            class="pill primary-button"
             type="button"
             [disabled]="api.pending() > 0"
             (click)="dialog.set('upload')"
@@ -57,8 +65,13 @@
           <div class="closed-submission" role="status"><p>Envio encerrado pela RBS</p></div>
         }
       </section>
-      <section class="delivery-card">
-        <h2>Jornada da entrega</h2>
+      <section class="pa-card delivery-card" aria-labelledby="delivery-journey-title">
+        <app-card-heading
+          icon="carry-out"
+          tone="pink"
+          heading="Jornada da entrega"
+          headingId="delivery-journey-title"
+        />
         <p>{{ delivery.descricao }}</p>
         <p>Responsável: {{ preview.owner() }}</p>
         <p>Execução: {{ delivery.execucao }}</p>
@@ -67,8 +80,13 @@
         </button>
       </section>
     </div>
-    <section class="delivery-card">
-      <h2>Comprovações</h2>
+    <section class="pa-card delivery-card" aria-labelledby="delivery-proofs-title">
+      <app-card-heading
+        icon="check-circle"
+        tone="green"
+        heading="Comprovações"
+        headingId="delivery-proofs-title"
+      />
       @for (p of delivery.comprovacoes; track p.id) {
         <p>{{ p.descricao }}</p>
         <p>Publicado por {{ p.autor }} · {{ p.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
@@ -113,7 +131,7 @@
         }
         <button
           nz-button
-          class="pill dark-button"
+          class="pill primary-button"
           type="button"
           [disabled]="api.pending() > 0"
           (click)="send()"
@@ -144,7 +162,7 @@
       }
       @if (dialog() === 'saved') {
         <p role="status">Material enviado para esta entrega.</p>
-        <button nz-button class="pill dark-button" type="button" (click)="dialog.set(null)">
+        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
           Concluir
         </button>
       }

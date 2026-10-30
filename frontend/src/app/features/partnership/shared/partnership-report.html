@@ -16,7 +16,7 @@
       {{ title() }}
     </h2></ng-template
   >
-  <ng-template #closeIcon><span aria-hidden="true">×</span></ng-template>
+  <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent
     ><div class="dialog-content">
       @if (stage() === 'publish') {
@@ -32,7 +32,7 @@
         <button
           nz-button
           type="button"
-          class="pill dark-button publish-file"
+          class="pill primary-button publish-file"
           [disabled]="!file || busy()"
           (click)="publish()"
         >
@@ -59,7 +59,7 @@
           <button
             nz-button
             type="button"
-            class="pill dark-button download-report"
+            class="pill primary-button download-report"
             [disabled]="busy()"
             (click)="exportHtml()"
           >
@@ -169,7 +169,7 @@
             <button
               nz-button
               type="button"
-              class="pill brand-button publish-report"
+              class="pill primary-button publish-report"
               (click)="showPublication()"
             >
               Publicar complemento</button

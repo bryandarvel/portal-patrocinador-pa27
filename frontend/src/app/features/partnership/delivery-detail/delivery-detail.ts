@@ -1,3 +1,5 @@
+import { CardHeading } from '../shared/card-heading';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -12,7 +14,16 @@ import { LogoDeliveryPreviewService } from './logo-delivery-preview.service';
 
 @Component({
   selector: 'app-delivery-detail',
-  imports: [PartnershipShell, DeliveryReport, RouterLink, DatePipe, NzButtonModule, NzModalModule],
+  imports: [
+    CardHeading,
+    NzIconModule,
+    PartnershipShell,
+    DeliveryReport,
+    RouterLink,
+    DatePipe,
+    NzButtonModule,
+    NzModalModule,
+  ],
   templateUrl: './delivery-detail.html',
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './delivery-detail.css'],
 })

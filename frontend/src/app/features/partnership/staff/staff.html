@@ -4,8 +4,12 @@
   description="Quantidades e orientações para o credenciamento da equipe."
 >
   <div class="staff-panels">
-    <section class="staff-card" aria-labelledby="staff-credentials-title">
-      <h2 id="staff-credentials-title">Credenciais previstas</h2>
+    <section class="pa-card staff-card" aria-labelledby="staff-credentials-title">
+      <app-card-heading
+        icon="idcard"
+        heading="Credenciais previstas"
+        headingId="staff-credentials-title"
+      />
       @for (
         item of accreditation()?.itens ?? [];
         track item.beneficioId + item.setor + item.publico
@@ -31,13 +35,18 @@
         <p>Nenhuma credencial informada para esta parceria.</p>
       }
     </section>
-    <section class="staff-card external-guidance" aria-labelledby="staff-external-title">
-      <h2 id="staff-external-title">Credenciamento externo</h2>
+    <section class="pa-card staff-card external-guidance" aria-labelledby="staff-external-title">
+      <app-card-heading
+        icon="link"
+        tone="pink"
+        heading="Credenciamento externo"
+        headingId="staff-external-title"
+      />
       <p>O credenciamento acontece no Open Staff.</p>
       @if (preview.validUrl(accreditation()?.urlOpenStaff)) {
         <a
           nz-button
-          class="pill dark-button open-staff-button"
+          class="pill primary-button open-staff-button"
           [href]="accreditation()!.urlOpenStaff"
           target="_blank"
           rel="noopener noreferrer"

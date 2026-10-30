@@ -5,96 +5,21 @@
     (click)="$event.preventDefault(); mainContent.focus()"
     >Ir para o conteúdo</a
   >
-  <header class="portal-header">
-    <img
-      class="portal-logo"
-      src="/images/pa27-logo.png"
-      alt="Planeta Atlântida"
-      width="64"
-      height="64"
-    />
-    <div class="portal-brand">
-      <p>Portal do Patrocinador</p>
-      <span>Planeta Atlântida {{ profile()?.edicao }}</span>
-    </div>
-    <div class="header-actions">
-      <a
-        nz-button
-        class="pill faq-button"
-        [routerLink]="context.link('duvidas-frequentes')"
-        [attr.aria-current]="activeArea() === 'faq' ? 'page' : null"
-        >Dúvidas frequentes</a
-      >
-      <button
-        nz-button
-        class="pill notifications-button"
-        type="button"
-        (click)="openNotifications()"
-      >
-        Notificações
-      </button>
-    </div>
-    <div class="account">
-      <p>{{ context.admin() ? 'Admin RBS' : 'Admin Patrocinador' }}</p>
-      <a routerLink="/conta">{{ user()?.nome }}</a>
-    </div>
-    <button nz-button class="pill exit-button" type="button" (click)="auth.logout()">Sair</button>
-  </header>
+  <app-portal-header
+    [subtitle]="'Planeta Atlântida ' + (profile()?.edicao ?? '')"
+    [menu]="true"
+    [notifications]="hasNotifications()"
+    (menuClick)="menuOpen.set(true)"
+    (notificationsClick)="openNotifications()"
+  />
   <div class="portal-body">
     <aside class="partnership-sidebar" aria-label="Navegação da parceria">
-      <a
-        nz-button
-        class="pill back-button"
-        [routerLink]="context.admin() ? '/rbs/patrocinadores' : '/parcerias'"
-        >{{ context.admin() ? 'Patrocinadores' : 'Minhas parcerias' }}</a
-      >
-      <div class="partnership-identity">
-        <p>{{ profile()?.nome }}</p>
-        <span class="quota">{{ profile()?.cota }}</span>
-      </div>
-      <a
-        nz-button
-        class="pill deliveries-button"
-        [class.dark-button]="activeArea() === 'deliveries'"
-        [routerLink]="context.link('entregas')"
-        [attr.aria-current]="activeArea() === 'deliveries' ? 'page' : null"
-        >Entregas da parceria</a
-      >
-      <p class="eyebrow areas-title" id="areas-title">Áreas da parceria</p>
-      <nav aria-labelledby="areas-title">
-        @for (area of areas(); track area.key) {
-          <a
-            class="area-link"
-            [class.active]="activeArea() === area.number"
-            [routerLink]="area.url"
-            [attr.aria-current]="activeArea() === area.number ? 'page' : null"
-            ><span class="area-number">{{ area.number }}</span
-            ><span>{{ area.label }}</span></a
-          >
-        }
-      </nav>
-      @if (context.admin()) {
-        <a
-          class="area-link"
-          [routerLink]="context.link('relatorio-da-parceria')"
-          [attr.aria-current]="activeArea() === 'report' ? 'page' : null"
-          >Relatório e planilhas</a
-        >
-      }
-      <div class="festival-signature" aria-hidden="true">
-        <div class="checker"></div>
-        <p>Só quem vai sente.</p>
-      </div>
+      <ng-container [ngTemplateOutlet]="sidebar" />
     </aside>
     <main #mainContent class="profile-scroll" id="partnership-content" tabindex="-1">
       <div class="profile-content">
         <div class="page-heading">
-          <div class="context-row">
-            <p class="eyebrow">Parceria / {{ profile()?.nome }} / {{ profile()?.edicao }}</p>
-            <button nz-button class="pill report-button" type="button" (click)="openReport()">
-              Relatório da parceria
-            </button>
-          </div>
+          <p class="trail">Parceria / {{ profile()?.nome }} / {{ profile()?.edicao }}</p>
           <h1>{{ title() }}</h1>
           <p class="page-intro">{{ description() }}</p>
           <div class="festival-stripe" aria-hidden="true">
@@ -106,7 +31,99 @@
       </div>
     </main>
   </div>
+  @if (activeArea() !== 'faq') {
+    <a
+      nz-button
+      nzType="primary"
+      nzShape="circle"
+      class="help-button"
+      [routerLink]="context.link('duvidas-frequentes')"
+      aria-label="Dúvidas frequentes"
+      ><nz-icon nzType="question-circle" nzTheme="fill"
+    /></a>
+  }
 </div>
+
+<ng-template #sidebar>
+  <a
+    class="side-card back-link"
+    [routerLink]="context.admin() ? '/rbs/patrocinadores' : '/parcerias'"
+    ><nz-icon nzType="arrow-left" aria-hidden="true" />{{
+      context.admin() ? 'Patrocinadores' : 'Minhas parcerias'
+    }}</a
+  >
+  <div class="side-card partnership-identity">
+    <span class="identity-icon" aria-hidden="true"><nz-icon nzType="bank" /></span>
+    <div class="identity-copy">
+      <p>{{ profile()?.nome }}</p>
+      @if (profile()?.cota) {
+        <nz-tag class="quota">{{ profile()?.cota }}</nz-tag>
+      }
+    </div>
+  </div>
+  <p class="areas-title">Áreas da parceria</p>
+  <nav aria-label="Áreas da parceria" (click)="menuOpen.set(false)">
+    @for (area of areas(); track area.key) {
+      <a
+        class="area-link"
+        [class.active]="activeArea() === area.active"
+        [routerLink]="area.url"
+        [attr.aria-current]="activeArea() === area.active ? 'page' : null"
+        ><span class="area-number">{{ area.number }}</span
+        ><nz-icon class="area-icon" [nzType]="area.icon" aria-hidden="true" /><span>{{
+          area.label
+        }}</span></a
+      >
+    }
+  </nav>
+  <div class="side-divider"></div>
+  @if (context.admin()) {
+    <a
+      class="area-link report-link"
+      [class.active]="activeArea() === 'report'"
+      [routerLink]="context.link('relatorio-da-parceria')"
+      [attr.aria-current]="activeArea() === 'report' ? 'page' : null"
+      (click)="menuOpen.set(false)"
+      ><nz-icon class="area-icon" nzType="bar-chart" aria-hidden="true" /><span
+        >Relatório e planilhas</span
+      ><nz-icon class="chevron" nzType="right" aria-hidden="true"
+    /></a>
+  } @else {
+    <button class="area-link report-link" type="button" (click)="openReport()">
+      <nz-icon class="area-icon" nzType="bar-chart" aria-hidden="true" /><span
+        >Relatório da parceria</span
+      ><nz-icon class="chevron" nzType="right" aria-hidden="true" />
+    </button>
+  }
+  <div class="side-card account">
+    <a class="account-link" routerLink="/conta">
+      <nz-avatar nzIcon="user" [nzSize]="40" aria-hidden="true" />
+      <span class="account-copy"
+        ><strong>{{ context.admin() ? 'Admin RBS' : 'Admin Patrocinador' }}</strong
+        ><span>{{ user()?.nome }}</span></span
+      >
+    </a>
+    <button class="logout-button" type="button" (click)="auth.logout()">
+      <nz-icon nzType="logout" aria-hidden="true" />Sair
+    </button>
+  </div>
+</ng-template>
+
+<nz-drawer
+  [nzVisible]="menuOpen()"
+  nzPlacement="left"
+  [nzWidth]="320"
+  [nzClosable]="false"
+  nzWrapClassName="pa-nav-drawer"
+  (nzOnClose)="menuOpen.set(false)"
+>
+  <ng-container *nzDrawerContent>
+    <div class="partnership-sidebar in-drawer" role="navigation" aria-label="Navegação da parceria">
+      <ng-container [ngTemplateOutlet]="sidebar" />
+    </div>
+  </ng-container>
+</nz-drawer>
+
 <nz-modal
   #shellModal="nzModal"
   [nzVisible]="dialog() !== null"
@@ -144,7 +161,7 @@
           }
         }
       </ul>
-      <button nz-button class="pill dark-button" type="button" (click)="dialog.set(null)">
+      <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
         Concluir
       </button>
     </div></ng-container

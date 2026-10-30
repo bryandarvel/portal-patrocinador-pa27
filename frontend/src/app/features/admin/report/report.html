@@ -4,8 +4,12 @@
   title="Relatório da parceria"
   description="Consulte o relatório automático e organize planilhas internas desta parceria."
 >
-  <section class="report-panel" aria-labelledby="source-sheets-heading">
-    <h2 id="source-sheets-heading">Planilhas de origem</h2>
+  <section class="pa-card report-panel" aria-labelledby="source-sheets-heading">
+    <app-card-heading
+      icon="file-text"
+      heading="Planilhas de origem"
+      headingId="source-sheets-heading"
+    />
     <div class="sheets-management">
       <p>
         Arquivos internos de trabalho da RBS. O relatório automático consolida os registros do
@@ -22,7 +26,7 @@
       <button
         nz-button
         type="button"
-        class="pill brand-button add-sheets"
+        class="pill primary-button add-sheets"
         [disabled]="busy()"
         (click)="add()"
       >
@@ -53,8 +57,13 @@
       </div>
     }
   </section>
-  <section class="report-panel" aria-labelledby="final-report-heading">
-    <h2 id="final-report-heading">Relatório automático</h2>
+  <section class="pa-card report-panel" aria-labelledby="final-report-heading">
+    <app-card-heading
+      icon="bar-chart"
+      tone="pink"
+      heading="Relatório automático"
+      headingId="final-report-heading"
+    />
     <p>
       Gere um HTML com os dados registrados no portal. Relatórios complementares podem ser
       publicados no modal compartilhado.

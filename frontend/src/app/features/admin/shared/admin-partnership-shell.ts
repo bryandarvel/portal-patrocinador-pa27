@@ -1,5 +1,6 @@
 import { Component, input, viewChild } from '@angular/core';
 import { PartnershipShell } from '../../partnership/shared/partnership-shell';
+import { registerPortalIcons } from '../../../shared/portal-icons';
 
 @Component({
   selector: 'app-admin-partnership-shell',
@@ -13,6 +14,9 @@ export class AdminPartnershipShell {
   readonly sponsorId = input<string>('');
   readonly activeArea = input<string>('01');
   readonly shell = viewChild(PartnershipShell);
+  constructor() {
+    registerPortalIcons();
+  }
   openReport(): void {
     this.shell()?.openReport();
   }

@@ -1,21 +1,101 @@
-.submission-status { padding: 20px; border-radius: 8px; background: #fff; display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 20px; }
-.submission-status p:first-child { color: var(--color-success); font-weight: 500; }
-.submission-status p:last-child { color: var(--color-muted); }
-.upload-zone { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px; border: 1px dashed var(--color-border); border-radius: 12px; background: var(--color-nav); color: var(--color-muted); font-size: 14px; line-height: 20px; text-align: center; cursor: pointer; }
-.upload-zone strong { color: var(--color-text); font-weight: 500; }
-.upload-arrow { font-family: var(--font-display); font-size: 30px; line-height: 34px; font-weight: 700; color: var(--color-text); }
-.document-description strong, .history-version strong { overflow-wrap: anywhere; }
-.preview-note { color: var(--color-muted); font-size: 12px; line-height: 18px; }
-.dialog-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.brand-button { width: 129px; border-color: var(--pa-magenta); background: var(--pa-magenta); color: #fff; }
-.brand-button:not([aria-disabled]):hover { border-color: var(--color-accent-text); background: var(--color-accent-text); color: #fff; }
-.choose-button { width: 181px; }
-.selected-file { cursor: default; }
-.file-error { color: var(--color-error); }
-.upload-progress { width: 100%; height: 6px; background: var(--color-paper); }
-.upload-progress span { display: block; width: 67%; height: 100%; background: var(--pa-magenta); }
-.progress-value { color: var(--color-accent-text); font-weight: 500; }
-.done-badge { width: 212px; max-width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 999px; background: var(--color-success-soft); color: var(--color-success); font-size: 12px; line-height: 18px; }
-.history-version { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-.history-version strong { color: var(--color-text); font-weight: 500; }
-@media (max-width: 760px) { .upload-zone { padding: 20px 12px; } }
+/* Padrões de envio e versões de material. A faixa de status é o componente app-submission-status. */
+.upload-zone {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 32px 24px;
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: #fbfcfe;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+.upload-zone:hover {
+  border-color: var(--color-primary);
+  background: #f5f9ff;
+}
+.upload-zone strong {
+  color: var(--color-text);
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 500;
+}
+.upload-arrow {
+  margin-bottom: 6px;
+  color: var(--color-text);
+  font-size: 40px;
+  line-height: 1;
+}
+.document-description strong,
+.history-version strong {
+  overflow-wrap: anywhere;
+}
+.preview-note {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+.dialog-actions,
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.selected-file {
+  cursor: default;
+}
+.file-error {
+  color: var(--color-error);
+}
+.upload-progress {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--color-paper);
+}
+.upload-progress span {
+  display: block;
+  width: 67%;
+  height: 100%;
+  background: var(--color-primary);
+}
+.progress-value {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+.done-badge {
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  font-size: 13px;
+  line-height: 18px;
+}
+.history-version {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.history-version strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+@media (max-width: 760px) {
+  .upload-zone {
+    padding: 24px 12px;
+  }
+}

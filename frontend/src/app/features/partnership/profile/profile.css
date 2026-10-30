@@ -1,8 +1,6 @@
 .profile-panels { display: grid; grid-template-columns: minmax(0, 660fr) minmax(0, 428fr); gap: 24px; align-items: start; }
-.profile-card { min-width: 0; padding: 24px; border: 1px solid var(--color-border); border-radius: 12px; background: #fff; display: flex; flex-direction: column; gap: 16px; }
 .profile-field { display: flex; flex-direction: column; gap: 8px; }
 .profile-field label { font-size: 14px; line-height: 20px; font-weight: 500; }
 .profile-field input { height: 58px; padding: 16px; border-color: var(--color-border); border-radius: 8px; background: var(--color-paper); color: var(--color-muted); font-size: 16px; line-height: 24px; }
 .commercial-documents > p { color: var(--color-muted); font-size: 14px; line-height: 20px; }
 @media (max-width: 1199px) { .profile-panels { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .profile-card { padding: 20px; } }
