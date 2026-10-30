@@ -15,5 +15,6 @@ Portal do Patrocinador (Angular 22 + NG-ZORRO em `frontend/`, Spring Boot em `ba
 
 ## Git e PR
 
+- Trabalhe na branch pessoal do integrante (`dev-icaro` para o Ícaro), no mesmo clone. Todo commit vai nela e chega à `dev` por PR dessa branch para a `dev`; outra branch só quando o usuário pedir.
 - Commit e push só quando o usuário pedir.
 - Pull request: criar, atualizar a descrição ou mesclar somente com permissão explícita do usuário para aquele PR. Ao concluir uma entrega, informe que está pronta e pergunte se pode abrir o PR.

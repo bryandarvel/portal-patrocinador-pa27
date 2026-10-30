@@ -1,6 +1,6 @@
 # Resultados
 
-Data: 30/10/2026. Branch: `feat/popular-base-demonstracao` (a partir de `dev-icaro`).
+Data: 30/10/2026. Branch: `dev-icaro`. O trabalho começou em `feat/popular-base-demonstracao`; por decisão do usuário (30/10/2026), tudo segue na `dev-icaro` e a branch extra foi removida.
 
 ## O que mudou
 
@@ -34,3 +34,7 @@ A primeira tentativa de stack isolada usou o mesmo projeto Compose do portal em 
 
 - Nada foi rodado na base em uso do servidor; a carga ali depende de autorização do usuário.
 - Fora do escopo, observado nas telas: estados de entrega e tipos de cortesia aparecem como código bruto (`REALIZADA`, `passaporte`), já assim na `dev`.
+
+## Envio
+
+`86b29c4` (correção do resumo de entregas, que ficou fora do PR #8 já mesclado) e `4979b09` (carga e limpeza) em `origin/dev-icaro`; PR `dev-icaro` → `dev` aberto com permissão do usuário. Regra de branch registrada no `AGENTS.md`.

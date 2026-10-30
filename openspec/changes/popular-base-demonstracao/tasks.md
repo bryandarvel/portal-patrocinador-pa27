@@ -13,4 +13,4 @@
 
 ## 3. Entrega
 
-- [ ] 3.1 Validar OpenSpec, build e proxy; registrar em `results.md`; commit na branch `feat/popular-base-demonstracao` e envio. PR só com permissão do usuário.
+- [x] 3.1 Validar OpenSpec, build e proxy; registrar em `results.md`; commit na `dev-icaro` e envio. PR só com permissão do usuário.
