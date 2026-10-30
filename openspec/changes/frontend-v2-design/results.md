@@ -32,3 +32,7 @@ Data: 30/10/2026. Branch: `dev-icaro` (criada a partir de `dev` em `c6a5f2a`).
 ## Envio
 
 `f681161` enviado para `origin/dev-icaro` em 30/10/2026 (avanço rápido a partir de `2a562b1`). Pendentes, conforme `tasks.md` (Workflow follow-up): implantação e teste na máquina remota por ssh e PR de `dev-icaro` para `dev`.
+
+## Implantação no servidor remoto
+
+30/10/2026: `docker compose up` falhou porque 4200 e 8025 já estavam ocupadas no servidor por outro projeto (`fusion-new`). O `compose.yaml` passou a aceitar `FRONTEND_PORT` e `MAILPIT_PORT` (padrões 4200 e 8025, documentados em `.env.example` e no README); no servidor, o `.env` usa 4300 e 8125, portas já encaminhadas pelo túnel ssh.
