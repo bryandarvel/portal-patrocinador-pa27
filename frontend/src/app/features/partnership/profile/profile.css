@@ -1,5 +1,5 @@
 .profile-panels { display: grid; grid-template-columns: minmax(0, 660fr) minmax(0, 428fr); gap: 24px; align-items: start; }
-.profile-field { display: flex; flex-direction: column; gap: 8px; }
+.profile-field { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; }
 .profile-field label { font-size: 14px; line-height: 20px; font-weight: 500; }
 .profile-field input { height: 58px; padding: 16px; border-color: var(--color-border); border-radius: 8px; background: var(--color-paper); color: var(--color-muted); font-size: 16px; line-height: 24px; }
 .commercial-documents > p { color: var(--color-muted); font-size: 14px; line-height: 20px; }

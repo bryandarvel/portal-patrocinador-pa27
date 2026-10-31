@@ -106,9 +106,9 @@ h2 {
   border-radius: var(--radius-control);
   background: var(--color-surface);
   text-align: left;
-  cursor: pointer;
   transition: border-color 0.2s;
 }
+button.document-card, a.document-card { cursor: pointer; }
 .document-card:hover {
   border-color: var(--color-border-strong);
 }
@@ -131,11 +131,13 @@ h2 {
   min-width: 0;
 }
 .document-description strong {
+  overflow-wrap: anywhere;
   font-size: 15px;
   line-height: 20px;
   font-weight: 500;
 }
 .document-description > span {
+  overflow-wrap: anywhere;
   color: var(--color-muted);
   font-size: 13px;
   line-height: 18px;
@@ -172,6 +174,11 @@ textarea:focus-visible {
   font-size: 15px;
   line-height: 22px;
 }
+.document-card:disabled { opacity: .65; cursor: wait; }
+.document-card .pill { flex: 0 0 auto; }
+.document-card .document-action nz-icon { font-size: 16px; }
+.dialog-actions { width: 100%; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 16px; }
 .document-preview {
   width: 100%;
   padding: 32px;

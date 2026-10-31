@@ -1,10 +1,12 @@
+import { formatReportDate, reportBenefitLabel } from '../shared/report-format';
 import { CardHeading } from '../shared/card-heading';
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PartnershipShell } from '../shared/partnership-shell';
 import { CourtesyPreview, TicketsPreviewService } from './tickets-preview.service';
+import { focusFormSection } from '../shared/form-focus';
 
 @Component({
   selector: 'app-partnership-tickets',
@@ -13,19 +15,38 @@ import { CourtesyPreview, TicketsPreviewService } from './tickets-preview.servic
   styleUrls: ['../shared/partnership-ui.css', './tickets.css'],
 })
 export class PartnershipTickets {
+  readonly formatDate = formatReportDate;
+  readonly benefitLabel = reportBenefitLabel;
   readonly preview = inject(TicketsPreviewService);
   readonly api = inject(PortalApi);
   readonly courtesies = this.preview.courtesies;
   readonly selected = signal<CourtesyPreview | null>(null);
   readonly saving = signal(false);
   readonly error = signal('');
+  private readonly formSection = viewChild<ElementRef<HTMLElement>>('destinationForm');
+  private origin: HTMLElement | null = null;
   quantity = 1;
   destination = '';
-  open(item: CourtesyPreview): void {
+  constructor() {
+    effect(() => {
+      const item = this.selected();
+      const section = this.formSection()?.nativeElement;
+      if (item && section)
+        requestAnimationFrame(() => {
+          if (this.selected()?.id === item.id) focusFormSection(section);
+        });
+    });
+  }
+  open(item: CourtesyPreview, origin: EventTarget | null): void {
+    this.origin = origin instanceof HTMLElement ? origin : null;
     this.selected.set(item);
     this.quantity = 1;
     this.destination = '';
     this.error.set('');
+  }
+  close(): void {
+    this.selected.set(null);
+    this.origin?.focus();
   }
   async destine(): Promise<void> {
     const item = this.selected();

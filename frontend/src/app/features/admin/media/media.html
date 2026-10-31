@@ -89,15 +89,21 @@
           }
           @if (publication.arquivoId) {
             <button
+              nz-button
+              class="pill"
               type="button"
               (click)="preview.download(publication.arquivoId, publication.titulo)"
             >
-              Baixar arquivo
+              <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
             </button>
           }
         </div>
       } @empty {
-        <p>Nenhuma publicação disponível.</p>
+        <app-empty-state
+          icon="file-text"
+          heading="Nenhuma publicação disponível"
+          description="Use Publicar arquivo ou link para disponibilizar conteúdo ao patrocinador."
+        />
       }
       <button nz-button class="pill publish-button" type="button" (click)="dialog.set('publish')">
         <nz-icon nzType="link" aria-hidden="true" />Publicar arquivo ou link
@@ -139,7 +145,11 @@
         </tbody>
       </table>
     } @else {
-      <p>Nenhuma veiculação registrada.</p>
+      <app-empty-state
+        icon="send"
+        heading="Nenhuma veiculação registrada"
+        description="Use Atualizar veiculações para registrar o que foi exibido."
+      />
     }
     <button nz-button class="pill edit-button" type="button" (click)="openEdit()">
       Atualizar veiculações
@@ -214,9 +224,11 @@
               >Selecionar arquivo</strong
             ><span>Escolha o arquivo no seu dispositivo</span>
           </button>
-          <button nz-button class="pill finish-button" type="button" (click)="cancel()">
-            Cancelar
-          </button>
+          <div class="dialog-actions">
+            <button nz-button class="pill finish-button" type="button" (click)="cancel()">
+              Cancelar
+            </button>
+          </div>
         }
         @if (inputError()) {
           <p class="file-error" role="alert">{{ inputError() }}</p>
@@ -251,9 +263,16 @@
         @if (dialog() === 'saved') {
           <p class="preview-note">{{ confirmationNote() }}</p>
         }
-        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="close()"
+          >
+            Concluir
+          </button>
+        </div>
       }
       @if (dialog() === 'briefing') {
         <p id="rbs-briefing-help">Envie as orientações para o material de mídia.</p>
@@ -286,16 +305,18 @@
               </p>
             }
           </div>
-          <button
-            nz-button
-            class="pill primary-button send-text-button"
-            type="submit"
-            [disabled]="busy()"
-          >
-            Salvar briefing</button
-          ><button nz-button class="pill" type="button" (click)="sendText()" [disabled]="busy()">
-            Enviar texto de mídia
-          </button>
+          <div class="dialog-actions">
+            <button
+              nz-button
+              class="pill primary-button send-text-button"
+              type="submit"
+              [disabled]="busy()"
+            >
+              Salvar briefing</button
+            ><button nz-button class="pill" type="button" (click)="sendText()" [disabled]="busy()">
+              Enviar texto de mídia
+            </button>
+          </div>
         </form>
       }
       @if (dialog() === 'history') {
@@ -304,8 +325,13 @@
             <strong>{{ version.name }}</strong>
             <p>Versão {{ version.version }} · {{ version.receivedAt | date: 'dd/MM/yyyy' }}</p>
             @if (version.id) {
-              <button type="button" (click)="preview.download(version.id, version.name)">
-                Baixar
+              <button
+                nz-button
+                class="pill"
+                type="button"
+                (click)="preview.download(version.id, version.name)"
+              >
+                <nz-icon nzType="download" aria-hidden="true" />Baixar
               </button>
             }
           </div>
@@ -313,24 +339,33 @@
         @if (!preview.versions().length) {
           <p>Nenhuma versão enviada.</p>
         }
-        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="close()"
+          >
+            Concluir
+          </button>
+        </div>
       }
       @if (dialog() === 'document') {
         <p>Arquivo disponibilizado no contexto desta parceria.</p>
         <div class="document-preview" [attr.aria-label]="documentName()">
           <h3>Documento</h3>
-          <p>O conteúdo será exibido conforme o formato do arquivo.</p>
+          <p>Baixe o arquivo para consultar o conteúdo.</p>
         </div>
-        <button
-          nz-button
-          class="pill primary-button download-button"
-          type="button"
-          (click)="download()"
-        >
-          Baixar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button download-button"
+            type="button"
+            (click)="download()"
+          >
+            <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
+          </button>
+        </div>
       }
       @if (dialog() === 'close' || dialog() === 'reopen') {
         <p>
@@ -360,18 +395,20 @@
         @if (deadlineError()) {
           <p id="media-deadline-error" class="file-error" role="alert">{{ deadlineError() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button submission-button"
-          type="button"
-          (click)="confirmSubmissionChange()"
-          [disabled]="busy()"
-        >
-          {{ dialog() === 'close' ? 'Encerrar envio' : 'Reabrir envio' }}
-        </button>
-        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
-          Voltar
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button submission-button"
+            type="button"
+            (click)="confirmSubmissionChange()"
+            [disabled]="busy()"
+          >
+            {{ dialog() === 'close' ? 'Encerrar envio' : 'Reabrir envio' }}
+          </button>
+          <button nz-button class="pill finish-button" type="button" (click)="close()">
+            Voltar
+          </button>
+        </div>
       }
       @if (dialog() === 'publish') {
         <p>O arquivo ficará disponível para o {{ profile().name }}.</p>
@@ -411,15 +448,17 @@
         @if (inputError()) {
           <p class="file-error" role="alert">{{ inputError() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button publish-file-button"
-          type="button"
-          (click)="publish()"
-          [disabled]="busy()"
-        >
-          Publicar
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button publish-file-button"
+            type="button"
+            (click)="publish()"
+            [disabled]="busy()"
+          >
+            Publicar
+          </button>
+        </div>
       }
       @if (dialog() === 'edit') {
         @for (item of placementsDraft(); track $index) {
@@ -451,22 +490,28 @@
               type="datetime-local"
               [value]="item.veiculadoEm?.slice(0, 16) ?? ''"
               (change)="updatePlacement($index, 'veiculadoEm', $any($event.target).value)"
-            /><button type="button" (click)="removePlacement($index)">Remover</button>
+            /><button nz-button class="pill" type="button" (click)="removePlacement($index)">
+              Remover
+            </button>
           </div>
         }
-        <button type="button" (click)="addPlacement()">Adicionar veiculação</button>
+        <button nz-button class="pill" type="button" (click)="addPlacement()">
+          Adicionar veiculação
+        </button>
         @if (inputError()) {
           <p class="file-error" role="alert">{{ inputError() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button save-info-button"
-          type="button"
-          (click)="saveStories()"
-          [disabled]="busy()"
-        >
-          Salvar informações
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button save-info-button"
+            type="button"
+            (click)="saveStories()"
+            [disabled]="busy()"
+          >
+            Salvar informações
+          </button>
+        </div>
       }
     </div>
   </ng-container>

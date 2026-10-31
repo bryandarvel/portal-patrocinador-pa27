@@ -126,7 +126,11 @@ export class Login {
     if (this.busy()) return;
     this.form.markAllAsTouched();
     this.submitted.set(true);
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      const field = this.form.controls.email.invalid ? 'email' : 'password';
+      this.document.getElementById(field)?.focus();
+      return;
+    }
     this.busy.set(true);
     this.authError.set('');
     try {

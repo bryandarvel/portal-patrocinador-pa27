@@ -26,9 +26,9 @@
   }
   <div class="delivery-areas">
     @for (item of preview.items(); track item.id) {
-      <section class="delivery-card">
+      <section class="pa-card delivery-card">
         <h2>{{ item.titulo }}</h2>
-        <p class="status-badge">{{ item.execucao }}</p>
+        <app-execution-status [state]="item.execucao" />
         <p>{{ item.descricao }}</p>
         <p>{{ item.responsavel ?? 'Responsável ainda não definido' }}</p>
         <a nz-button class="pill area-button" [routerLink]="detailLink(item.id)"
@@ -44,7 +44,11 @@
       </section>
     } @empty {
       @if (!preview.loading()) {
-        <p>Nenhuma entrega cadastrada para esta parceria.</p>
+        <app-empty-state
+          icon="carry-out"
+          heading="Nenhuma entrega cadastrada"
+          description="As entregas cadastradas pela RBS aparecerão aqui para acompanhamento."
+        />
       }
     }
   </div>

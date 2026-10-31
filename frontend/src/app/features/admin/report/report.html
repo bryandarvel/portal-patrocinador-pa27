@@ -16,11 +16,19 @@
         portal.
       </p>
     </div>
-    <label class="upload-zone" for="source-sheets-file"
-      ><strong>Selecionar planilhas</strong
-      ><span>Escolha os arquivos no seu dispositivo</span></label
-    >
-    <input id="source-sheets-file" type="file" multiple (change)="choose($event)" />
+    <button class="upload-zone" type="button" (click)="sourceSheetsInput.click()">
+      <nz-icon class="upload-arrow" nzType="cloud-upload" aria-hidden="true" /><strong
+        >Selecionar planilhas</strong
+      ><span>Escolha os arquivos no seu dispositivo</span>
+    </button>
+    <input
+      #sourceSheetsInput
+      hidden
+      id="source-sheets-file"
+      type="file"
+      multiple
+      (change)="choose($event)"
+    />
     @if (selected().length) {
       <p>{{ selected().length }} arquivo(s) selecionado(s).</p>
       <button
@@ -45,16 +53,18 @@
           <div class="document-card">
             <span class="document-description"
               ><strong>{{ sheet.nome }}</strong
-              ><span>Versão {{ sheet.versao }} · {{ sheet.criadoEm }}</span></span
-            ><button nz-button type="button" class="pill" (click)="download(sheet)">Baixar</button>
+              ><span>Versão {{ sheet.versao }} · {{ formatDate(sheet.criadoEm) }}</span></span
+            ><button nz-button type="button" class="pill" (click)="download(sheet)">
+              <nz-icon nzType="download" aria-hidden="true" />Baixar
+            </button>
           </div>
         }
       </div>
     } @else {
-      <div class="sheets-empty">
-        <h3>Nenhuma planilha adicionada</h3>
-        <p>Selecione arquivos reais para armazenar nesta parceria.</p>
-      </div>
+      <app-empty-state
+        heading="Nenhuma planilha adicionada"
+        description="Use Selecionar planilhas para organizar os arquivos internos desta parceria."
+      />
     }
   </section>
   <section class="pa-card report-panel" aria-labelledby="final-report-heading">

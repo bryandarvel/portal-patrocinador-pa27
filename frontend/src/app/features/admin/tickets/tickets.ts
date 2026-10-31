@@ -1,11 +1,13 @@
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { formatReportDate, reportBenefitLabel } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 import { PortalContext } from '../../../core/portal-context.service';
 import { PortalApi } from '../../../core/portal-api.service';
+import { focusFormSection } from '../../partnership/shared/form-focus';
 import {
   CourtesyPreview,
   TicketsPreviewService,
@@ -23,6 +25,8 @@ import {
   ],
 })
 export class RbsTickets {
+  readonly formatDate = formatReportDate;
+  readonly benefitLabel = reportBenefitLabel;
   readonly context = inject(PortalContext);
   readonly api = inject(PortalApi);
   readonly preview = inject(TicketsPreviewService);
@@ -36,6 +40,8 @@ export class RbsTickets {
   readonly formOpen = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
+  private readonly formSection = viewChild<ElementRef<HTMLElement>>('courtesyForm');
+  private origin: HTMLElement | null = null;
   quantity = 0;
   benefitId = '';
   type = 'passaporte';
@@ -47,7 +53,19 @@ export class RbsTickets {
   benefitSector = '';
   benefitQuantity = 0;
   readonly addingBenefit = signal(false);
-  open(item: CourtesyPreview | null = null): void {
+  constructor() {
+    effect(() => {
+      const open = this.formOpen();
+      const item = this.editing();
+      const section = this.formSection()?.nativeElement;
+      if (open && section)
+        requestAnimationFrame(() => {
+          if (this.formOpen() && this.editing()?.id === item?.id) focusFormSection(section);
+        });
+    });
+  }
+  open(item: CourtesyPreview | null, origin: EventTarget | null): void {
+    this.origin = origin instanceof HTMLElement ? origin : null;
     this.editing.set(item);
     this.quantity = item?.quantity ?? 0;
     this.benefitId = item?.benefitId ?? this.benefits()[0]?.id ?? '';
@@ -58,6 +76,10 @@ export class RbsTickets {
     this.eventDay = item?.eventDay ?? '';
     this.error.set('');
     this.formOpen.set(true);
+  }
+  close(): void {
+    this.formOpen.set(false);
+    this.origin?.focus();
   }
   async save(): Promise<void> {
     if (this.saving()) return;

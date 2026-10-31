@@ -115,18 +115,25 @@
         @if (deadlineError()) {
           <p id="survey-deadline-error" class="file-error" role="alert">{{ deadlineError() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button submission-button"
-          type="button"
-          (click)="confirmSubmissionChange()"
-          [disabled]="busy()"
-        >
-          {{ dialog() === 'close' ? 'Encerrar envio' : 'Reabrir envio' }}
-        </button>
-        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
-          Voltar
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button submission-button"
+            type="button"
+            (click)="confirmSubmissionChange()"
+            [disabled]="busy()"
+          >
+            {{ dialog() === 'close' ? 'Encerrar envio' : 'Reabrir envio' }}
+          </button>
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="close()"
+          >
+            Voltar
+          </button>
+        </div>
       }
       @if (dialog() === 'publish') {
         <p>O arquivo ficará disponível para o {{ profile().name }}.</p>
@@ -143,15 +150,17 @@
         @if (inputError()) {
           <p role="alert" class="file-error">{{ inputError() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button publish-file-button"
-          type="button"
-          (click)="publish()"
-          [disabled]="busy()"
-        >
-          Publicar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button publish-file-button"
+            type="button"
+            (click)="publish()"
+            [disabled]="busy()"
+          >
+            Publicar arquivo
+          </button>
+        </div>
       }
       @if (dialog() === 'saved') {
         <p>As informações foram atualizadas na parceria.</p>
@@ -167,16 +176,18 @@
         <p>Arquivo disponibilizado no contexto desta parceria.</p>
         <div class="document-preview">
           <h3>Documento</h3>
-          <p>O conteúdo será exibido conforme o formato do arquivo.</p>
+          <p>Baixe o arquivo para consultar o conteúdo.</p>
         </div>
-        <button
-          nz-button
-          class="pill primary-button download-button"
-          type="button"
-          (click)="download()"
-        >
-          Baixar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button download-button"
+            type="button"
+            (click)="download()"
+          >
+            Baixar arquivo
+          </button>
+        </div>
       }
     </div>
   </ng-container>

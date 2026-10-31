@@ -139,7 +139,7 @@
           <section class="version-entry">
             <h3>Versão {{ v.numero }}</h3>
             <p>Publicada em {{ v.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
-            <p>{{ v.decisao ?? 'Aguardando validação' }}</p>
+            <p>{{ materialLabel(v.decisao ?? 'Aguardando validação') }}</p>
             @if (v.comentario) {
               <p>{{ v.comentario }}</p>
             }
@@ -158,15 +158,17 @@
       }
       @if (dialog() === 'approve') {
         <p>A aprovação desta versão será registrada. A assinatura ocorre fora do portal.</p>
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="decide('APROVADO')"
-        >
-          Confirmar aprovação
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="decide('APROVADO')"
+          >
+            Confirmar aprovação
+          </button>
+        </div>
       }
       @if (dialog() === 'adjust') {
         <label for="contract-comment">Comentário obrigatório</label
@@ -176,16 +178,18 @@
           required
           maxlength="2000"
           [attr.aria-invalid]="!!localError()"
-        ></textarea
-        ><button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="decide('AJUSTES')"
-        >
-          Enviar solicitação
-        </button>
+        ></textarea>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="decide('AJUSTES')"
+          >
+            Enviar solicitação
+          </button>
+        </div>
       }
       @if (dialog() === 'signatories') {
         @for (s of signatories(); track $index; let i = $index) {
@@ -211,26 +215,30 @@
             </button>
           </div>
         }
-        <button nz-button class="pill" type="button" (click)="addSignatory()">
-          Adicionar signatário</button
-        ><button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="saveSignatories()"
-        >
-          Salvar signatários
-        </button>
+        <div class="dialog-actions">
+          <button nz-button class="pill" type="button" (click)="addSignatory()">
+            Adicionar signatário</button
+          ><button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="saveSignatories()"
+          >
+            Salvar signatários
+          </button>
+        </div>
       }
       @if (localError()) {
         <p role="alert">{{ localError() }}</p>
       }
       @if (dialog() === 'saved') {
         <p role="status">As informações foram salvas na parceria.</p>
-        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
+            Concluir
+          </button>
+        </div>
       }
     </div></ng-container
   >

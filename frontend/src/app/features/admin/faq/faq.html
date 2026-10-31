@@ -114,6 +114,7 @@
           <section
             #resultsPanel
             class="faq-results"
+            [class.is-empty]="!loading() && !results().length"
             aria-label="Resultados da consulta"
             tabindex="0"
           >
@@ -128,15 +129,19 @@
             } @empty {
               @if (!loading()) {
                 <div class="faq-empty" role="status">
-                  <h3 class="question-title">Nenhuma dúvida encontrada</h3>
-                  <p>Tente outra palavra ou consulte as categorias de ajuda.</p>
+                  <app-empty-state
+                    heading="Nenhuma dúvida encontrada"
+                    description="Tente outra palavra ou consulte as categorias de ajuda."
+                  />
                 </div>
               }
             }
           </section>
-          <button nz-button type="button" class="pill back-button" (click)="close()">
-            Voltar às dúvidas
-          </button>
+          <div class="dialog-actions">
+            <button nz-button type="button" class="pill back-button" (click)="close()">
+              Voltar às dúvidas
+            </button>
+          </div>
         </div>
       }
       @case ('editor') {
@@ -215,7 +220,10 @@
               </p>
             }
           </div>
-          <div class="editor-actions" [class.empty-actions]="!editingId() && form.invalid">
+          <div
+            class="editor-actions dialog-actions"
+            [class.empty-actions]="!editingId() && form.invalid"
+          >
             <button
               nz-button
               type="submit"
@@ -239,14 +247,16 @@
           <span class="saved-badge"
             ><img src="/images/status-concluido.svg" width="6" height="6" alt="" />Atualizado</span
           >
-          <button
-            nz-button
-            type="button"
-            class="pill primary-button finish-button"
-            (click)="close()"
-          >
-            Concluir
-          </button>
+          <div class="dialog-actions">
+            <button
+              nz-button
+              type="button"
+              class="pill primary-button finish-button"
+              (click)="close()"
+            >
+              Concluir
+            </button>
+          </div>
         </div>
       }
     }

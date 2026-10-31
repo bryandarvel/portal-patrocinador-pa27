@@ -1,12 +1,16 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
+import { ExecutionStatus } from '../../partnership/shared/execution-status';
+import { reportMaterialLabel } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
+import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PortalContext } from '../../../core/portal-context.service';
 import { LogoDeliveryPreviewService } from '../../partnership/delivery-detail/logo-delivery-preview.service';
@@ -17,6 +21,8 @@ import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 @Component({
   selector: 'app-rbs-logo-delivery',
   imports: [
+    EmptyState,
+    ExecutionStatus,
     CardHeading,
     NzIconModule,
     AdminPartnershipShell,
@@ -37,6 +43,7 @@ import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
   ],
 })
 export class RbsLogoDelivery {
+  readonly materialLabel = reportMaterialLabel;
   readonly preview = inject(LogoDeliveryPreviewService);
   readonly ctx = inject(PortalContext);
   readonly api = inject(PortalApi);
@@ -45,11 +52,21 @@ export class RbsLogoDelivery {
   );
   readonly reportOpen = signal(false);
   readonly organizerOpen = signal(false);
+  readonly organizerButton = viewChild('organizerButton', {
+    read: ElementRef<HTMLButtonElement>,
+  });
   readonly deliveryId = signal('');
   readonly error = signal('');
   readonly file = signal<File | null>(null);
   comment = '';
   description = '';
+  labelDialog(modal: NzModalComponent): void {
+    labelPartnershipDialog(modal, 'rbs-delivery-dialog-title');
+  }
+  restoreOrganizerFocus(): void {
+    // A atualização do detalhe recria o botão enquanto o organizador está aberto.
+    requestAnimationFrame(() => this.organizerButton()?.nativeElement.focus());
+  }
   constructor() {
     inject(ActivatedRoute)
       .paramMap.pipe(takeUntilDestroyed(inject(DestroyRef)))

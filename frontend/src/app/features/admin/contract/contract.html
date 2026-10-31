@@ -123,7 +123,7 @@
           <section class="version-entry">
             <h3>Versão {{ v.numero }}</h3>
             <p>Publicada em {{ v.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
-            <p>{{ v.decisao ?? 'Aguardando validação' }}</p>
+            <p>{{ materialLabel(v.decisao ?? 'Aguardando validação') }}</p>
             @if (v.comentario) {
               <p>{{ v.comentario }}</p>
             }
@@ -155,21 +155,25 @@
         @if (error()) {
           <p role="alert">{{ error() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="publish()"
-        >
-          Publicar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="publish()"
+          >
+            Publicar arquivo
+          </button>
+        </div>
       }
       @if (dialog() === 'saved') {
         <p role="status">O arquivo foi publicado na parceria.</p>
-        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
+            Concluir
+          </button>
+        </div>
       }
     </div></ng-container
   ></nz-modal

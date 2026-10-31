@@ -24,6 +24,18 @@ export function reportExecutionLabel(value: string): string {
   return Object.hasOwn(executionLabels, value) ? executionLabels[value] : value;
 }
 
+const materialLabels: Readonly<Record<string, string>> = {
+  ENVIADO: 'Enviado',
+  RECEBIDO: 'Recebido',
+  EM_ANALISE: 'Em análise',
+  APROVADO: 'Aprovado',
+  AJUSTES: 'Ajustes solicitados',
+  PENDENTE: 'Pendente',
+};
+export function reportMaterialLabel(value: string): string {
+  return Object.hasOwn(materialLabels, value) ? materialLabels[value] : value;
+}
+
 const fileLabels: Readonly<Record<string, string>> = {
   documento_comercial: 'Documento comercial',
   miv: 'Manual de identidade visual',

@@ -127,16 +127,18 @@
         <p>Arquivo disponibilizado no contexto desta parceria.</p>
         <div class="document-preview">
           <h3>Documento</h3>
-          <p>O conteúdo será exibido conforme o formato do arquivo.</p>
+          <p>Baixe o arquivo para consultar o conteúdo.</p>
         </div>
-        <button
-          nz-button
-          class="pill primary-button download-button"
-          type="button"
-          (click)="download()"
-        >
-          Baixar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button download-button"
+            type="button"
+            (click)="download()"
+          >
+            Baixar arquivo
+          </button>
+        </div>
       } @else {
         <p role="status">
           {{
@@ -149,14 +151,16 @@
         <span class="done-badge"
           ><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span
         >
-        <button
-          nz-button
-          class="pill primary-button finish-button"
-          type="button"
-          (click)="closeDialog()"
-        >
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="closeDialog()"
+          >
+            Concluir
+          </button>
+        </div>
       }
     </div>
   </ng-container>

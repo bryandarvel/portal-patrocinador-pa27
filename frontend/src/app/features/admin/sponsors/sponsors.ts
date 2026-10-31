@@ -1,3 +1,4 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
 import { PortalHeader } from '../../../shared/portal-header';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
@@ -24,6 +25,7 @@ const passwordValid = (value: string) =>
 @Component({
   selector: 'app-rbs-sponsors',
   imports: [
+    EmptyState,
     PortalHeader,
     NzIconModule,
     RouterLink,

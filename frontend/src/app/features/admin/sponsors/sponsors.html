@@ -96,7 +96,13 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="4" role="status">Nenhuma parceria encontrada.</td>
+              <td colspan="4" role="status">
+                <app-empty-state
+                  icon="bank"
+                  heading="Nenhuma parceria encontrada"
+                  description="Tente outro nome ou limpe a busca para consultar suas parcerias."
+                />
+              </td>
             </tr>
           }
         </tbody>
@@ -233,25 +239,29 @@
           @if (localError()) {
             <p class="field-error" role="alert">{{ localError() }}</p>
           }
-          <button
-            nz-button
-            class="pill primary-button"
-            type="submit"
-            [disabled]="busy() || !preview.quotas().length"
-          >
-            Cadastrar parceria
-          </button>
+          <div class="dialog-actions">
+            <button
+              nz-button
+              class="pill primary-button"
+              type="submit"
+              [disabled]="busy() || !preview.quotas().length"
+            >
+              Cadastrar parceria
+            </button>
+          </div>
         </form>
       }
       @if (dialog() === 'registered') {
         <p role="status">{{ registered()?.name }} · {{ registered()?.quota }} cadastrada.</p>
-        <a
-          nz-button
-          class="pill primary-button"
-          [routerLink]="'/rbs/parcerias/' + registered()?.id + '/perfil'"
-          (click)="closeDialog()"
-          >Abrir parceria</a
-        >
+        <div class="dialog-actions">
+          <a
+            nz-button
+            class="pill primary-button"
+            [routerLink]="'/rbs/parcerias/' + registered()?.id + '/perfil'"
+            (click)="closeDialog()"
+            >Abrir parceria</a
+          >
+        </div>
       }
       @if (dialog() === 'quotas') {
         <button nz-button class="pill primary-button" type="button" (click)="openQuota()">
@@ -392,15 +402,17 @@
           @if (localError()) {
             <p class="field-error" role="alert">{{ localError() }}</p>
           }
-          <button
-            nz-button
-            class="pill primary-button"
-            type="button"
-            (click)="saveQuota()"
-            [disabled]="busy()"
-          >
-            Salvar cota
-          </button>
+          <div class="dialog-actions">
+            <button
+              nz-button
+              class="pill primary-button"
+              type="button"
+              (click)="saveQuota()"
+              [disabled]="busy()"
+            >
+              Salvar cota
+            </button>
+          </div>
         </div>
       }
       @if (dialog() === 'team') {
@@ -437,9 +449,11 @@
           @if (localError()) {
             <p class="field-error" role="alert">{{ localError() }}</p>
           }
-          <button nz-button class="pill primary-button" type="submit" [disabled]="busy()">
-            Convidar equipe
-          </button>
+          <div class="dialog-actions">
+            <button nz-button class="pill primary-button" type="submit" [disabled]="busy()">
+              Convidar equipe
+            </button>
+          </div>
         </form>
       }
     </div></ng-container

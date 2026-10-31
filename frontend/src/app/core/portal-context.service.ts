@@ -38,6 +38,10 @@ export const PORTAL_AREAS = [
   { key: 'contrato', number: '07', label: 'Contrato', path: 'contrato' },
 ] as const;
 
+export function portalAreaLabel(value: string): string {
+  return PORTAL_AREAS.find((area) => area.key === value)?.label ?? value;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PortalContext {
   private readonly api = inject(PortalApi);

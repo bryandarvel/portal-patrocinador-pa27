@@ -1,5 +1,5 @@
 <app-admin-partnership-shell
-  activeArea="delivery-detail"
+  activeArea="deliveries"
   [title]="preview.delivery()?.titulo ?? 'Entrega'"
   description="Da preparação do material à comprovação da entrega."
 >
@@ -76,7 +76,7 @@
             <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
             ><span class="document-description"
               ><strong>Material versão {{ m.numero }}</strong
-              ><span>{{ m.estado }}</span></span
+              ><span>{{ materialLabel(m.estado) }}</span></span
             ><span class="document-action"
               >Baixar <nz-icon nzType="right" aria-hidden="true"
             /></span></button
@@ -105,10 +105,11 @@
         />
         <p>{{ d.descricao }}</p>
         <p>Responsável: {{ preview.owner() }}</p>
-        <p>Execução: {{ d.execucao }}</p>
+        <app-execution-status [state]="d.execucao" />
         <button nz-button class="pill preview-button" type="button" (click)="reportOpen.set(true)">
           Prévia do relatório</button
         ><button
+          #organizerButton
           nz-button
           class="pill preview-button"
           type="button"
@@ -141,7 +142,11 @@
           }
         </div>
       } @empty {
-        <p>Comprovação ainda não publicada.</p>
+        <app-empty-state
+          icon="check-circle"
+          heading="Comprovação ainda não publicada"
+          description="Após registrar a realização, adicione a descrição e os anexos da execução."
+        />
       }
       @if (d.execucao === 'REALIZADA') {
         <button nz-button class="pill primary-button" type="button" (click)="dialog.set('proof')">
@@ -152,64 +157,83 @@
   }
 </app-admin-partnership-shell>
 <app-delivery-report [(open)]="reportOpen" [deliveryId]="preview.delivery()?.id ?? ''" />
-<app-delivery-organizer [(open)]="organizerOpen" [deliveryId]="deliveryId()" />
+<app-delivery-organizer
+  [(open)]="organizerOpen"
+  [deliveryId]="deliveryId()"
+  (closed)="restoreOrganizerFocus()"
+/>
 <nz-modal
+  #deliveryModal="nzModal"
   [nzVisible]="dialog() !== null"
   (nzOnCancel)="dialog.set(null)"
-  [nzTitle]="
-    dialog() === 'adjust'
-      ? 'Solicitar ajuste'
-      : dialog() === 'approve'
-        ? 'Aprovar material'
-        : dialog() === 'realize'
-          ? 'Registrar realização'
-          : dialog() === 'proof'
-            ? 'Adicionar comprovação'
-            : dialog() === 'history'
-              ? 'Histórico do material'
-              : 'Alterações salvas'
-  "
+  (nzAfterOpen)="labelDialog(deliveryModal)"
+  [nzNoAnimation]="true"
+  [nzTitle]="deliveryTitle"
   [nzFooter]="null"
   [nzCentered]="true"
   nzClassName="pa-profile-dialog"
-  ><ng-container *nzModalContent
+>
+  <ng-template #deliveryTitle
+    ><h2 id="rbs-delivery-dialog-title" class="dialog-title">
+      {{
+        dialog() === 'adjust'
+          ? 'Solicitar ajuste'
+          : dialog() === 'approve'
+            ? 'Aprovar material'
+            : dialog() === 'realize'
+              ? 'Registrar realização'
+              : dialog() === 'proof'
+                ? 'Adicionar comprovação'
+                : dialog() === 'history'
+                  ? 'Histórico do material'
+                  : 'Alterações salvas'
+      }}
+    </h2></ng-template
+  >
+  <ng-container *nzModalContent
     ><div class="dialog-content">
       @if (dialog() === 'approve') {
         <p>A aprovação libera a preparação da ação.</p>
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="evaluate('APROVAR')"
-        >
-          Confirmar aprovação
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="evaluate('APROVAR')"
+          >
+            Confirmar aprovação
+          </button>
+        </div>
       }
       @if (dialog() === 'adjust') {
         <label for="adjust-comment">Comentário obrigatório</label
-        ><textarea id="adjust-comment" [(ngModel)]="comment" required maxlength="2000"></textarea
-        ><button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="evaluate('AJUSTAR')"
-        >
-          Enviar solicitação
-        </button>
+        ><textarea id="adjust-comment" [(ngModel)]="comment" required maxlength="2000"></textarea>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="evaluate('AJUSTAR')"
+          >
+            Enviar solicitação
+          </button>
+        </div>
       }
       @if (dialog() === 'realize') {
         <p>Confirme que a entrega foi realizada.</p>
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="execute('REALIZADA')"
-        >
-          Confirmar realização
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="execute('REALIZADA')"
+          >
+            Confirmar realização
+          </button>
+        </div>
       }
       @if (dialog() === 'proof') {
         <label for="proof-description">Descrição da execução</label
@@ -220,20 +244,23 @@
           maxlength="2000"
         ></textarea
         ><label for="proof-file">Anexo opcional</label
-        ><input #proofFile id="proof-file" type="file" (change)="select(proofFile)" /><button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="publishProof()"
-        >
-          Publicar comprovação
-        </button>
+        ><input #proofFile id="proof-file" type="file" (change)="select(proofFile)" />
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="publishProof()"
+          >
+            Publicar comprovação
+          </button>
+        </div>
       }
       @if (dialog() === 'history') {
         @for (m of preview.versions(); track m.id) {
           <div class="history-version">
-            <strong>Versão {{ m.numero }} · {{ m.estado }}</strong>
+            <strong>Versão {{ m.numero }} · {{ materialLabel(m.estado) }}</strong>
             @if (m.avaliado_em) {
               <p>{{ m.avaliado_por }} · {{ m.avaliado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
             }
@@ -256,9 +283,11 @@
       }
       @if (dialog() === 'saved') {
         <p role="status">As informações foram salvas na parceria.</p>
-        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
+            Concluir
+          </button>
+        </div>
       }
     </div></ng-container
   ></nz-modal

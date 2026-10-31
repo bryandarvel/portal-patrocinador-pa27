@@ -1,18 +1,23 @@
 import { Component, effect, inject, input, model, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
+import { ExecutionStatus } from './execution-status';
+import { reportMaterialLabel } from './report-format';
+import { labelPartnershipDialog } from './modal-accessibility';
 import { PortalApi } from '../../../core/portal-api.service';
-import { PortalContext } from '../../../core/portal-context.service';
+import { portalAreaLabel, PortalContext } from '../../../core/portal-context.service';
 import { Delivery } from '../delivery-detail/logo-delivery-preview.service';
 
 @Component({
   selector: 'app-delivery-report',
-  imports: [DatePipe, NzButtonModule, NzModalModule],
+  imports: [ExecutionStatus, DatePipe, NzButtonModule, NzModalModule],
   templateUrl: './delivery-report.html',
   styleUrls: ['./partnership-ui.css', './delivery-report.css'],
 })
 export class DeliveryReport {
+  readonly areaLabel = portalAreaLabel;
+  readonly materialLabel = reportMaterialLabel;
   readonly open = model(false);
   readonly deliveryId = input('');
   readonly sponsorName = input<string | null>(null);
@@ -20,6 +25,9 @@ export class DeliveryReport {
   readonly api = inject(PortalApi);
   readonly data = signal<Delivery | null>(null);
   readonly loading = signal(false);
+  labelDialog(modal: NzModalComponent): void {
+    labelPartnershipDialog(modal, 'delivery-report-title');
+  }
   constructor() {
     effect(() => {
       const id = this.deliveryId(),

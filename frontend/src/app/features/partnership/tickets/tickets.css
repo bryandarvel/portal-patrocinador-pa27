@@ -64,19 +64,13 @@
   text-shadow: none;
 }
 .destination-guidance {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 20px;
-  border-radius: 8px;
-  background: var(--color-surface);
+  scroll-margin-top: 20px;
 }
 .destination-guidance h2 {
-  font-family: var(--font-body);
-  font-size: 20px;
-  line-height: 28px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 36px;
   font-weight: 700;
-  text-transform: uppercase;
 }
 .destination-guidance p {
   color: var(--color-muted);
@@ -103,6 +97,7 @@
   display: grid;
   gap: 12px;
   max-width: 560px;
+  width: 100%;
 }
 .destination-guidance label {
   font-weight: 600;
@@ -112,11 +107,11 @@
   min-height: 48px;
   padding: 10px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   background: #fff;
   color: var(--color-text);
 }
 .destination-guidance input:focus-visible {
-  outline: 2px solid var(--color-text);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }

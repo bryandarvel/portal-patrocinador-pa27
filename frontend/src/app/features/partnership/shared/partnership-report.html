@@ -29,24 +29,26 @@
         @if (error()) {
           <p class="field-error" role="alert">{{ error() }}</p>
         }
-        <button
-          nz-button
-          type="button"
-          class="pill primary-button publish-file"
-          [disabled]="!file || busy()"
-          (click)="publish()"
-        >
-          Publicar arquivo
-        </button>
-        <button
-          nz-button
-          type="button"
-          class="pill"
-          [disabled]="busy()"
-          (click)="stage.set('overview')"
-        >
-          Voltar
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            type="button"
+            class="pill primary-button publish-file"
+            [disabled]="!file || busy()"
+            (click)="publish()"
+          >
+            Publicar arquivo
+          </button>
+          <button
+            nz-button
+            type="button"
+            class="pill"
+            [disabled]="busy()"
+            (click)="stage.set('overview')"
+          >
+            Voltar
+          </button>
+        </div>
       } @else {
         @if (preview.report(); as report) {
           <p>
@@ -166,20 +168,22 @@
             }
           </section>
           @if (admin()) {
-            <button
-              nz-button
-              type="button"
-              class="pill primary-button publish-report"
-              (click)="showPublication()"
-            >
-              Publicar complemento</button
-            ><a
-              nz-button
-              class="pill organize-sheets"
-              [routerLink]="context.link('relatorio-da-parceria')"
-              (click)="close()"
-              >Planilhas de origem</a
-            >
+            <div class="dialog-actions">
+              <button
+                nz-button
+                type="button"
+                class="pill primary-button publish-report"
+                (click)="showPublication()"
+              >
+                Publicar complemento</button
+              ><a
+                nz-button
+                class="pill organize-sheets"
+                [routerLink]="context.link('relatorio-da-parceria')"
+                (click)="close()"
+                >Planilhas de origem</a
+              >
+            </div>
           }
         } @else {
           @if (api.error()) {

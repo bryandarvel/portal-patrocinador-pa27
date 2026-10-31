@@ -1,3 +1,5 @@
+import { EmptyState } from '../shared/empty-state';
+import { ExecutionStatus } from '../shared/execution-status';
 import { CardHeading } from '../shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -9,7 +11,15 @@ import { DeliveriesPreviewService } from './deliveries-preview.service';
 
 @Component({
   selector: 'app-partnership-deliveries',
-  imports: [CardHeading, PartnershipShell, RouterLink, NzButtonModule, DeliveryReport],
+  imports: [
+    EmptyState,
+    ExecutionStatus,
+    CardHeading,
+    PartnershipShell,
+    RouterLink,
+    NzButtonModule,
+    DeliveryReport,
+  ],
   templateUrl: './deliveries.html',
   styleUrls: ['../shared/partnership-ui.css', './deliveries.css'],
 })

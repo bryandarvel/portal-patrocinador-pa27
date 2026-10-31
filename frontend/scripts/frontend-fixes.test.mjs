@@ -6,6 +6,7 @@ import {
   reportBenefitLabel,
   reportExecutionLabel,
   reportFileLabel,
+  reportMaterialLabel,
 } from '../src/app/features/partnership/shared/report-format.ts';
 
 test('download prefere filename* UTF-8 ao nome codificado de compatibilidade', () => {
@@ -92,4 +93,12 @@ test('estados e beneficios conhecidos recebem rotulos sem mudar valores desconhe
   assert.equal(reportExecutionLabel('constructor'), 'constructor');
   assert.equal(reportFileLabel('__proto__'), '__proto__');
   assert.equal(reportBenefitLabel('toString'), 'toString');
+});
+
+test('estados do material recebem rotulos preservando valores futuros', () => {
+  assert.equal(reportMaterialLabel('EM_ANALISE'), 'Em análise');
+  assert.equal(reportMaterialLabel('APROVADO'), 'Aprovado');
+  assert.equal(reportMaterialLabel('AJUSTES'), 'Ajustes solicitados');
+  assert.equal(reportMaterialLabel('ESTADO_FUTURO'), 'ESTADO_FUTURO');
+  assert.equal(reportMaterialLabel('constructor'), 'constructor');
 });

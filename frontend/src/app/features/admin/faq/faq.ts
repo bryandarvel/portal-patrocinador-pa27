@@ -1,3 +1,4 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
@@ -20,6 +21,7 @@ type FaqDialog = 'results' | 'editor' | 'saved' | null;
 @Component({
   selector: 'app-rbs-faq',
   imports: [
+    EmptyState,
     NzIconModule,
     NgTemplateOutlet,
     AdminPartnershipShell,

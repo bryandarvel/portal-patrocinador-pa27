@@ -1,3 +1,4 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { SubmissionStatus } from '../../partnership/shared/submission-status';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -37,6 +38,7 @@ type MediaDialog =
 @Component({
   selector: 'app-rbs-media',
   imports: [
+    EmptyState,
     CardHeading,
     SubmissionStatus,
     NzIconModule,

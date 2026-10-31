@@ -1,3 +1,6 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { formatReportDate } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -7,7 +10,7 @@ import { SourceSheetsPreviewService } from './source-sheets-preview.service';
 
 @Component({
   selector: 'app-rbs-report',
-  imports: [CardHeading, AdminPartnershipShell, NzButtonModule],
+  imports: [EmptyState, NzIconModule, CardHeading, AdminPartnershipShell, NzButtonModule],
   templateUrl: './report.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
@@ -16,6 +19,7 @@ import { SourceSheetsPreviewService } from './source-sheets-preview.service';
   ],
 })
 export class RbsReport {
+  readonly formatDate = formatReportDate;
   readonly sheets = inject(SourceSheetsPreviewService);
   readonly api = inject(PortalApi);
   readonly selected = signal<File[]>([]);

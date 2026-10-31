@@ -1,3 +1,5 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
+import { ExecutionStatus } from '../../partnership/shared/execution-status';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +15,8 @@ import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 @Component({
   selector: 'app-rbs-deliveries',
   imports: [
+    EmptyState,
+    ExecutionStatus,
     CardHeading,
     AdminPartnershipShell,
     RouterLink,

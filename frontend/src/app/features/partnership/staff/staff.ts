@@ -1,3 +1,4 @@
+import { reportBenefitLabel } from '../shared/report-format';
 import { CardHeading } from '../shared/card-heading';
 import { Component, inject } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,6 +12,7 @@ import { StaffPreviewService } from './staff-preview.service';
   styleUrls: ['../shared/partnership-ui.css', './staff.css'],
 })
 export class PartnershipStaff {
+  readonly benefitLabel = reportBenefitLabel;
   readonly preview = inject(StaffPreviewService);
   readonly accreditation = this.preview.accreditation;
 }

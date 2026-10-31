@@ -98,10 +98,12 @@
         }
         @if (publication.arquivoId) {
           <button
+            nz-button
+            class="pill"
             type="button"
             (click)="preview.download(publication.arquivoId, publication.titulo)"
           >
-            Baixar arquivo
+            <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
           </button>
         }
       </div>
@@ -178,9 +180,11 @@
             <strong>Selecionar arquivo</strong>
             <span>Escolha o arquivo no seu dispositivo</span>
           </button>
-          <button nz-button class="pill finish-button" type="button" (click)="cancel()">
-            Cancelar
-          </button>
+          <div class="dialog-actions">
+            <button nz-button class="pill finish-button" type="button" (click)="cancel()">
+              Cancelar
+            </button>
+          </div>
         }
         @if (inputError()) {
           <p class="file-error" role="alert">{{ inputError() }}</p>
@@ -208,9 +212,16 @@
         <span class="done-badge"
           ><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span
         >
-        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="close()"
+          >
+            Concluir
+          </button>
+        </div>
       }
       @if (dialog() === 'history') {
         @for (version of preview.mivVersions(); track version.version) {
@@ -218,8 +229,13 @@
             <strong>{{ version.name }}</strong>
             <p>Versão {{ version.version }} · {{ version.receivedAt | date: 'dd/MM/yyyy' }}</p>
             @if (version.id) {
-              <button type="button" (click)="preview.download(version.id, version.name)">
-                Baixar
+              <button
+                nz-button
+                class="pill"
+                type="button"
+                (click)="preview.download(version.id, version.name)"
+              >
+                <nz-icon nzType="download" aria-hidden="true" />Baixar
               </button>
             }
           </div>
@@ -227,24 +243,33 @@
         @if (!preview.mivVersions().length) {
           <p>Nenhuma versão enviada.</p>
         }
-        <button nz-button class="pill primary-button finish-button" type="button" (click)="close()">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="close()"
+          >
+            Concluir
+          </button>
+        </div>
       }
       @if (dialog() === 'document') {
         <p>Arquivo disponibilizado no contexto desta parceria.</p>
         <div class="document-preview" [attr.aria-label]="preview.currentMiv()?.name">
           <h3>Documento</h3>
-          <p>O conteúdo será exibido conforme o formato do arquivo.</p>
+          <p>Baixe o arquivo para consultar o conteúdo.</p>
         </div>
-        <button
-          nz-button
-          class="pill primary-button download-button"
-          type="button"
-          (click)="download()"
-        >
-          Baixar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button download-button"
+            type="button"
+            (click)="download()"
+          >
+            <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
+          </button>
+        </div>
       }
     </div>
   </ng-container>

@@ -1,3 +1,4 @@
+import { reportMaterialLabel } from '../shared/report-format';
 import { CardHeading } from '../shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
@@ -25,6 +26,7 @@ import { labelPartnershipDialog } from '../shared/modal-accessibility';
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './contract.css'],
 })
 export class PartnershipContract {
+  readonly materialLabel = reportMaterialLabel;
   readonly preview = inject(ContractPreviewService);
   readonly api = inject(PortalApi);
   readonly dialog = signal<'history' | 'approve' | 'adjust' | 'signatories' | 'saved' | null>(null);

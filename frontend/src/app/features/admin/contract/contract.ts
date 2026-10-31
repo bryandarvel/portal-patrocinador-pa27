@@ -1,3 +1,4 @@
+import { reportMaterialLabel } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
@@ -28,6 +29,7 @@ import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibi
   ],
 })
 export class RbsContract {
+  readonly materialLabel = reportMaterialLabel;
   readonly preview = inject(ContractPreviewService);
   readonly api = inject(PortalApi);
   readonly dialog = signal<'history' | 'version' | 'signed' | 'saved' | null>(null);

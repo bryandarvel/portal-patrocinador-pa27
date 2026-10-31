@@ -83,6 +83,7 @@
   display: grid;
   gap: 12px;
   max-width: 560px;
+  width: 100%;
 }
 .courtesy-form label,
 .destination-guidance label {
@@ -95,13 +96,13 @@
   min-height: 48px;
   padding: 10px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-control);
   background: #fff;
   color: var(--color-text);
 }
 .courtesy-form input:focus-visible,
 .courtesy-form select:focus-visible,
 .destination-guidance input:focus-visible {
-  outline: 2px solid var(--color-text);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }

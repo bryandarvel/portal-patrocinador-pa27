@@ -1,3 +1,4 @@
+import { EmptyState } from '../shared/empty-state';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -15,6 +16,7 @@ type FaqSelection =
 @Component({
   selector: 'app-partnership-faq',
   imports: [
+    EmptyState,
     NzIconModule,
     NgTemplateOutlet,
     ReactiveFormsModule,

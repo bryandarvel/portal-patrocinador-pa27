@@ -1,10 +1,14 @@
+import { EmptyState } from '../shared/empty-state';
+import { ExecutionStatus } from '../shared/execution-status';
+import { reportMaterialLabel } from '../shared/report-format';
 import { CardHeading } from '../shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
+import { labelPartnershipDialog } from '../shared/modal-accessibility';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PortalContext } from '../../../core/portal-context.service';
@@ -15,6 +19,8 @@ import { LogoDeliveryPreviewService } from './logo-delivery-preview.service';
 @Component({
   selector: 'app-delivery-detail',
   imports: [
+    EmptyState,
+    ExecutionStatus,
     CardHeading,
     NzIconModule,
     PartnershipShell,
@@ -28,6 +34,7 @@ import { LogoDeliveryPreviewService } from './logo-delivery-preview.service';
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './delivery-detail.css'],
 })
 export class DeliveryDetail {
+  readonly materialLabel = reportMaterialLabel;
   readonly preview = inject(LogoDeliveryPreviewService);
   readonly ctx = inject(PortalContext);
   readonly api = inject(PortalApi);
@@ -35,6 +42,9 @@ export class DeliveryDetail {
   readonly selected = signal<File | null>(null);
   readonly error = signal('');
   readonly reportOpen = signal(false);
+  labelDialog(modal: NzModalComponent): void {
+    labelPartnershipDialog(modal, 'delivery-dialog-title');
+  }
   constructor() {
     inject(ActivatedRoute)
       .paramMap.pipe(takeUntilDestroyed(inject(DestroyRef)))

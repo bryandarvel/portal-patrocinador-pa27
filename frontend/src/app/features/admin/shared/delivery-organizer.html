@@ -1,11 +1,21 @@
 <nz-modal
+  #organizerModal="nzModal"
   [nzVisible]="open()"
   (nzOnCancel)="open.set(false)"
-  [nzTitle]="stage() === 'saved' ? 'Alterações salvas' : 'Organizar entrega'"
+  [nzTitle]="organizerTitle"
+  (nzAfterOpen)="labelDialog(organizerModal)"
+  (nzAfterClose)="closed.emit()"
+  [nzNoAnimation]="true"
   [nzFooter]="null"
   [nzCentered]="true"
   nzClassName="pa-profile-dialog"
-  ><ng-container *nzModalContent
+>
+  <ng-template #organizerTitle
+    ><h2 id="delivery-organizer-title" class="dialog-title">
+      {{ stage() === 'saved' ? 'Alterações salvas' : 'Organizar entrega' }}
+    </h2></ng-template
+  >
+  <ng-container *nzModalContent
     ><div class="dialog-content">
       @if (stage() === 'choose') {
         @if (loading()) {
@@ -15,9 +25,8 @@
         <label for="owner-select">Responsável pela entrega</label
         ><select
           id="owner-select"
-          [value]="selected()"
-          (change)="selected.set(ownerSelect.value)"
-          #ownerSelect
+          [ngModel]="selected()"
+          (ngModelChange)="selected.set($event)"
           [disabled]="loading()"
         >
           <option value="">Selecione</option>
@@ -28,20 +37,24 @@
         @if (!loading() && !owners().length && !api.error()) {
           <p>Nenhum responsável RBS ativo disponível.</p>
         }
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="loading() || !selected() || api.pending() > 0"
-          (click)="save()"
-        >
-          Salvar responsável</button
-        ><button nz-button class="pill" type="button" (click)="open.set(false)">Cancelar</button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="loading() || !selected() || api.pending() > 0"
+            (click)="save()"
+          >
+            Salvar responsável</button
+          ><button nz-button class="pill" type="button" (click)="open.set(false)">Cancelar</button>
+        </div>
       } @else {
         <p role="status">O responsável foi atualizado na parceria.</p>
-        <button nz-button class="pill primary-button" type="button" (click)="open.set(false)">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button nz-button class="pill primary-button" type="button" (click)="open.set(false)">
+            Concluir
+          </button>
+        </div>
       }
     </div></ng-container
   ></nz-modal

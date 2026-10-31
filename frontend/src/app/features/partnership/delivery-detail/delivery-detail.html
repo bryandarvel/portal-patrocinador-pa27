@@ -1,5 +1,5 @@
 <app-partnership-shell
-  activeArea="delivery-detail"
+  activeArea="deliveries"
   [title]="preview.delivery()?.titulo ?? 'Entrega'"
   description="Acompanhe o material, a execução e a comprovação."
   pageUrl="/entregas"
@@ -31,7 +31,7 @@
             <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
             ><span class="document-description"
               ><strong>Material versão {{ m.numero }}</strong
-              ><span>{{ m.estado }}</span></span
+              ><span>{{ materialLabel(m.estado) }}</span></span
             ><span class="document-action"
               >Baixar <nz-icon nzType="right" aria-hidden="true"
             /></span></button
@@ -74,7 +74,7 @@
         />
         <p>{{ delivery.descricao }}</p>
         <p>Responsável: {{ preview.owner() }}</p>
-        <p>Execução: {{ delivery.execucao }}</p>
+        <app-execution-status [state]="delivery.execucao" />
         <button nz-button class="pill preview-button" type="button" (click)="reportOpen.set(true)">
           Prévia do relatório
         </button>
@@ -101,26 +101,39 @@
           </button>
         }
       } @empty {
-        <p>Comprovação ainda não publicada.</p>
+        <app-empty-state
+          icon="check-circle"
+          heading="Comprovação ainda não publicada"
+          description="A comprovação disponibilizada pela RBS aparecerá aqui."
+        />
       }
     </section>
   }
 </app-partnership-shell>
 <app-delivery-report [(open)]="reportOpen" [deliveryId]="preview.delivery()?.id ?? ''" />
 <nz-modal
+  #deliveryModal="nzModal"
   [nzVisible]="dialog() !== null"
   (nzOnCancel)="dialog.set(null)"
-  [nzTitle]="
-    dialog() === 'history'
-      ? 'Histórico do material'
-      : dialog() === 'upload'
-        ? 'Enviar material'
-        : 'Material enviado'
-  "
+  (nzAfterOpen)="labelDialog(deliveryModal)"
+  [nzNoAnimation]="true"
+  [nzTitle]="deliveryTitle"
   [nzFooter]="null"
   [nzCentered]="true"
   nzClassName="pa-profile-dialog"
-  ><ng-container *nzModalContent
+>
+  <ng-template #deliveryTitle
+    ><h2 id="delivery-dialog-title" class="dialog-title">
+      {{
+        dialog() === 'history'
+          ? 'Histórico do material'
+          : dialog() === 'upload'
+            ? 'Enviar material'
+            : 'Material enviado'
+      }}
+    </h2></ng-template
+  >
+  <ng-container *nzModalContent
     ><div class="dialog-content">
       @if (dialog() === 'upload') {
         <label for="delivery-file">Arquivo do material</label
@@ -129,20 +142,22 @@
         @if (error()) {
           <p role="alert">{{ error() }}</p>
         }
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="send()"
-        >
-          Enviar material
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="send()"
+          >
+            Enviar material
+          </button>
+        </div>
       }
       @if (dialog() === 'history') {
         @for (m of preview.versions(); track m.id) {
           <div class="history-version">
-            <strong>Versão {{ m.numero }} · {{ m.estado }}</strong>
+            <strong>Versão {{ m.numero }} · {{ materialLabel(m.estado) }}</strong>
             @if (m.avaliado_em) {
               <p>{{ m.avaliado_por }} · {{ m.avaliado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
             }
@@ -162,9 +177,11 @@
       }
       @if (dialog() === 'saved') {
         <p role="status">Material enviado para esta entrega.</p>
-        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
+            Concluir
+          </button>
+        </div>
       }
     </div></ng-container
   ></nz-modal

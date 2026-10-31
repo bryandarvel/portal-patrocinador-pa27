@@ -1,3 +1,4 @@
+import { EmptyState } from '../shared/empty-state';
 import { CardHeading } from '../shared/card-heading';
 import { SubmissionStatus } from '../shared/submission-status';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -28,6 +29,7 @@ type MediaDialog =
 @Component({
   selector: 'app-partnership-media',
   imports: [
+    EmptyState,
     CardHeading,
     SubmissionStatus,
     NzIconModule,

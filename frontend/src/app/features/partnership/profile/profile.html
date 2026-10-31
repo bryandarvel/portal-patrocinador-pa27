@@ -50,7 +50,10 @@
           ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
         </button>
       } @empty {
-        <p>Nenhum documento disponibilizado.</p>
+        <app-empty-state
+          heading="Nenhum documento disponível"
+          description="Os documentos comerciais publicados pela RBS aparecerão aqui."
+        />
       }
     </section>
   </div>

@@ -80,7 +80,10 @@
           ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
         </button>
       } @empty {
-        <p>Nenhum documento disponibilizado.</p>
+        <app-empty-state
+          heading="Nenhum documento disponível"
+          description="Use Disponibilizar documento para adicionar os arquivos comerciais da parceria."
+        />
       }
       <button
         nz-button
@@ -219,20 +222,29 @@
   </section>
 </app-admin-partnership-shell>
 <nz-modal
+  #profileModal="nzModal"
   [nzVisible]="dialog() !== null"
   (nzOnCancel)="closeDialog()"
-  [nzTitle]="
-    dialog() === 'access'
-      ? 'Acesso do patrocinador'
-      : dialog() === 'publish'
-        ? 'Disponibilizar documento'
-        : 'Alterações salvas'
-  "
+  (nzAfterOpen)="labelDialog(profileModal)"
+  [nzNoAnimation]="true"
+  [nzTitle]="profileTitle"
   [nzFooter]="null"
   [nzCentered]="true"
   [nzWidth]="640"
   nzClassName="pa-profile-dialog"
-  ><ng-container *nzModalContent
+>
+  <ng-template #profileTitle
+    ><h2 id="rbs-profile-dialog-title" class="dialog-title">
+      {{
+        dialog() === 'access'
+          ? 'Acesso do patrocinador'
+          : dialog() === 'publish'
+            ? 'Disponibilizar documento'
+            : 'Alterações salvas'
+      }}
+    </h2></ng-template
+  >
+  <ng-container *nzModalContent
     ><div class="dialog-content">
       @if (dialog() === 'access') {
         <p>Selecione as contas que terão acesso a esta parceria.</p>
@@ -282,23 +294,25 @@
           maxlength="128"
         />
         <p>O convite exige ativação por e-mail. Após criar a conta, salve os acessos.</p>
-        <button
-          nz-button
-          class="pill"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="invite()"
-        >
-          Criar convite</button
-        ><button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="saveAccess()"
-        >
-          Salvar acessos
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="invite()"
+          >
+            Criar convite</button
+          ><button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="saveAccess()"
+          >
+            Salvar acessos
+          </button>
+        </div>
       }
       @if (dialog() === 'publish') {
         <p>Selecione um documento comercial real para disponibilizar nesta parceria.</p>
@@ -311,29 +325,33 @@
           required
         />
         <p>{{ file()?.name ?? 'Nenhum arquivo selecionado' }}</p>
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="publish()"
-        >
-          Publicar arquivo
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button"
+            type="button"
+            [disabled]="api.pending() > 0"
+            (click)="publish()"
+          >
+            Publicar arquivo
+          </button>
+        </div>
       }
       @if (error()) {
         <p role="alert">{{ error() }}</p>
       }
       @if (dialog() === 'saved') {
         <p role="status">As informações foram atualizadas na parceria.</p>
-        <button
-          nz-button
-          class="pill primary-button finish-button"
-          type="button"
-          (click)="closeDialog()"
-        >
-          Concluir
-        </button>
+        <div class="dialog-actions">
+          <button
+            nz-button
+            class="pill primary-button finish-button"
+            type="button"
+            (click)="closeDialog()"
+          >
+            Concluir
+          </button>
+        </div>
       }
     </div></ng-container
   ></nz-modal

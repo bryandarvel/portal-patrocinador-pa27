@@ -118,7 +118,13 @@
   (nzOnClose)="menuOpen.set(false)"
 >
   <ng-container *nzDrawerContent>
-    <div class="partnership-sidebar in-drawer" role="navigation" aria-label="Navegação da parceria">
+    <div
+      class="partnership-sidebar in-drawer"
+      role="navigation"
+      aria-label="Navegação da parceria"
+      [inert]="!menuOpen()"
+      [attr.aria-hidden]="!menuOpen()"
+    >
       <ng-container [ngTemplateOutlet]="sidebar" />
     </div>
   </ng-container>
@@ -161,9 +167,11 @@
           }
         }
       </ul>
-      <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
-        Concluir
-      </button>
+      <div class="dialog-actions">
+        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
+          Concluir
+        </button>
+      </div>
     </div></ng-container
   >
 </nz-modal>

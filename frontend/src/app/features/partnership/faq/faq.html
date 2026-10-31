@@ -83,7 +83,12 @@
   <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent>
     <div class="dialog-content">
-      <section class="faq-results" aria-label="Resultados da consulta" tabindex="0">
+      <section
+        class="faq-results"
+        [class.is-empty]="!loading() && !results().length"
+        aria-label="Resultados da consulta"
+        tabindex="0"
+      >
         @if (loading()) {
           <p role="status">Buscando dúvidas...</p>
         }
@@ -95,15 +100,19 @@
         } @empty {
           @if (!loading()) {
             <div class="faq-empty" role="status">
-              <h3 class="question-title">Nenhuma dúvida encontrada</h3>
-              <p>Tente outra palavra ou consulte as categorias de ajuda.</p>
+              <app-empty-state
+                heading="Nenhuma dúvida encontrada"
+                description="Tente outra palavra ou consulte as categorias de ajuda."
+              />
             </div>
           }
         }
       </section>
-      <button nz-button type="button" class="pill back-button" (click)="selection.set(null)">
-        Voltar às dúvidas
-      </button>
+      <div class="dialog-actions">
+        <button nz-button type="button" class="pill back-button" (click)="selection.set(null)">
+          Voltar às dúvidas
+        </button>
+      </div>
     </div>
   </ng-container>
 </nz-modal>

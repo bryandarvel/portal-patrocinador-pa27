@@ -1,3 +1,4 @@
+import { EmptyState } from '../shared/empty-state';
 import { CardHeading } from '../shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, inject } from '@angular/core';
@@ -10,7 +11,7 @@ import { PartnershipShell } from '../shared/partnership-shell';
 
 @Component({
   selector: 'app-partnership-profile',
-  imports: [CardHeading, NzIconModule, PartnershipShell, NzButtonModule, NzInputModule],
+  imports: [EmptyState, CardHeading, NzIconModule, PartnershipShell, NzButtonModule, NzInputModule],
   templateUrl: './profile.html',
   styleUrls: ['../shared/partnership-ui.css', './profile.css'],
 })

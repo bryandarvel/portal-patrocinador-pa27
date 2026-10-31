@@ -10,7 +10,12 @@
         heading="Cortesias da parceria"
         headingId="rbs-courtesies-title"
       />
-      <button nz-button class="pill primary-button add-button" type="button" (click)="open()">
+      <button
+        nz-button
+        class="pill primary-button add-button"
+        type="button"
+        (click)="open(null, $event.currentTarget)"
+      >
         <nz-icon nzType="gift" aria-hidden="true" />Adicionar cortesia
       </button>
     </div>
@@ -22,7 +27,7 @@
             <dl class="courtesy-details">
               <div>
                 <dt>Tipo</dt>
-                <dd>{{ item.type }}</dd>
+                <dd>{{ benefitLabel(item.type) }}</dd>
               </div>
               <div>
                 <dt>Setor</dt>
@@ -34,16 +39,24 @@
               </div>
             </dl>
             @if (item.periodStart) {
-              <p>Período: {{ item.periodStart }} a {{ item.periodEnd }}</p>
+              <p>
+                Período: {{ formatDate(item.periodStart, true) }} a
+                {{ formatDate(item.periodEnd, true) }}
+              </p>
             }
             @if (item.eventDay) {
-              <p>Dia: {{ item.eventDay }}</p>
+              <p>Dia: {{ formatDate(item.eventDay, true) }}</p>
             }
             @for (destination of item.destinations; track destination.id) {
               <p>{{ destination.quantidade }} para {{ destination.destinacao }}</p>
             }
           </article>
-          <button nz-button class="pill edit-button" type="button" (click)="open(item)">
+          <button
+            nz-button
+            class="pill edit-button"
+            type="button"
+            (click)="open(item, $event.currentTarget)"
+          >
             Editar cortesia
           </button>
         </li>
@@ -52,11 +65,14 @@
       }
     </ul>
   </section>
-  <section class="destination-guidance">
+  <section class="pa-card destination-guidance">
     <h2>Direitos de cortesia</h2>
     @for (benefit of benefits(); track benefit.id) {
       <div class="courtesy-field">
-        <p>{{ benefit.tipo }} · {{ benefit.setor }} · {{ benefit.publico || 'Público geral' }}</p>
+        <p>
+          {{ benefitLabel(benefit.tipo) }} · {{ benefit.setor }} ·
+          {{ benefit.publico || 'Público geral' }}
+        </p>
         <label [for]="'limit-' + benefit.id">Limite</label
         ><input
           [id]="'limit-' + benefit.id"
@@ -106,15 +122,18 @@
     }
   </section>
   @if (formOpen()) {
-    <section class="courtesy-form" aria-labelledby="courtesy-form-title">
+    <section #courtesyForm class="pa-card courtesy-form" aria-labelledby="courtesy-form-title">
       <h2 id="courtesy-form-title">{{ editing() ? 'Editar' : 'Adicionar' }} cortesia</h2>
+      @if (editing(); as item) {
+        <p>{{ benefitLabel(item.type) }} · {{ item.sector }}</p>
+      }
       <form (ngSubmit)="save()">
         <label for="courtesy-benefit">Direito da parceria</label
         ><select id="courtesy-benefit" name="benefitId" [(ngModel)]="benefitId" required>
           <option value="">Selecione</option>
           @for (benefit of benefits(); track benefit.id) {
             <option [value]="benefit.id">
-              {{ benefit.tipo }} · {{ benefit.setor }} · {{ benefit.publico }} (limite
+              {{ benefitLabel(benefit.tipo) }} · {{ benefit.setor }} · {{ benefit.publico }} (limite
               {{ benefit.quantidade }})
             </option>
           }
@@ -151,16 +170,18 @@
           <label for="event-day">Dia do evento</label
           ><input id="event-day" name="eventDay" type="date" [(ngModel)]="eventDay" required />
         }
-        <button
-          nz-button
-          class="pill primary-button save-button"
-          type="submit"
-          [disabled]="saving()"
-        >
-          Salvar cortesia</button
-        ><button nz-button class="pill cancel-button" type="button" (click)="formOpen.set(false)">
-          Cancelar
-        </button>
+        <div class="card-actions">
+          <button
+            nz-button
+            class="pill primary-button save-button"
+            type="submit"
+            [disabled]="saving()"
+          >
+            Salvar cortesia</button
+          ><button nz-button class="pill cancel-button" type="button" (click)="close()">
+            Cancelar
+          </button>
+        </div>
       </form>
     </section>
   }

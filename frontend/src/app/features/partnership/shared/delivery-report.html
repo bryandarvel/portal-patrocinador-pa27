@@ -1,28 +1,37 @@
 <nz-modal
+  #deliveryReportModal="nzModal"
   [nzVisible]="open()"
   (nzOnCancel)="open.set(false)"
-  nzTitle="Prévia do relatório"
+  [nzTitle]="deliveryReportTitle"
+  (nzAfterOpen)="labelDialog(deliveryReportModal)"
+  [nzNoAnimation]="true"
   [nzFooter]="null"
   [nzCentered]="true"
   [nzWidth]="840"
   nzClassName="pa-profile-dialog"
-  ><ng-container *nzModalContent
+>
+  <ng-template #deliveryReportTitle
+    ><h2 id="delivery-report-title" class="dialog-title">Prévia do relatório</h2></ng-template
+  >
+  <ng-container *nzModalContent
     ><div class="dialog-content report-content">
       <p>Registros da entrega organizados para a consolidação pós-evento.</p>
       @if (loading()) {
         <p role="status">Carregando entrega…</p>
       }
       @if (data(); as d) {
-        <p class="eyebrow">{{ sponsorName() ?? ctx.partnership()?.nome }} / {{ d.area }}</p>
+        <p class="eyebrow">
+          {{ sponsorName() ?? ctx.partnership()?.nome }} / {{ areaLabel(d.area) }}
+        </p>
         <h3 class="report-delivery-title">{{ d.titulo }}</h3>
         <dl class="report-status">
           <div>
             <dt class="eyebrow">Material</dt>
-            <dd>{{ d.materiais[0]?.estado ?? 'Aguardando envio' }}</dd>
+            <dd>{{ materialLabel(d.materiais[0]?.estado ?? 'Aguardando envio') }}</dd>
           </div>
           <div>
             <dt class="eyebrow">Entrega</dt>
-            <dd>{{ d.execucao }}</dd>
+            <dd><app-execution-status [state]="d.execucao" /></dd>
           </div>
         </dl>
         <p>{{ d.responsavel ?? 'Responsável ainda não definido' }}</p>
@@ -35,14 +44,16 @@
           <p>A comprovação ainda não foi registrada.</p>
         }
       }
-      <button
-        nz-button
-        class="pill primary-button return-button"
-        type="button"
-        (click)="open.set(false)"
-      >
-        Voltar à parceria
-      </button>
+      <div class="dialog-actions">
+        <button
+          nz-button
+          class="pill primary-button return-button"
+          type="button"
+          (click)="open.set(false)"
+        >
+          Voltar à parceria
+        </button>
+      </div>
     </div></ng-container
   ></nz-modal
 >

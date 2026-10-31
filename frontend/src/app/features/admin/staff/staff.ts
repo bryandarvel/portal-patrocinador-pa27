@@ -1,3 +1,4 @@
+import { reportBenefitLabel } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,7 @@ import { Credential, StaffPreviewService } from '../../partnership/staff/staff-p
   ],
 })
 export class RbsStaff {
+  readonly benefitLabel = reportBenefitLabel;
   readonly preview = inject(StaffPreviewService);
   readonly context = inject(PortalContext);
   readonly api = inject(PortalApi);

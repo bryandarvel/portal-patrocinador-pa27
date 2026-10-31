@@ -1,11 +1,17 @@
 import { Component, inject } from '@angular/core';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { PortalApi } from '../core/portal-api.service';
 
 @Component({
   selector: 'app-api-status',
+  imports: [NzSpinModule],
   template: `
     @if (api.pending()) {
-      <p role="status" aria-live="polite" class="api-loading">Aguarde, atualizando os dados…</p>
+      <div role="status" class="api-loading">
+        <nz-spin nzSimple nzSize="small" aria-hidden="true" /><span
+          >Aguarde, atualizando os dados…</span
+        >
+      </div>
     }
     @if (api.error()) {
       <div role="alert" class="api-error">
@@ -32,11 +38,21 @@ import { PortalApi } from '../core/portal-api.service';
       background: var(--color-surface);
       color: var(--color-muted);
     }
+    .api-loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .api-notice {
+      border-color: var(--color-success);
+      background: var(--color-success-soft);
+      color: var(--color-success);
+    }
     .api-error {
       padding: 12px 16px;
-      background: #fff0ed;
-      color: #8c2216;
-      border: 1px solid #b42318;
+      background: var(--color-error-soft);
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
       border-radius: var(--radius-control);
       margin: 12px 0;
     }
@@ -52,6 +68,13 @@ import { PortalApi } from '../core/portal-api.service';
       min-height: 36px;
       padding: 4px 12px;
       cursor: pointer;
+    }
+    .api-error button:hover {
+      background: var(--color-error-soft);
+    }
+    .api-error button:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 3px;
     }
   `,
 })

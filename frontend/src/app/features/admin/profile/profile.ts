@@ -1,10 +1,12 @@
+import { EmptyState } from '../../partnership/shared/empty-state';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
+import { labelPartnershipDialog } from '../../partnership/shared/modal-accessibility';
 import { PortalApi } from '../../../core/portal-api.service';
 import { Beneficio, PORTAL_AREAS, PortalContext } from '../../../core/portal-context.service';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
@@ -13,6 +15,7 @@ import { RbsProfilePreviewService, SponsorUser } from './profile-preview.service
 @Component({
   selector: 'app-rbs-profile',
   imports: [
+    EmptyState,
     CardHeading,
     NzIconModule,
     AdminPartnershipShell,
@@ -56,6 +59,9 @@ export class RbsProfile {
   inviteEmail = '';
   invitePassword = '';
   private lastId = '';
+  labelDialog(modal: NzModalComponent): void {
+    labelPartnershipDialog(modal, 'rbs-profile-dialog-title');
+  }
   constructor() {
     effect(() => {
       const p = this.ctx.partnership();
