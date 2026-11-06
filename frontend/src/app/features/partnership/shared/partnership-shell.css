@@ -77,6 +77,27 @@
   color: var(--color-text);
   overflow-wrap: anywhere;
 }
+.identity-profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+.identity-demo {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+.identity-profile-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+.identity-profile-link nz-icon {
+  font-size: 14px;
+}
 .quota {
   max-width: 100%;
   margin: 0;
@@ -161,45 +182,6 @@ nav {
 .report-link.active .chevron {
   color: #fff;
 }
-.account {
-  margin-top: auto;
-  padding: 12px 8px 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.account-link {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: var(--color-text);
-  border-radius: 8px;
-}
-.account-link:hover {
-  color: var(--color-text);
-}
-.account-link nz-avatar {
-  flex: 0 0 auto;
-  background: #8b94a3;
-}
-.account-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.account-copy strong {
-  font-size: 15px;
-  line-height: 20px;
-  font-weight: 500;
-}
-.account-copy span {
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--color-muted);
-  overflow-wrap: anywhere;
-}
 .logout-button {
   min-height: 44px;
   padding: 0 8px 0 14px;
@@ -218,6 +200,13 @@ nav {
 }
 .logout-button:hover {
   color: var(--color-primary);
+}
+.sidebar-logout {
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 12px 14px;
+  border-left: 0;
+  border-radius: 8px;
 }
 .partnership-sidebar :focus-visible {
   outline: 2px solid var(--color-focus);
@@ -240,15 +229,6 @@ nav {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-.trail {
-  font-size: 13px;
-  line-height: 18px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  overflow-wrap: anywhere;
 }
 h1 {
   margin-top: 12px;
@@ -294,7 +274,7 @@ h1 {
   z-index: 10;
   width: 72px;
   height: 72px;
-  display: grid;
+  display: none;
   place-items: center;
   font-size: 30px;
   box-shadow: 0 10px 24px #0b6bf259;
@@ -361,6 +341,7 @@ h1 {
     line-height: 24px;
   }
   .help-button.ant-btn {
+    display: grid;
     right: 16px;
     bottom: 16px;
     width: 56px;

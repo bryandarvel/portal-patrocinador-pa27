@@ -3,37 +3,14 @@
   title="Credenciamento"
   description="Quantidades e orientações para o credenciamento da equipe."
 >
-  <div class="staff-panels">
+  <div class="staff-panels sponsor-staff">
     <section class="pa-card staff-card" aria-labelledby="staff-credentials-title">
       <app-card-heading
         icon="idcard"
         heading="Credenciais previstas"
         headingId="staff-credentials-title"
       />
-      @for (
-        item of accreditation()?.itens ?? [];
-        track item.beneficioId + item.setor + item.publico
-      ) {
-        <div class="staff-details">
-          <p class="quantity">{{ item.quantidade }}</p>
-          <dl>
-            <div>
-              <dt>Tipo</dt>
-              <dd>{{ benefitLabel(item.tipo) }}</dd>
-            </div>
-            <div>
-              <dt>Setor</dt>
-              <dd>{{ item.setor }}</dd>
-            </div>
-            <div>
-              <dt>Público</dt>
-              <dd>{{ item.publico }}</dd>
-            </div>
-          </dl>
-        </div>
-      } @empty {
-        <p>Nenhuma credencial informada para esta parceria.</p>
-      }
+      <app-credential-list [credentials]="accreditation()?.itens ?? []" />
     </section>
     <section class="pa-card staff-card external-guidance" aria-labelledby="staff-external-title">
       <app-card-heading
@@ -50,8 +27,10 @@
           [href]="accreditation()!.urlOpenStaff"
           target="_blank"
           rel="noopener noreferrer"
-          >Acessar Open Staff</a
+          aria-describedby="open-staff-new-tab"
+          ><nz-icon nzType="export" aria-hidden="true" />Acessar Open Staff</a
         >
+        <p id="open-staff-new-tab" class="external-link-note">Abre em nova aba.</p>
       } @else {
         <p>O endereço do Open Staff ainda não foi configurado pela RBS.</p>
       }

@@ -1,8 +1,8 @@
+import { MediaPlacements, MediaPublications } from './media-records';
 import { EmptyState } from '../shared/empty-state';
 import { CardHeading } from '../shared/card-heading';
 import { SubmissionStatus } from '../shared/submission-status';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { DatePipe } from '@angular/common';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,24 +11,19 @@ import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PartnershipShell } from '../shared/partnership-shell';
 import { MaterialSelection } from '../shared/partnership-preview.service';
 import { labelPartnershipDialog } from '../shared/modal-accessibility';
+import { MaterialVersionHistory } from '../shared/material-version-history';
 import { MediaPreviewService } from './media-preview.service';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PortalContext } from '../../../core/portal-context.service';
 
 type MediaDialog =
-  | 'upload'
-  | 'progress'
-  | 'received'
-  | 'cancelled'
-  | 'history'
-  | 'document'
-  | 'briefing'
-  | 'saved'
-  | 'post';
+  'upload' | 'progress' | 'received' | 'history' | 'document' | 'briefing' | 'saved' | 'post';
 
 @Component({
   selector: 'app-partnership-media',
   imports: [
+    MediaPlacements,
+    MediaPublications,
     EmptyState,
     CardHeading,
     SubmissionStatus,
@@ -38,7 +33,7 @@ type MediaDialog =
     NzInputModule,
     NzModalModule,
     ReactiveFormsModule,
-    DatePipe,
+    MaterialVersionHistory,
   ],
   templateUrl: './media.html',
   styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './media.css'],
@@ -67,10 +62,8 @@ export class PartnershipMedia {
         return 'Enviando material';
       case 'received':
         return 'Material recebido';
-      case 'cancelled':
-        return 'Operação cancelada';
       case 'history':
-        return 'Histórico · Mídia';
+        return 'Histórico de mídia';
       case 'briefing':
         return 'Texto / briefing';
       case 'saved':
@@ -171,14 +164,6 @@ export class PartnershipMedia {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  cancel(): void {
-    if (this.busy()) return;
-    this.selected.set(null);
-    this.inputError.set('');
-    this.dialog.set('cancelled');
-    this.focusDialogTitle();
   }
 
   close(): void {

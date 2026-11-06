@@ -1,8 +1,10 @@
+import { CredentialList } from '../../partnership/staff/credential-list';
 import { reportBenefitLabel } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AdminPartnershipShell } from '../shared/admin-partnership-shell';
 import { PortalApi } from '../../../core/portal-api.service';
@@ -11,7 +13,15 @@ import { Credential, StaffPreviewService } from '../../partnership/staff/staff-p
 
 @Component({
   selector: 'app-rbs-staff',
-  imports: [CardHeading, AdminPartnershipShell, FormsModule, RouterLink, NzButtonModule],
+  imports: [
+    CredentialList,
+    CardHeading,
+    AdminPartnershipShell,
+    FormsModule,
+    RouterLink,
+    NzButtonModule,
+    NzIconModule,
+  ],
   templateUrl: './staff.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

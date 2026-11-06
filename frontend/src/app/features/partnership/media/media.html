@@ -7,7 +7,7 @@
   <app-submission-status [open]="preview.submissionsOpen()"> </app-submission-status>
 
   <div class="media-panels">
-    <section class="pa-card media-card" aria-labelledby="media-materials-title">
+    <section class="pa-card media-card materials-card" aria-labelledby="media-materials-title">
       <app-card-heading
         icon="picture"
         heading="Materiais e textos"
@@ -56,7 +56,13 @@
             <nz-icon nzType="file-text" aria-hidden="true" />Enviar texto / briefing
           </button>
         }
-        <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">
+        <button
+          nz-button
+          class="pill history-button"
+          type="button"
+          aria-haspopup="dialog"
+          (click)="dialog.set('history')"
+        >
           <nz-icon nzType="clock-circle" aria-hidden="true" />Histórico de versões
         </button>
       </div>
@@ -69,27 +75,12 @@
         heading="Publicações da RBS"
         headingId="media-publications-title"
       />
-      @for (publication of preview.publications(); track publication.id) {
-        <div class="history-version">
-          <strong>{{ publication.titulo }}</strong>
-          <p>{{ publication.texto }}</p>
-          @if (publication.url) {
-            <a [href]="publication.url" target="_blank" rel="noopener noreferrer"
-              >Abrir publicação</a
-            >
-          }
-          @if (publication.arquivoId) {
-            <button
-              nz-button
-              class="pill"
-              type="button"
-              (click)="preview.download(publication.arquivoId, publication.titulo)"
-            >
-              <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
-            </button>
-          }
-        </div>
-      } @empty {
+      @if (preview.publications().length) {
+        <app-media-publications
+          [publications]="preview.publications()"
+          (download)="preview.download($event.id, $event.name)"
+        />
+      } @else {
         <app-empty-state
           icon="file-text"
           heading="Nenhuma publicação disponível"
@@ -107,31 +98,7 @@
       headingId="media-comparison-title"
     />
     @if (preview.placements().length) {
-      <table aria-labelledby="media-comparison-title">
-        <thead>
-          <tr>
-            <th scope="col">Canal</th>
-            <th scope="col">Descrição</th>
-            <th scope="col">Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of preview.placements(); track item.id) {
-            <tr>
-              <th scope="row">{{ item.canal }}</th>
-              <td>
-                {{ item.descricao }}
-                @if (item.url) {
-                  <a [href]="item.url" target="_blank" rel="noopener noreferrer">Abrir</a>
-                }
-              </td>
-              <td>
-                {{ item.veiculadoEm ? (item.veiculadoEm | date: 'dd/MM/yyyy') : 'Não informada' }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <app-media-placements [placements]="preview.placements()" />
     } @else {
       <app-empty-state
         icon="send"
@@ -150,9 +117,8 @@
   [nzTitle]="modalTitle"
   [nzFooter]="null"
   [nzCentered]="true"
-  [nzWidth]="640"
+  [nzWidth]="dialog() === 'history' ? 720 : 640"
   [nzNoAnimation]="true"
-  [nzClosable]="dialog() !== 'history'"
   nzClassName="pa-profile-dialog"
   [nzCloseIcon]="closeIcon"
 >
@@ -209,7 +175,7 @@
             ><span>Escolha o arquivo no seu dispositivo</span>
           </button>
           <div class="dialog-actions">
-            <button nz-button class="pill finish-button" type="button" (click)="cancel()">
+            <button nz-button class="pill finish-button" type="button" (click)="close()">
               Cancelar
             </button>
           </div>
@@ -231,14 +197,8 @@
           /></span>
         </div>
       }
-      @if (dialog() === 'received' || dialog() === 'saved' || dialog() === 'cancelled') {
-        <p role="status">
-          {{
-            dialog() === 'cancelled'
-              ? 'Nenhuma informação foi alterada.'
-              : 'Informações registradas na parceria.'
-          }}
-        </p>
+      @if (dialog() === 'received' || dialog() === 'saved') {
+        <p role="status">Informações registradas na parceria.</p>
         <span class="done-badge"
           ><img src="/images/status-concluido.svg" alt="" width="6" height="6" />Concluído</span
         >
@@ -299,35 +259,10 @@
         </form>
       }
       @if (dialog() === 'history') {
-        @for (version of preview.versions(); track version.version) {
-          <div class="history-version">
-            <strong>{{ version.name }}</strong>
-            <p>Versão {{ version.version }} · {{ version.receivedAt | date: 'dd/MM/yyyy' }}</p>
-            @if (version.id) {
-              <button
-                nz-button
-                class="pill"
-                type="button"
-                (click)="preview.download(version.id, version.name)"
-              >
-                <nz-icon nzType="download" aria-hidden="true" />Baixar
-              </button>
-            }
-          </div>
-        }
-        @if (!preview.versions().length) {
-          <p>Nenhuma versão enviada.</p>
-        }
-        <div class="dialog-actions">
-          <button
-            nz-button
-            class="pill primary-button finish-button"
-            type="button"
-            (click)="close()"
-          >
-            Concluir
-          </button>
-        </div>
+        <app-material-version-history
+          [versions]="preview.versions()"
+          (download)="preview.download($event.id, $event.name)"
+        />
       }
       @if (dialog() === 'document') {
         <p>Arquivo disponibilizado no contexto desta parceria.</p>

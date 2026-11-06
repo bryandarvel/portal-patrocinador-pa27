@@ -1,0 +1,19 @@
+{
+  "edition": "2027 — Demonstração PA27",
+  "brands": [
+    {
+      "name": "Renner",
+      "key": "renner",
+      "quota": "Cota Master",
+      "logos": ["renner"],
+      "localPartnershipId": "0c7310ec-005d-4b58-b274-3ea21137bf74"
+    },
+    { "name": "Coca-Cola", "key": "coca-cola", "quota": "Cota Master", "logos": ["coca-cola"] },
+    { "name": "Banrisul", "key": "banrisul", "quota": "Cota Master", "logos": ["banrisul"] },
+    { "name": "Monster", "key": "monster", "quota": "Cota Master", "logos": ["monster"] },
+    { "name": "Mastercard", "key": "mastercard", "quota": "Subcota G", "logos": ["mastercard"] },
+    { "name": "Absolut Sprite", "key": "absolut-sprite", "quota": "Subcota G", "logos": ["absolut-sprite"] },
+    { "name": "Aperol", "key": "aperol", "quota": "Subcota M", "logos": ["aperol"] },
+    { "name": "Claro + JBL", "key": "claro-jbl", "quota": "Subcota M", "logos": ["claro", "jbl"] }
+  ]
+}

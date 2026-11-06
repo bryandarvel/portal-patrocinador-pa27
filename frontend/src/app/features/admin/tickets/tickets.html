@@ -22,79 +22,93 @@
     <ul class="courtesy-list">
       @for (item of preview.courtesies(); track item.id) {
         <li class="courtesy-item">
-          <article class="courtesy-card">
-            <p class="quantity">{{ item.quantity }}</p>
-            <dl class="courtesy-details">
-              <div>
-                <dt>Tipo</dt>
-                <dd>{{ benefitLabel(item.type) }}</dd>
-              </div>
-              <div>
-                <dt>Setor</dt>
-                <dd>{{ item.sector }}</dd>
-              </div>
-              <div>
-                <dt>Saldo</dt>
-                <dd>{{ item.quantity - item.allocated }}</dd>
-              </div>
-            </dl>
-            @if (item.periodStart) {
-              <p>
-                Período: {{ formatDate(item.periodStart, true) }} a
-                {{ formatDate(item.periodEnd, true) }}
-              </p>
-            }
-            @if (item.eventDay) {
-              <p>Dia: {{ formatDate(item.eventDay, true) }}</p>
-            }
-            @for (destination of item.destinations; track destination.id) {
-              <p>{{ destination.quantidade }} para {{ destination.destinacao }}</p>
-            }
-          </article>
-          <button
-            nz-button
-            class="pill edit-button"
-            type="button"
-            (click)="open(item, $event.currentTarget)"
-          >
-            Editar cortesia
-          </button>
+          <app-courtesy-card [item]="item">
+            <button
+              nz-button
+              class="pill edit-button"
+              type="button"
+              (click)="open(item, $event.currentTarget)"
+            >
+              <nz-icon nzType="edit" aria-hidden="true" />Editar cortesia
+            </button>
+          </app-courtesy-card>
         </li>
       } @empty {
         <li>Nenhuma cortesia cadastrada.</li>
       }
     </ul>
   </section>
-  <section class="pa-card destination-guidance">
-    <h2>Direitos de cortesia</h2>
-    @for (benefit of benefits(); track benefit.id) {
-      <div class="courtesy-field">
-        <p>
-          {{ benefitLabel(benefit.tipo) }} · {{ benefit.setor }} ·
-          {{ benefit.publico || 'Público geral' }}
-        </p>
-        <label [for]="'limit-' + benefit.id">Limite</label
-        ><input
-          [id]="'limit-' + benefit.id"
-          type="number"
-          min="0"
-          step="1"
-          [value]="benefit.quantidade"
-          #limit
-        /><button
-          nz-button
-          class="pill"
-          type="button"
-          [disabled]="saving()"
-          (click)="changeLimit(benefit.id, limit.valueAsNumber, benefit.versao)"
-        >
-          Atualizar limite
-        </button>
+  <section class="pa-card destination-guidance" aria-labelledby="courtesy-rights-title">
+    <div class="courtesies-heading">
+      <app-card-heading
+        icon="gift"
+        heading="Direitos de cortesia"
+        headingId="courtesy-rights-title"
+      />
+      <button
+        nz-button
+        class="pill"
+        type="button"
+        [attr.aria-expanded]="addingBenefit()"
+        (click)="addingBenefit.set(!addingBenefit())"
+      >
+        <nz-icon nzType="plus" aria-hidden="true" />Adicionar direito
+      </button>
+    </div>
+    @if (benefits().length) {
+      <div class="rights-table-scroll" role="region" aria-label="Limites de cortesia" tabindex="0">
+        <table class="rights-table" aria-labelledby="courtesy-rights-title">
+          <thead>
+            <tr>
+              <th scope="col">Tipo</th>
+              <th scope="col">Setor</th>
+              <th scope="col">Público</th>
+              <th scope="col">Limite</th>
+              <th scope="col">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (benefit of benefits(); track benefit.id) {
+              <tr>
+                <th scope="row">{{ benefitLabel(benefit.tipo) }}</th>
+                <td>{{ benefit.setor }}</td>
+                <td>{{ benefit.publico || 'Público geral' }}</td>
+                <td>
+                  <input
+                    #limit
+                    type="number"
+                    min="0"
+                    step="1"
+                    [value]="benefit.quantidade"
+                    [attr.aria-label]="
+                      'Limite: ' +
+                      benefitLabel(benefit.tipo) +
+                      ' · ' +
+                      benefit.setor +
+                      ' · ' +
+                      (benefit.publico || 'Público geral')
+                    "
+                  />
+                </td>
+                <td>
+                  <button
+                    nz-button
+                    class="pill"
+                    type="button"
+                    [disabled]="saving()"
+                    (click)="changeLimit(benefit.id, limit.valueAsNumber, benefit.versao)"
+                  >
+                    Atualizar limite
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
+    } @else {
+      <p>Nenhum direito de cortesia cadastrado.</p>
     }
-    <button nz-button class="pill" type="button" (click)="addingBenefit.set(!addingBenefit())">
-      Adicionar direito
-    </button>
     @if (addingBenefit()) {
       <form (ngSubmit)="addBenefit()" class="courtesy-form">
         <label for="benefit-type">Tipo</label

@@ -106,3 +106,6 @@
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+.courtesies-heading { flex-wrap: wrap; gap: 16px; width: 100%; }
+.courtesies-heading app-card-heading { flex: 1 1 260px; }

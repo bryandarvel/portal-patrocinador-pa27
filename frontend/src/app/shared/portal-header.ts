@@ -36,6 +36,28 @@ import { registerPortalIcons } from './portal-icons';
         <span>{{ subtitle() }}</span>
       </div>
       <div class="header-end">
+        @if ((account() || notifications() === null) && session.user(); as user) {
+          <a class="account-link" routerLink="/conta">
+            <nz-icon nzType="user" aria-hidden="true" />
+            <span class="account-copy">
+              <strong>{{
+                session.isAdmin() && user.nome === 'Equipe RBS Demonstração'
+                  ? 'Equipe RBS'
+                  : user.nome
+              }}</strong>
+              <small>{{ session.isAdmin() ? 'Admin RBS' : 'Patrocinador' }}</small>
+            </span>
+          </a>
+        }
+        @if (helpUrl(); as url) {
+          <a
+            class="header-pill desktop-help"
+            [routerLink]="url"
+            aria-label="Ajuda: dúvidas frequentes"
+          >
+            <nz-icon nzType="question-circle" nzTheme="fill" aria-hidden="true" />Ajuda
+          </a>
+        }
         @if (notifications() !== null) {
           <button
             class="icon-button"
@@ -45,13 +67,8 @@ import { registerPortalIcons } from './portal-icons';
           >
             <nz-badge [nzDot]="!!notifications()"><nz-icon nzType="bell" /></nz-badge>
           </button>
-        } @else if (session.user()) {
-          <a class="account-link" routerLink="/conta"
-            ><nz-icon nzType="user" aria-hidden="true" /><span
-              >{{ session.user()?.nome }} ·
-              {{ session.isAdmin() ? 'Admin RBS' : 'Patrocinador' }}</span
-            ></a
-          >
+        }
+        @if (notifications() === null && session.user()) {
           <button class="header-pill" type="button" (click)="auth.logout()">
             <nz-icon nzType="logout" aria-hidden="true" />Sair
           </button>
@@ -64,8 +81,16 @@ import { registerPortalIcons } from './portal-icons';
       display: block;
       flex: 0 0 auto;
     }
-    /* Marinho com as manchas de luz azul e magenta da identidade PA27. */
     .portal-header {
+      /* Protege a leitura nas duas pontas e deixa o palco em destaque no centro. */
+      --header-photo-shade: linear-gradient(
+        90deg,
+        #0a1326f5,
+        #0a1326e8 min(550px, 58%),
+        #0a132645 64%,
+        #0a1326e8 calc(100% - 270px),
+        #0a1326f5
+      );
       height: 92px;
       padding: 10px 28px;
       display: flex;
@@ -74,10 +99,8 @@ import { registerPortalIcons } from './portal-icons';
       color: #fff;
       overflow: hidden;
       background:
-        radial-gradient(22% 150% at 99% 0%, #c0138c 0, #c0138c00 100%),
-        radial-gradient(30% 170% at 83% -10%, #2f6df2 0, #2f6df200 100%),
-        radial-gradient(26% 130% at 70% 120%, #1c46b8 0, #1c46b800 100%),
-        linear-gradient(90deg, #0a1326 0, #0d1a38 45%, #112a62 100%);
+        var(--header-photo-shade),
+        #0a1326 url('/images/pa27-palco-header.png') center 66% / cover no-repeat;
     }
     .portal-logo {
       width: 72px;
@@ -156,11 +179,22 @@ import { registerPortalIcons } from './portal-icons';
       font-size: 15px;
       line-height: 20px;
       font-weight: 500;
-      text-decoration: underline;
-      text-underline-offset: 4px;
+      min-height: 44px;
+      min-width: 0;
+      max-width: 240px;
+      overflow-wrap: anywhere;
     }
     .account-link:hover {
       color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .account-copy {
+      display: grid;
+      gap: 2px;
+    }
+    .account-copy small {
+      font-size: 13px;
     }
     .header-pill {
       height: 44px;
@@ -171,12 +205,19 @@ import { registerPortalIcons } from './portal-icons';
       border-radius: 999px;
       font: 500 15px/20px var(--font-body);
     }
+    .desktop-help nz-icon {
+      font-size: 20px;
+    }
     :focus-visible {
       outline: 2px solid #fff;
       outline-offset: 3px;
     }
     @media (max-width: 959px) {
+      .desktop-help {
+        display: none;
+      }
       .portal-header {
+        --header-photo-shade: linear-gradient(90deg, #0a1326ed, #0a1326cb 55%, #0a1326ed);
         height: 72px;
         padding: 8px 16px;
         gap: 14px;
@@ -235,6 +276,8 @@ export class PortalHeader {
   readonly menu = input(false);
   /** `null` troca o sino pela conta e saída; `true` mostra o ponto de atualização. */
   readonly notifications = input<boolean | null>(null);
+  readonly account = input(false);
+  readonly helpUrl = input<string | null>(null);
   readonly menuClick = output();
   readonly notificationsClick = output();
   constructor() {

@@ -1,5 +1,6 @@
 import { EmptyState } from '../../partnership/shared/empty-state';
 import { PortalHeader } from '../../../shared/portal-header';
+import { DemoPa27Brand, demoBrand } from '../../../shared/demo-pa27-brand';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -20,6 +21,11 @@ import {
 } from './sponsors-preview.service';
 
 type Dialog = 'register' | 'registered' | 'quotas' | 'quota' | 'team' | null;
+const legacyDemoNames = new Set([
+  'Marca Demonstração Atlântica (demo)',
+  'Marca Demonstração Farol (demo)',
+  'Marca Demonstração Litoral (demo)',
+]);
 const passwordValid = (value: string) =>
   value.length >= 12 && value.length <= 128 && new TextEncoder().encode(value).length <= 72;
 @Component({
@@ -27,6 +33,7 @@ const passwordValid = (value: string) =>
   imports: [
     EmptyState,
     PortalHeader,
+    DemoPa27Brand,
     NzIconModule,
     RouterLink,
     ReactiveFormsModule,
@@ -35,14 +42,26 @@ const passwordValid = (value: string) =>
     NzModalModule,
   ],
   templateUrl: './sponsors.html',
-  styleUrls: ['../../partnership/shared/partnership-ui.css', './sponsors.css'],
+  styleUrls: [
+    '../../partnership/shared/partnership-ui.css',
+    './sponsors.css',
+    './sponsor-grid.css',
+  ],
 })
 export class RbsSponsors {
+  readonly demoBrand = demoBrand;
   readonly preview = inject(SponsorsPreviewService);
   readonly api = inject(PortalApi);
   readonly session = inject(SessionStore);
   readonly router = inject(Router);
   readonly admin = this.session.isAdmin;
+  readonly sponsorCards = computed(() =>
+    this.preview.sponsors().filter((s) => {
+      const legacyDemo = s.edition === '2027' && legacyDemoNames.has(s.name);
+      const gcTest = s.name === 'Patrocinador TESTE GC 2810' && s.quota === 'Cota TESTE GC 2810';
+      return !legacyDemo && !gcTest;
+    }),
+  );
   readonly areas = PORTAL_AREAS;
   readonly searchField = new FormControl('', { nonNullable: true });
   readonly query = signal('');

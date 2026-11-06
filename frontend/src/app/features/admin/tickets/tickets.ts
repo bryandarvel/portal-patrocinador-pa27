@@ -1,5 +1,6 @@
+import { CourtesyCard } from '../../partnership/tickets/courtesy-card';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { formatReportDate, reportBenefitLabel } from '../../partnership/shared/report-format';
+import { reportBenefitLabel } from '../../partnership/shared/report-format';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -15,17 +16,24 @@ import {
 
 @Component({
   selector: 'app-rbs-tickets',
-  imports: [AdminPartnershipShell, CardHeading, FormsModule, NzButtonModule, NzIconModule],
+  imports: [
+    CourtesyCard,
+    AdminPartnershipShell,
+    CardHeading,
+    FormsModule,
+    NzButtonModule,
+    NzIconModule,
+  ],
   templateUrl: './tickets.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
+    '../../partnership/shared/rights-table.css',
     '../../partnership/shared/material-ui.css',
     '../../partnership/tickets/tickets.css',
     './tickets.css',
   ],
 })
 export class RbsTickets {
-  readonly formatDate = formatReportDate;
   readonly benefitLabel = reportBenefitLabel;
   readonly context = inject(PortalContext);
   readonly api = inject(PortalApi);

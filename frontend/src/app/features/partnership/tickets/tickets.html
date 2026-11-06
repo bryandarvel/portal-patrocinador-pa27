@@ -3,49 +3,29 @@
   title="Cortesias"
   description="Confira e destine as cortesias da sua parceria."
 >
-  <section class="pa-card courtesies" aria-labelledby="courtesies-title">
+  <section class="courtesies" aria-labelledby="courtesies-title">
     <app-card-heading icon="gift" heading="Cortesias da parceria" headingId="courtesies-title" />
     <ul class="courtesy-list">
       @for (item of courtesies(); track item.id) {
         <li class="courtesy-item">
-          <article class="courtesy-card">
-            <p class="quantity">{{ item.quantity }}</p>
-            <dl class="courtesy-details">
-              <div>
-                <dt>Tipo</dt>
-                <dd>{{ benefitLabel(item.type) }}</dd>
-              </div>
-              <div>
-                <dt>Setor</dt>
-                <dd>{{ item.sector }}</dd>
-              </div>
-              <div>
-                <dt>Disponíveis</dt>
-                <dd>{{ item.quantity - item.allocated }}</dd>
-              </div>
-            </dl>
-            @if (item.periodStart) {
-              <p>
-                Período: {{ formatDate(item.periodStart, true) }} a
-                {{ formatDate(item.periodEnd, true) }}
-              </p>
+          <app-courtesy-card [item]="item">
+            @if (item.quantity <= item.allocated) {
+              <p>Sem saldo disponível.</p>
             }
-            @if (item.eventDay) {
-              <p>Dia: {{ formatDate(item.eventDay, true) }}</p>
-            }
-            @for (destination of item.destinations; track destination.id) {
-              <p>{{ destination.quantidade }} para {{ destination.destinacao }}</p>
-            }
-          </article>
-          <button
-            nz-button
-            class="pill destination-button"
-            type="button"
-            [disabled]="item.quantity <= item.allocated"
-            (click)="open(item, $event.currentTarget)"
-          >
-            Destinar
-          </button>
+            <button
+              nz-button
+              class="pill destination-button"
+              type="button"
+              [disabled]="item.quantity <= item.allocated"
+              [attr.aria-label]="
+                'Destinar cortesias: ' + benefitLabel(item.type) + ' · ' + item.sector
+              "
+              [attr.aria-expanded]="selected()?.id === item.id"
+              (click)="open(item, $event.currentTarget)"
+            >
+              Destinar
+            </button>
+          </app-courtesy-card>
         </li>
       } @empty {
         <li>Nenhuma cortesia disponibilizada para esta parceria.</li>

@@ -4,16 +4,29 @@
   description="Acompanhe o documento, os ajustes e a formalização da parceria."
   pageUrl="/contrato"
 >
-  <div class="contract-panels">
+  @let currentVersion = preview.version();
+  @let signedContract = preview.signed();
+  <div class="contract-panels sponsor-contract">
     <section class="pa-card contract-card" aria-labelledby="contract-validation-title">
       <app-card-heading
         icon="file-text"
         heading="Validação do contrato"
         headingId="contract-validation-title"
       />
-      <p class="contract-status" role="status">{{ preview.status() }}</p>
-      <p>{{ preview.guidance() }}</p>
-      @if (preview.version(); as version) {
+      <div class="contract-summary">
+        <p
+          class="contract-status"
+          role="status"
+          [class.is-complete]="signedContract || currentVersion?.decisao === 'APROVADO'"
+          [class.needs-review]="!signedContract && currentVersion?.decisao === 'AJUSTES'"
+        >
+          {{ preview.status() }}
+        </p>
+        <p>
+          {{ signedContract ? 'A versão assinada está disponível abaixo.' : preview.guidance() }}
+        </p>
+      </div>
+      @if (currentVersion; as version) {
         <button
           class="document-card"
           type="button"
@@ -25,7 +38,9 @@
           ><span class="document-description"
             ><strong>Contrato versão {{ version.numero }}</strong
             ><span>Publicado em {{ version.criado_em | date: 'dd/MM/yyyy HH:mm' }}</span></span
-          ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
+          ><span class="document-action"
+            >Baixar <nz-icon nzType="download" aria-hidden="true"
+          /></span>
         </button>
         @if (preview.canDecide()) {
           <div class="dialog-actions">
@@ -35,6 +50,7 @@
               type="button"
               [disabled]="api.pending() > 0"
               (click)="dialog.set('approve')"
+              aria-haspopup="dialog"
             >
               Aprovar</button
             ><button
@@ -43,6 +59,7 @@
               type="button"
               [disabled]="api.pending() > 0"
               (click)="dialog.set('adjust')"
+              aria-haspopup="dialog"
             >
               Solicitar ajustes
             </button>
@@ -50,31 +67,46 @@
         }
         @if (version.comentario) {
           <div class="adjustment-note">
-            <strong>AJUSTES SOLICITADOS · VERSÃO {{ version.numero }}</strong>
-            <p>{{ version.comentario }}</p>
-            <p>{{ version.decidido_em | date: 'dd/MM/yyyy HH:mm' }}</p>
+            <strong>Ajustes solicitados · Versão {{ version.numero }}</strong>
+            <p class="comment-text">{{ version.comentario }}</p>
+            <p class="comment-caption">{{ version.decidido_em | date: 'dd/MM/yyyy HH:mm' }}</p>
           </div>
         }
       }
-      <p>A assinatura acontece fora do portal.</p>
-      <button nz-button class="pill history-button" type="button" (click)="dialog.set('history')">
-        Histórico de versões
+      @if (!signedContract && currentVersion?.decisao !== 'APROVADO') {
+        <p>A assinatura acontece fora do portal.</p>
+      }
+      <button
+        nz-button
+        class="pill history-button"
+        type="button"
+        aria-haspopup="dialog"
+        (click)="dialog.set('history')"
+      >
+        <nz-icon nzType="clock-circle" aria-hidden="true" />Histórico de versões
       </button>
     </section>
-    <section class="pa-card contract-card" aria-labelledby="contract-signatories-title">
-      <app-card-heading
-        icon="user"
-        tone="pink"
-        heading="Quem assina"
-        headingId="contract-signatories-title"
-      />
-      @for (s of preview.signatories(); track s.id ?? $index) {
-        <div class="signatory">
-          <strong>{{ s.nome }}</strong>
-          <p>{{ s.email }} · {{ s.cargo }}</p>
-        </div>
-      }
-      @if (!preview.signatories().length) {
+    <section
+      class="pa-card contract-card contract-people"
+      aria-labelledby="contract-signatories-title"
+    >
+      <h2 id="contract-signatories-title">Quem assina</h2>
+      @if (preview.signatories().length) {
+        <ul class="contract-signatories" role="list">
+          @for (s of preview.signatories(); track s.id ?? $index) {
+            <li class="signatory">
+              <div class="signatory-identity">
+                <span class="signatory-icon" aria-hidden="true"><nz-icon nzType="user" /></span>
+                <div class="signatory-copy">
+                  <strong>{{ s.nome }}</strong>
+                  <p>{{ s.cargo }}</p>
+                </div>
+              </div>
+              <p class="signatory-email">{{ s.email }}</p>
+            </li>
+          }
+        </ul>
+      } @else {
         <p>Nenhum signatário informado.</p>
       }
       @if (!preview.version()) {
@@ -84,31 +116,35 @@
           type="button"
           [disabled]="api.pending() > 0"
           (click)="openSignatories()"
+          aria-haspopup="dialog"
         >
           {{ preview.signatories().length ? 'Editar' : 'Informar' }} signatários
         </button>
       }
     </section>
   </div>
-  <section class="pa-card contract-card" aria-labelledby="contract-signed-title">
+  <section class="pa-card contract-card sponsor-contract" aria-labelledby="contract-signed-title">
     <app-card-heading
       icon="check-circle"
       tone="green"
       heading="Contrato final assinado"
       headingId="contract-signed-title"
     />
-    @if (preview.signed(); as signed) {
+    @if (signedContract; as signed) {
       <button
         class="document-card"
         type="button"
         [disabled]="api.pending() > 0"
         (click)="download(signed.arquivo_id, 'contrato-assinado')"
+        aria-label="Baixar contrato assinado"
       >
         <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
         ><span class="document-description"
           ><strong>Contrato assinado</strong
           ><span>Publicado em {{ signed.criado_em | date: 'dd/MM/yyyy HH:mm' }}</span></span
-        ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
+        ><span class="document-action"
+          >Baixar <nz-icon nzType="download" aria-hidden="true"
+        /></span>
       </button>
     } @else {
       <p>O arquivo será disponibilizado pela RBS após a assinatura externa.</p>
@@ -123,7 +159,7 @@
   [nzTitle]="contractTitle"
   [nzFooter]="null"
   [nzCentered]="true"
-  [nzWidth]="dialog() === 'history' ? 840 : 640"
+  [nzWidth]="dialog() === 'history' ? 720 : 640"
   [nzNoAnimation]="true"
   nzClassName="pa-profile-dialog"
 >
@@ -133,23 +169,38 @@
     </h2>
   </ng-template>
   <ng-container *nzModalContent
-    ><div class="dialog-content">
+    ><div class="dialog-content" [class.sponsor-contract-history]="dialog() === 'history'">
       @if (dialog() === 'history') {
         @for (v of preview.history(); track v.id) {
           <section class="version-entry">
-            <h3>Versão {{ v.numero }}</h3>
-            <p>Publicada em {{ v.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
-            <p>{{ materialLabel(v.decisao ?? 'Aguardando validação') }}</p>
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
+            <div class="version-details">
+              <div class="version-heading">
+                <h3>Versão {{ v.numero }}</h3>
+                <p
+                  class="version-status"
+                  [class.is-complete]="v.decisao === 'APROVADO'"
+                  [class.needs-review]="v.decisao === 'AJUSTES'"
+                >
+                  {{ materialLabel(v.decisao ?? 'Aguardando validação') }}
+                </p>
+              </div>
+              <p>Publicada em {{ v.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
+            </div>
             @if (v.comentario) {
-              <p>{{ v.comentario }}</p>
+              <div class="version-comment">
+                <p class="version-comment-label">Comentário</p>
+                <p class="comment-text">{{ v.comentario }}</p>
+              </div>
             }
             <button
               nz-button
-              class="pill"
+              class="pill version-download"
               type="button"
               (click)="download(v.arquivo_id, 'contrato-v' + v.numero)"
+              [attr.aria-label]="'Baixar arquivo da versão ' + v.numero"
             >
-              Baixar arquivo
+              <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
             </button>
           </section>
         } @empty {

@@ -1,4 +1,8 @@
 .media-panels { display: grid; grid-template-columns: minmax(0, 798fr) minmax(0, 460fr); gap: 20px; align-items: start; }
+.materials-card > .upload-zone { padding: 24px; }
+.materials-card > .upload-zone .upload-arrow { font-size: 32px; }
+.materials-card > .card-actions { gap: 12px; width: 100%; }
+.materials-card .card-actions .pill { max-width: 100%; height: auto; min-height: 48px; padding: 12px 20px; white-space: normal; }
 .closed-button { background: var(--color-disabled, #e9e8e4); color: var(--color-muted); border-color: var(--color-disabled, #e9e8e4); }
 table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; line-height: 20px; }
 th, td { padding: 12px; text-align: left; font-weight: 400; vertical-align: top; overflow-wrap: anywhere; }

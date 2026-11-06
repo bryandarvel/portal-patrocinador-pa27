@@ -1,7 +1,8 @@
+import { reportBenefitLabel } from '../../partnership/shared/report-format';
 import { EmptyState } from '../../partnership/shared/empty-state';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -27,17 +28,23 @@ import { RbsProfilePreviewService, SponsorUser } from './profile-preview.service
   templateUrl: './profile.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
+    '../../partnership/shared/rights-table.css',
     '../../partnership/profile/profile.css',
     '../../partnership/shared/material-ui.css',
     './profile.css',
   ],
 })
 export class RbsProfile {
+  readonly benefitLabel = reportBenefitLabel;
   readonly preview = inject(RbsProfilePreviewService);
   readonly ctx = inject(PortalContext);
   readonly api = inject(PortalApi);
   readonly dialog = signal<'access' | 'publish' | 'saved' | null>(null);
   readonly error = signal('');
+  readonly notice = signal('');
+  readonly profileSubmitted = signal(false);
+  readonly nameInput = viewChild('nameInput', { read: ElementRef<HTMLInputElement> });
+  readonly quotaInput = viewChild('quotaInput', { read: ElementRef<HTMLSelectElement> });
   readonly file = signal<File | null>(null);
   readonly selected = signal<string[]>([]);
   readonly searchResults = signal<SponsorUser[]>([]);
@@ -69,12 +76,15 @@ export class RbsProfile {
         this.lastId = p.id;
         this.name = p.nome;
         this.cotaId = p.cota_id;
+        this.profileSubmitted.set(false);
       }
     });
   }
   async save(): Promise<void> {
+    this.profileSubmitted.set(true);
     if (!this.name.trim() || !this.cotaId) {
-      this.error.set('Informe nome e cota.');
+      const invalid = !this.name.trim() ? this.nameInput() : this.quotaInput();
+      invalid?.nativeElement.focus();
       return;
     }
     try {
@@ -87,6 +97,7 @@ export class RbsProfile {
     this.selected.set(this.ctx.partnership()?.acessos?.map((u) => u.id) ?? []);
     this.searchResults.set([]);
     this.error.set('');
+    this.notice.set('');
     this.invitePassword = '';
     this.dialog.set('access');
   }
@@ -113,6 +124,7 @@ export class RbsProfile {
     } catch {}
   }
   async invite(): Promise<void> {
+    this.notice.set('');
     const nome = this.inviteName.trim(),
       email = this.inviteEmail.trim().toLowerCase(),
       senha = this.invitePassword;
@@ -138,7 +150,8 @@ export class RbsProfile {
       }
       this.selected.update((ids) => [...new Set([...ids, account.id])]);
       this.searchResults.set(users);
-      this.error.set('Conta encontrada. Salve os acessos para vinculá-la à parceria.');
+      this.error.set('');
+      this.notice.set('Conta encontrada. Salve os acessos para vinculá-la à parceria.');
       this.invitePassword = '';
       this.inviteCreated.set(false);
     } catch {
@@ -175,6 +188,7 @@ export class RbsProfile {
     if (this.api.pending() > 0) return;
     this.invitePassword = '';
     this.error.set('');
+    this.notice.set('');
     this.file.set(null);
     this.dialog.set(null);
   }

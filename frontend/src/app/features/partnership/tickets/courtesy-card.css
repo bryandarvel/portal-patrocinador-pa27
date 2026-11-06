@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  height: 100%;
+}
+.courtesy-card {
+  height: 100%;
+  gap: 20px;
+}
+.courtesy-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.courtesy-heading h3 {
+  font: 700 28px/32px var(--font-display);
+  overflow-wrap: anywhere;
+}
+.courtesy-heading p {
+  color: var(--color-muted);
+}
+.courtesy-balance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.courtesy-balance > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+}
+.courtesy-balance dt {
+  color: var(--color-muted);
+}
+.courtesy-balance dd {
+  margin: 0;
+  font: 700 44px/1 var(--font-display);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.courtesy-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.courtesy-period nz-icon {
+  color: var(--color-muted);
+}
+.courtesy-destinations {
+  width: 100%;
+}
+.courtesy-destinations h4 {
+  margin: 0 0 8px;
+  font: 600 16px/24px var(--font-body);
+}
+.courtesy-destinations ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.courtesy-destinations li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 8px;
+}
+.courtesy-destinations li + li {
+  border-top: 1px solid var(--color-border);
+}
+.courtesy-destinations span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.courtesy-destinations strong {
+  font-variant-numeric: tabular-nums;
+}
+.courtesy-footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}

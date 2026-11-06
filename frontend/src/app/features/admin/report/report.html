@@ -2,76 +2,119 @@
   #shell
   activeArea="report"
   title="Relatório da parceria"
-  description="Consulte o relatório automático e organize planilhas internas desta parceria."
+  description="Organize os arquivos internos da parceria e consulte o relatório dos registros do portal."
 >
   <section class="pa-card report-panel" aria-labelledby="source-sheets-heading">
     <app-card-heading
       icon="file-text"
-      heading="Planilhas de origem"
+      heading="Arquivos de origem"
       headingId="source-sheets-heading"
+      description="Área interna da RBS para organizar os documentos da parceria."
     />
-    <div class="sheets-management">
-      <p>
-        Arquivos internos de trabalho da RBS. O relatório automático consolida os registros do
-        portal.
-      </p>
+    <div class="source-intake">
+      <span class="document-icon" aria-hidden="true"><nz-icon nzType="cloud-upload" /></span>
+      <div class="source-intake-copy">
+        <strong>Adicionar documentos e planilhas</strong>
+        <p id="source-sheets-formats">Word (.doc, .docx), Excel (.xls, .xlsx) e texto (.txt)</p>
+      </div>
+      <button
+        #sourcePicker
+        class="pill source-pick"
+        [class.primary-button]="!selected().length"
+        type="button"
+        aria-describedby="source-sheets-formats"
+        [disabled]="busy()"
+        (click)="sourceSheetsInput.click()"
+      >
+        {{ selected().length ? 'Adicionar mais arquivos' : 'Selecionar arquivos' }}
+      </button>
     </div>
-    <button class="upload-zone" type="button" (click)="sourceSheetsInput.click()">
-      <nz-icon class="upload-arrow" nzType="cloud-upload" aria-hidden="true" /><strong
-        >Selecionar planilhas</strong
-      ><span>Escolha os arquivos no seu dispositivo</span>
-    </button>
     <input
       #sourceSheetsInput
       hidden
       id="source-sheets-file"
       type="file"
+      accept=".doc,.docx,.xls,.xlsx,.txt"
       multiple
       (change)="choose($event)"
     />
     @if (selected().length) {
-      <p>{{ selected().length }} arquivo(s) selecionado(s).</p>
+      <section class="sheets-list" aria-labelledby="selected-sheets-title">
+        <h3 id="selected-sheets-title">Aguardando envio</h3>
+        <p role="status">
+          {{ selected().length }}
+          {{ selected().length === 1 ? 'arquivo selecionado' : 'arquivos selecionados' }}
+        </p>
+        <ul class="selected-sheets">
+          @for (file of selected(); track $index) {
+            <li>
+              <nz-icon nzType="file-text" aria-hidden="true" />
+              <span>{{ file.name }}</span>
+              <button
+                nz-button
+                type="button"
+                class="pill remove-source"
+                [attr.aria-label]="'Remover da seleção: ' + file.name"
+                [disabled]="busy()"
+                (click)="remove($index); sourcePicker.focus()"
+              >Remover</button>
+            </li>
+          }
+        </ul>
+      </section>
       <button
         nz-button
         type="button"
         class="pill primary-button add-sheets"
+        [nzLoading]="busy()"
         [disabled]="busy()"
         (click)="add()"
       >
-        Enviar planilhas
+        @if (!busy()) {
+          <nz-icon nzType="cloud-upload" aria-hidden="true" />
+        }
+        {{ busy() ? 'Enviando arquivos…' : selected().length === 1 ? 'Enviar arquivo' : 'Enviar arquivos' }}
       </button>
     }
     @if (busy()) {
-      <p role="status" aria-live="polite">Enviando planilhas...</p>
+      <p role="status">Aguarde a confirmação do armazenamento.</p>
     }
     @if (error()) {
       <p role="alert" class="field-error">{{ error() }}</p>
     }
-    @if (sheets.sheets().length) {
-      <div class="sheets-list">
+    <section class="sheets-list stored-sheets" aria-labelledby="stored-sheets-title">
+      <h3 id="stored-sheets-title">Arquivos armazenados</h3>
+      @if (sheets.sheets().length) {
         @for (sheet of sheets.sheets(); track sheet.id) {
           <div class="document-card">
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span>
             <span class="document-description"
               ><strong>{{ sheet.nome }}</strong
               ><span>Versão {{ sheet.versao }} · {{ formatDate(sheet.criadoEm) }}</span></span
-            ><button nz-button type="button" class="pill" (click)="download(sheet)">
+            ><button
+              nz-button
+              type="button"
+              class="pill"
+              [attr.aria-label]="'Baixar arquivo: ' + sheet.nome"
+              (click)="download(sheet)"
+            >
               <nz-icon nzType="download" aria-hidden="true" />Baixar
             </button>
           </div>
         }
-      </div>
-    } @else {
-      <app-empty-state
-        heading="Nenhuma planilha adicionada"
-        description="Use Selecionar planilhas para organizar os arquivos internos desta parceria."
-      />
-    }
+      } @else {
+        <app-empty-state
+          heading="Nenhum arquivo armazenado"
+          description="Selecione os arquivos no seu dispositivo e confirme o envio."
+        />
+      }
+    </section>
   </section>
   <section class="pa-card report-panel" aria-labelledby="final-report-heading">
     <app-card-heading
       icon="bar-chart"
       tone="pink"
-      heading="Relatório automático"
+      heading="Relatório dos registros do portal"
       headingId="final-report-heading"
     />
     <p>

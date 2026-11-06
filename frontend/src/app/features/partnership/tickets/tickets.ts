@@ -1,4 +1,5 @@
-import { formatReportDate, reportBenefitLabel } from '../shared/report-format';
+import { CourtesyCard } from './courtesy-card';
+import { reportBenefitLabel } from '../shared/report-format';
 import { CardHeading } from '../shared/card-heading';
 import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,12 +11,11 @@ import { focusFormSection } from '../shared/form-focus';
 
 @Component({
   selector: 'app-partnership-tickets',
-  imports: [CardHeading, PartnershipShell, FormsModule, NzButtonModule],
+  imports: [CourtesyCard, CardHeading, PartnershipShell, FormsModule, NzButtonModule],
   templateUrl: './tickets.html',
   styleUrls: ['../shared/partnership-ui.css', './tickets.css'],
 })
 export class PartnershipTickets {
-  readonly formatDate = formatReportDate;
   readonly benefitLabel = reportBenefitLabel;
   readonly preview = inject(TicketsPreviewService);
   readonly api = inject(PortalApi);

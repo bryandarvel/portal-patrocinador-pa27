@@ -1,7 +1,7 @@
+import { BrandEvidenceList } from '../shared/brand-evidence-list';
 import { SubmissionStatus } from '../shared/submission-status';
 import { CardHeading } from '../shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -12,22 +12,23 @@ import {
   PartnershipPreviewService,
 } from '../shared/partnership-preview.service';
 import { labelPartnershipDialog } from '../shared/modal-accessibility';
+import { MaterialVersionHistory } from '../shared/material-version-history';
 import { PortalApi } from '../../../core/portal-api.service';
 import { PortalContext } from '../../../core/portal-context.service';
 
-type BrandDialog =
-  'upload' | 'replace' | 'progress' | 'received' | 'cancelled' | 'history' | 'document';
+type BrandDialog = 'upload' | 'replace' | 'progress' | 'received' | 'history' | 'document';
 
 @Component({
   selector: 'app-brand-applications',
   imports: [
+    BrandEvidenceList,
     CardHeading,
     SubmissionStatus,
     NzIconModule,
     PartnershipShell,
     NzButtonModule,
     NzModalModule,
-    DatePipe,
+    MaterialVersionHistory,
     RouterLink,
   ],
   templateUrl: './brand.html',
@@ -52,10 +53,8 @@ export class BrandApplications {
         return 'Enviando material';
       case 'received':
         return 'Material recebido';
-      case 'cancelled':
-        return 'Operação cancelada';
       case 'history':
-        return 'Histórico · MIV';
+        return 'Histórico do MIV';
       default:
         return 'Documento da parceria';
     }
@@ -117,14 +116,6 @@ export class BrandApplications {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  cancel(): void {
-    if (this.busy()) return;
-    this.selected.set(null);
-    this.inputError.set('');
-    this.dialog.set('cancelled');
-    this.focusDialogTitle();
   }
 
   close(): void {

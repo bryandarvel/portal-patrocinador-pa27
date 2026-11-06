@@ -14,7 +14,6 @@ import { SourceSheetsPreviewService } from './source-sheets-preview.service';
   templateUrl: './report.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',
-    '../../partnership/shared/material-ui.css',
     './report.css',
   ],
 })
@@ -26,8 +25,31 @@ export class RbsReport {
   readonly busy = signal(false);
   readonly error = signal('');
   choose(event: Event): void {
-    this.selected.set(Array.from((event.target as HTMLInputElement).files ?? []));
-    this.error.set('');
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+    if (!files.length) return;
+
+    const accepted = files.filter((file) => file.size > 0 && /\.(docx?|xlsx?|txt)$/i.test(file.name));
+    const selection = [...this.selected()];
+    for (const file of accepted) {
+      if (
+        !selection.some(
+          (item) => item.name === file.name && item.size === file.size && item.lastModified === file.lastModified,
+        )
+      ) {
+        selection.push(file);
+      }
+    }
+    this.selected.set(selection);
+    this.error.set(
+      accepted.length === files.length
+        ? ''
+        : 'Alguns arquivos não foram selecionados. Use arquivos Word, Excel ou TXT com conteúdo.',
+    );
+  }
+  remove(index: number): void {
+    this.selected.update((files) => files.filter((_, position) => position !== index));
   }
   async add(): Promise<void> {
     if (this.busy() || !this.selected().length) return;
@@ -43,8 +65,12 @@ export class RbsReport {
     }
     this.selected.set(failed);
     if (failed.length)
-      this.error.set(`${failed.length} arquivo(s) não enviado(s). Revise e tente novamente.`);
-    else this.api.notice.set('Planilhas adicionadas.');
+      this.error.set(
+        failed.length === 1
+          ? 'Um arquivo não foi enviado. Revise o arquivo e tente novamente.'
+          : `${failed.length} arquivos não foram enviados. Revise os arquivos e tente novamente.`,
+      );
+    else this.api.notice.set('Arquivos armazenados.');
     this.busy.set(false);
   }
   async download(file: PortalArquivo): Promise<void> {

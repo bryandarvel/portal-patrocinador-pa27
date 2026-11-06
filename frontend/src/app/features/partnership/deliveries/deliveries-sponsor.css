@@ -1,0 +1,157 @@
+.sponsor-delivery-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px 32px;
+  padding: 24px 28px;
+  border-radius: var(--radius-card);
+  background: var(--color-dark);
+  color: var(--color-surface);
+}
+
+.summary-copy {
+  flex: 1 1 260px;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.summary-copy h2 {
+  color: inherit;
+}
+
+.summary-copy p {
+  max-width: 48ch;
+  color: var(--color-paper);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.delivery-totals {
+  flex: 1 1 300px;
+  max-width: 380px;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.delivery-totals div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.delivery-totals div + div {
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid color-mix(in srgb, var(--color-surface) 24%, transparent);
+}
+
+.delivery-totals dt {
+  color: var(--color-paper);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.delivery-totals dd {
+  margin: 0;
+  font: 700 32px/36px var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.delivery-list {
+  display: grid;
+  gap: 16px;
+}
+
+.delivery-list > h2,
+.delivery-card h3 {
+  color: var(--color-text);
+  font: 700 26px/30px var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.delivery-areas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.delivery-card {
+  gap: 16px;
+  overflow-wrap: anywhere;
+}
+
+.delivery-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
+  width: 100%;
+}
+
+.delivery-card h3 {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.delivery-owner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.delivery-owner dt {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.delivery-owner dd {
+  margin: 0;
+}
+
+.delivery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.delivery-actions .pill {
+  max-width: 100%;
+  min-height: 48px;
+  height: auto;
+  padding: 10px 16px;
+  white-space: normal;
+}
+
+.delivery-actions .pill nz-icon {
+  font-size: 16px;
+}
+
+@media (max-width: 760px) {
+  .sponsor-delivery-summary {
+    padding: 20px;
+  }
+
+  .summary-copy h2 {
+    font-size: 26px;
+    line-height: 30px;
+  }
+
+  .delivery-areas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}

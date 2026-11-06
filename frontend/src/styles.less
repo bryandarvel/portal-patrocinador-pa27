@@ -123,6 +123,54 @@
 // Painel de navegação mobile do layout da parceria; o NG-ZORRO o renderiza fora do host.
 .pa-nav-drawer .ant-drawer-body { padding: 0; background: var(--color-nav); }
 
+.pa-profile-dialog.pa-partnership-report-dialog {
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 48px);
+  }
+  .ant-modal-body {
+    min-height: 0;
+    max-height: none;
+  }
+  .ant-modal-footer { padding: 12px 32px; }
+  .report-sections .ant-collapse-header:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+  .report-sections .ant-collapse-item-active > .ant-collapse-header {
+    background: var(--color-paper);
+    .report-section-heading > nz-icon { transform: rotate(90deg); }
+  }
+  @media (max-width: 760px) {
+    .ant-modal-content { max-height: calc(100dvh - 24px); }
+    .ant-modal-footer { padding-inline: 24px; }
+  }
+}
+
+.ant-drawer:has(> .pa-notifications-drawer) {
+  // A máscara nativa sai do DOM ao fechar. O fundo acompanha o painel até o fim.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: @modal-mask-bg;
+    opacity: 0;
+    transition: opacity 240ms ease-out;
+  }
+  &.ant-drawer-open::before { opacity: 1; }
+  .ant-drawer-content-wrapper {
+    transition: transform 240ms ease-out, visibility 240ms;
+  }
+  .ant-drawer-mask { background: transparent; animation: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before,
+    .ant-drawer-content-wrapper { transition: none; }
+  }
+}
+
 // Acabamento comum dos diálogos do portal; mantém o login na composição aprovada.
 .pa-profile-dialog {
   .ant-modal-content { border: 1px solid var(--color-border); }
@@ -136,11 +184,13 @@
   .ant-modal-body .faq-results { height: auto; }
   .dialog-content { width: 100%; gap: 16px; }
   .dialog-content > p { max-width: 75ch; }
+  .dialog-field { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; }
   .dialog-content label { color: var(--color-text); font-weight: 500; }
   .dialog-content input:not([type='checkbox']):not([type='radio']),
   .dialog-content select,
   .dialog-content textarea { width: 100%; max-width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--color-border-strong); border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-text); font: 400 15px/22px var(--font-body); }
   .dialog-content textarea { min-height: 120px; resize: vertical; }
+  .dialog-content input[type='datetime-local'] { height: 48px; }
   .dialog-content input[type='file'] { padding: 8px; }
   input[type='file']::file-selector-button { margin-right: 12px; padding: 8px 14px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-text); background: var(--color-paper); font: inherit; cursor: pointer; }
   .dialog-content [aria-invalid='true'] { border-color: var(--color-error); }

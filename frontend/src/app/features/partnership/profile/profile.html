@@ -47,7 +47,9 @@
           ><span class="document-description"
             ><strong>{{ document.title }}</strong
             ><span>{{ document.description }}</span></span
-          ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
+          ><span class="document-action"
+            >Baixar <nz-icon nzType="download" aria-hidden="true"
+          /></span>
         </button>
       } @empty {
         <app-empty-state

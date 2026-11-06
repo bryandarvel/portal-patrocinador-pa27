@@ -1,0 +1,181 @@
+.sponsor-contract .contract-summary {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.sponsor-contract .contract-status,
+.sponsor-contract-history .version-status {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-paper);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.sponsor-contract .contract-status.is-complete,
+.sponsor-contract-history .version-status.is-complete {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.sponsor-contract .contract-status.needs-review,
+.sponsor-contract-history .version-status.needs-review {
+  background: var(--contract-amber-soft, var(--tone-yellow-soft));
+  color: var(--contract-amber, var(--tone-yellow));
+}
+
+.sponsor-contract .document-card {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sponsor-contract .document-description {
+  flex: 1 1 140px;
+}
+
+.sponsor-contract .document-action {
+  margin-inline-start: auto;
+}
+
+.sponsor-contract .contract-signatories {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contract-people {
+  gap: 16px;
+}
+
+.contract-people > h2 {
+  font-size: 26px;
+  line-height: 30px;
+}
+
+.sponsor-contract .contract-signatories .signatory {
+  gap: 10px;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.signatory-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signatory-icon {
+  flex: 0 0 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-control);
+  background: var(--tone-pink-soft);
+  color: var(--tone-pink);
+  font-size: 20px;
+}
+
+.signatory-copy {
+  min-width: 0;
+}
+
+.signatory-copy strong {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.signatory-email {
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+  font-size: 14px;
+}
+
+.sponsor-contract .signatory + .signatory {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.sponsor-contract .adjustment-note {
+  border-radius: var(--radius-control);
+}
+
+.sponsor-contract .adjustment-note strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.sponsor-contract-history .version-entry {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px 16px;
+  padding: 0 0 16px;
+  background: transparent;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sponsor-contract-history .version-entry:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.sponsor-contract-history .version-details {
+  display: grid;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+
+.version-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.sponsor-contract-history .version-heading h3 {
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.sponsor-contract-history .version-status {
+  font-size: 13px;
+  line-height: 18px;
+  padding: 2px 8px;
+}
+
+.version-comment {
+  grid-column: 2 / -1;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--color-paper);
+}
+
+.version-comment-label {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.sponsor-contract-history .version-download {
+  grid-column: 3;
+  grid-row: 1;
+  padding-inline: 16px;
+}
+
+@media (max-width: 600px) {
+  .sponsor-contract-history .version-entry {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .sponsor-contract-history .version-download {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: start;
+  }
+}

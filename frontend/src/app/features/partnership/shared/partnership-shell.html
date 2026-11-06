@@ -9,8 +9,10 @@
     [subtitle]="'Planeta Atlântida ' + (profile()?.edicao ?? '')"
     [menu]="true"
     [notifications]="hasNotifications()"
+    [account]="context.admin()"
+    [helpUrl]="activeArea() === 'faq' ? null : context.link('duvidas-frequentes')"
     (menuClick)="menuOpen.set(true)"
-    (notificationsClick)="openNotifications()"
+    (notificationsClick)="openNotifications(notificationsDrawerContent)"
   />
   <div class="portal-body">
     <aside class="partnership-sidebar" aria-label="Navegação da parceria">
@@ -19,7 +21,6 @@
     <main #mainContent class="profile-scroll" id="partnership-content" tabindex="-1">
       <div class="profile-content">
         <div class="page-heading">
-          <p class="trail">Parceria / {{ profile()?.nome }} / {{ profile()?.edicao }}</p>
           <h1>{{ title() }}</h1>
           <p class="page-intro">{{ description() }}</p>
           <div class="festival-stripe" aria-hidden="true">
@@ -53,12 +54,29 @@
     }}</a
   >
   <div class="side-card partnership-identity">
-    <span class="identity-icon" aria-hidden="true"><nz-icon nzType="bank" /></span>
+    @let brand = demoBrand();
+    @if (brand) {
+      <app-demo-pa27-brand [logos]="brand.logos" />
+    } @else {
+      <span class="identity-icon" aria-hidden="true"><nz-icon nzType="bank" /></span>
+    }
     <div class="identity-copy">
-      <p>{{ profile()?.nome }}</p>
+      <p translate="no">{{ brand?.displayName ?? profile()?.nome }}</p>
       @if (profile()?.cota) {
-        <nz-tag class="quota">{{ profile()?.cota }}</nz-tag>
+        <nz-tag class="quota">{{
+          brand && profile()?.cota === brand.quota + ' (demo PA27)' ? brand.quota : profile()?.cota
+        }}</nz-tag>
       }
+      @if (brand) {
+        <small class="identity-demo">Dados de demonstração</small>
+      }
+      <a
+        class="identity-profile-link"
+        [routerLink]="context.link('perfil')"
+        [attr.aria-current]="activeArea() === '01' ? 'page' : null"
+        (click)="menuOpen.set(false)"
+        >Ver perfil <nz-icon nzType="right" aria-hidden="true" />
+      </a>
     </div>
   </div>
   <p class="areas-title">Áreas da parceria</p>
@@ -89,24 +107,20 @@
       ><nz-icon class="chevron" nzType="right" aria-hidden="true"
     /></a>
   } @else {
-    <button class="area-link report-link" type="button" (click)="openReport()">
+    <button
+      class="area-link report-link"
+      type="button"
+      aria-haspopup="dialog"
+      (click)="openReport()"
+    >
       <nz-icon class="area-icon" nzType="bar-chart" aria-hidden="true" /><span
         >Relatório da parceria</span
       ><nz-icon class="chevron" nzType="right" aria-hidden="true" />
     </button>
   }
-  <div class="side-card account">
-    <a class="account-link" routerLink="/conta">
-      <nz-avatar nzIcon="user" [nzSize]="40" aria-hidden="true" />
-      <span class="account-copy"
-        ><strong>{{ context.admin() ? 'Admin RBS' : 'Admin Patrocinador' }}</strong
-        ><span>{{ user()?.nome }}</span></span
-      >
-    </a>
-    <button class="logout-button" type="button" (click)="auth.logout()">
-      <nz-icon nzType="logout" aria-hidden="true" />Sair
-    </button>
-  </div>
+  <button class="logout-button sidebar-logout" type="button" (click)="auth.logout()">
+    <nz-icon nzType="logout" aria-hidden="true" />Sair
+  </button>
 </ng-template>
 
 <nz-drawer
@@ -130,51 +144,88 @@
   </ng-container>
 </nz-drawer>
 
-<nz-modal
-  #shellModal="nzModal"
-  [nzVisible]="dialog() !== null"
-  (nzOnCancel)="dialog.set(null)"
-  (nzAfterOpen)="labelDialog(shellModal)"
-  [nzTitle]="notificationsTitle"
-  [nzFooter]="null"
-  [nzCentered]="true"
-  [nzWidth]="640"
-  [nzNoAnimation]="true"
-  nzClassName="pa-profile-dialog"
->
-  <ng-template #notificationsTitle
-    ><h2 id="shell-dialog-title" class="dialog-title" tabindex="-1">Notificações</h2></ng-template
+<ng-template #notificationsDrawerContent>
+  <section
+    class="notification-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notification-panel-title"
   >
-  <ng-container *nzModalContent
-    ><div class="dialog-content">
-      <app-api-status />
-      <ul class="api-notifications">
-        @for (notification of notifications(); track notification.id) {
-          <li>
-            <p>{{ notification.descricao }}</p>
-            <p>{{ notification.criado_em | date: 'dd/MM/yyyy HH:mm' }}</p>
-            <a
-              nz-button
-              class="pill"
-              [routerLink]="notificationLink(notification.area)"
-              (click)="dialog.set(null)"
-              >Abrir área</a
-            >
-          </li>
-        } @empty {
-          @if (!api.pending()) {
-            <li>Nenhuma atualização registrada nesta parceria.</li>
-          }
-        }
-      </ul>
-      <div class="dialog-actions">
-        <button nz-button class="pill primary-button" type="button" (click)="dialog.set(null)">
-          Concluir
-        </button>
+    <header class="notification-header">
+      <div>
+        <h2 id="notification-panel-title">Notificações</h2>
+        <p>{{ profile()?.nome }}</p>
       </div>
-    </div></ng-container
-  >
-</nz-modal>
+      <button
+        #notificationClose
+        class="pill notification-close"
+        type="button"
+        aria-label="Fechar notificações"
+        cdkFocusInitial
+        (click)="closeNotifications()"
+      >
+        <nz-icon nzType="close" aria-hidden="true" />
+      </button>
+    </header>
+    <div class="notification-feed">
+      @if (notificationsLoading()) {
+        <p role="status">Carregando notificações…</p>
+      } @else if (notificationsError()) {
+        <p role="alert" class="field-error">{{ notificationsError() }}</p>
+        <button
+          nz-button
+          class="pill"
+          type="button"
+          (click)="notificationClose.focus(); loadNotifications()"
+        >
+          Tentar novamente
+        </button>
+      } @else {
+        @for (group of notificationGroups(); track group.day) {
+          <div class="notification-day">
+            <h3>{{ group.day }}</h3>
+            <ul>
+              @for (notification of group.items; track notification.id) {
+                @let area = notificationArea(notification.area);
+                <li>
+                  <a
+                    class="notification-row"
+                    [routerLink]="context.link(area?.path ?? 'perfil')"
+                    (click)="closeNotifications()"
+                  >
+                    <nz-icon
+                      class="notification-area-icon"
+                      [nzType]="area?.icon ?? 'bell'"
+                      aria-hidden="true"
+                    />
+                    <span class="notification-copy">
+                      <span>{{ notification.descricao }}</span>
+                      <span class="notification-meta">
+                        <time [attr.datetime]="notification.criado_em">{{
+                          notification.criado_em | date: 'HH:mm'
+                        }}</time>
+                        @if (area) {
+                          <span> · {{ area.label }}</span>
+                        }
+                      </span>
+                    </span>
+                    <nz-icon nzType="right" aria-hidden="true" />
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        } @empty {
+          <div class="notification-empty">
+            <span class="document-icon" aria-hidden="true"><nz-icon nzType="bell" /></span>
+            <p role="status">Nenhuma atualização registrada nesta parceria.</p>
+          </div>
+        }
+      }
+    </div>
+  </section>
+</ng-template>
+
 <app-partnership-report
   [(open)]="reportOpen"
   [admin]="context.admin()"

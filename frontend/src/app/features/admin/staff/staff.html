@@ -6,29 +6,9 @@
   <div class="staff-panels">
     <section class="pa-card staff-card" aria-labelledby="rbs-staff-title">
       <app-card-heading icon="idcard" heading="Credenciais previstas" headingId="rbs-staff-title" />
-      @for (item of accreditation()?.itens ?? []; track $index) {
-        <div class="staff-details">
-          <p class="quantity">{{ item.quantidade }}</p>
-          <dl>
-            <div>
-              <dt>Tipo</dt>
-              <dd>{{ benefitLabel(item.tipo) }}</dd>
-            </div>
-            <div>
-              <dt>Setor</dt>
-              <dd>{{ item.setor }}</dd>
-            </div>
-            <div>
-              <dt>Público</dt>
-              <dd>{{ item.publico }}</dd>
-            </div>
-          </dl>
-        </div>
-      } @empty {
-        <p>Nenhuma credencial cadastrada.</p>
-      }
+      <app-credential-list [credentials]="accreditation()?.itens ?? []" />
       <button nz-button class="pill edit-button" type="button" (click)="open()">
-        Editar credenciamento
+        <nz-icon nzType="edit" aria-hidden="true" />Editar credenciamento
       </button>
     </section>
     <section class="pa-card staff-card external-guidance">
@@ -40,7 +20,7 @@
           [href]="accreditation()!.urlOpenStaff"
           target="_blank"
           rel="noopener noreferrer"
-          >Acessar Open Staff</a
+          ><nz-icon nzType="link" aria-hidden="true" />Acessar Open Staff</a
         >
       } @else {
         <p>Endereço ainda não configurado.</p>
@@ -56,43 +36,50 @@
         headingId="staff-edit-title"
       />
       <form (ngSubmit)="save()">
-        <label for="staff-url">URL do Open Staff</label
-        ><input
-          id="staff-url"
-          name="url"
-          type="url"
-          [(ngModel)]="url"
-          required
-          placeholder="https://"
-        />
+        <div class="staff-field">
+          <label for="staff-url">URL do Open Staff</label
+          ><input
+            id="staff-url"
+            name="url"
+            type="url"
+            [(ngModel)]="url"
+            required
+            placeholder="https://"
+          />
+        </div>
         @for (row of rows(); track $index; let index = $index) {
           <fieldset class="staff-form">
             <legend>Credencial {{ index + 1 }}</legend>
-            <label [for]="'staff-benefit-' + index">Direito da parceria</label
-            ><select
-              [id]="'staff-benefit-' + index"
-              [name]="'benefit-' + index"
-              [(ngModel)]="row.beneficioId"
-              (ngModelChange)="select(row)"
-            >
-              @for (benefit of benefits(); track benefit.id) {
-                <option [value]="benefit.id">
-                  {{ benefit.tipo }} · {{ benefit.setor }} · {{ benefit.publico }} (limite
-                  {{ benefit.quantidade }})
-                </option>
-              }
-            </select>
+            <div class="staff-field">
+              <label [for]="'staff-benefit-' + index">Direito da parceria</label
+              ><select
+                [id]="'staff-benefit-' + index"
+                [name]="'benefit-' + index"
+                [(ngModel)]="row.beneficioId"
+                (ngModelChange)="select(row)"
+              >
+                @for (benefit of benefits(); track benefit.id) {
+                  <option [value]="benefit.id">
+                    {{ benefit.tipo }} · {{ benefit.setor }} · {{ benefit.publico }} (limite
+                    {{ benefit.quantidade }})
+                  </option>
+                }
+              </select>
+            </div>
             <p>{{ row.tipo }} · {{ row.setor }} · {{ row.publico }}</p>
-            <label [for]="'staff-quantity-' + index">Quantidade</label
-            ><input
-              [id]="'staff-quantity-' + index"
-              [name]="'quantity-' + index"
-              type="number"
-              min="0"
-              step="1"
-              [(ngModel)]="row.quantidade"
-              required
-            /><button nz-button class="pill" type="button" (click)="remove(index)">
+            <div class="staff-field">
+              <label [for]="'staff-quantity-' + index">Quantidade</label
+              ><input
+                [id]="'staff-quantity-' + index"
+                [name]="'quantity-' + index"
+                type="number"
+                min="0"
+                step="1"
+                [(ngModel)]="row.quantidade"
+                required
+              />
+            </div>
+            <button nz-button class="pill" type="button" (click)="remove(index)">
               Remover linha
             </button>
           </fieldset>

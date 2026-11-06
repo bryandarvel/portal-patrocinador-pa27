@@ -1,7 +1,8 @@
+import { MaterialVersionHistory } from '../../partnership/shared/material-version-history';
+import { BrandEvidenceList } from '../../partnership/shared/brand-evidence-list';
 import { SubmissionStatus } from '../../partnership/shared/submission-status';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -22,7 +23,6 @@ type BrandDialog =
   | 'replace'
   | 'progress'
   | 'received'
-  | 'cancelled'
   | 'history'
   | 'document'
   | 'close'
@@ -33,6 +33,8 @@ type BrandDialog =
 @Component({
   selector: 'app-rbs-brand-applications',
   imports: [
+    MaterialVersionHistory,
+    BrandEvidenceList,
     CardHeading,
     SubmissionStatus,
     NzIconModule,
@@ -40,7 +42,6 @@ type BrandDialog =
     RouterLink,
     NzButtonModule,
     NzModalModule,
-    DatePipe,
   ],
   templateUrl: './brand.html',
   styleUrls: [
@@ -74,10 +75,8 @@ export class RbsBrandApplications {
         return 'Enviando material';
       case 'received':
         return 'Material recebido';
-      case 'cancelled':
-        return 'Operação cancelada';
       case 'history':
-        return 'Histórico · MIV';
+        return 'Histórico de MIV';
       case 'close':
         return 'Encerrar envio de materiais?';
       case 'reopen':
@@ -150,14 +149,6 @@ export class RbsBrandApplications {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  cancel(): void {
-    if (this.busy()) return;
-    this.selected.set(null);
-    this.inputError.set('');
-    this.dialog.set('cancelled');
-    this.focusDialogTitle();
   }
 
   close(): void {

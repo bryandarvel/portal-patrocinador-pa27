@@ -3,7 +3,7 @@
 .staff-details { display: grid; grid-template-columns: repeat(2, minmax(0, 280px)); gap: 40px; width: 100%; margin: 0; }
 .staff-details > div { display: flex; flex-direction: column; gap: 4px; }
 .staff-details dd { margin: 0; font-size: 16px; line-height: 24px; overflow-wrap: anywhere; }
-.open-staff-button { width: 179px; max-width: 100%; }
+.open-staff-button { width: fit-content; max-width: 100%; }
 .external-guidance p { color: var(--color-muted); font-size: 14px; line-height: 20px; }
 .preview-note { color: var(--color-muted); font-size: 12px; line-height: 18px; }
 @media (max-width: 1199px) { .staff-panels { grid-template-columns: minmax(0, 1fr); } }
@@ -11,3 +11,8 @@
   .staff-card { padding: 20px; }
   .staff-details { gap: 24px; }
 }
+
+.sponsor-staff .external-guidance { gap: 16px; }
+.sponsor-staff .external-guidance > p { font-size: 15px; line-height: 22px; }
+.sponsor-staff .open-staff-button { height: auto; min-height: 48px; padding: 12px 22px; white-space: normal; }
+.sponsor-staff .external-guidance .external-link-note { font-size: 13px; line-height: 18px; }

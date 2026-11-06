@@ -78,27 +78,12 @@
         heading="Publicações da RBS"
         headingId="media-publications-title"
       />
-      @for (publication of preview.publications(); track publication.id) {
-        <div class="history-version">
-          <strong>{{ publication.titulo }}</strong>
-          <p>{{ publication.texto }}</p>
-          @if (publication.url) {
-            <a [href]="publication.url" target="_blank" rel="noopener noreferrer"
-              >Abrir publicação</a
-            >
-          }
-          @if (publication.arquivoId) {
-            <button
-              nz-button
-              class="pill"
-              type="button"
-              (click)="preview.download(publication.arquivoId, publication.titulo)"
-            >
-              <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
-            </button>
-          }
-        </div>
-      } @empty {
+      @if (preview.publications().length) {
+        <app-media-publications
+          [publications]="preview.publications()"
+          (download)="preview.download($event.id, $event.name)"
+        />
+      } @else {
         <app-empty-state
           icon="file-text"
           heading="Nenhuma publicação disponível"
@@ -106,44 +91,25 @@
         />
       }
       <button nz-button class="pill publish-button" type="button" (click)="dialog.set('publish')">
-        <nz-icon nzType="link" aria-hidden="true" />Publicar arquivo ou link
+        <nz-icon nzType="cloud-upload" aria-hidden="true" />Publicar arquivo ou link
       </button>
     </section>
   </div>
 
   <section class="pa-card media-card" aria-labelledby="media-comparison-title">
-    <app-card-heading
-      icon="send"
-      tone="green"
-      heading="Veiculações registradas"
-      headingId="media-comparison-title"
-    />
+    <div class="placements-heading">
+      <app-card-heading
+        icon="send"
+        tone="green"
+        heading="Veiculações registradas"
+        headingId="media-comparison-title"
+      />
+      <button nz-button class="pill edit-button" type="button" (click)="openEdit()">
+        <nz-icon nzType="edit" aria-hidden="true" />Atualizar veiculações
+      </button>
+    </div>
     @if (preview.placements().length) {
-      <table aria-labelledby="media-comparison-title">
-        <thead>
-          <tr>
-            <th scope="col">Canal</th>
-            <th scope="col">Descrição</th>
-            <th scope="col">Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of preview.placements(); track item.id) {
-            <tr>
-              <th scope="row">{{ item.canal }}</th>
-              <td>
-                {{ item.descricao }}
-                @if (item.url) {
-                  <a [href]="item.url" target="_blank" rel="noopener noreferrer">Abrir</a>
-                }
-              </td>
-              <td>
-                {{ item.veiculadoEm ? (item.veiculadoEm | date: 'dd/MM/yyyy') : 'Não informada' }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <app-media-placements [placements]="preview.placements()" />
     } @else {
       <app-empty-state
         icon="send"
@@ -151,9 +117,6 @@
         description="Use Atualizar veiculações para registrar o que foi exibido."
       />
     }
-    <button nz-button class="pill edit-button" type="button" (click)="openEdit()">
-      Atualizar veiculações
-    </button>
   </section>
 </app-admin-partnership-shell>
 
@@ -225,7 +188,7 @@
             ><span>Escolha o arquivo no seu dispositivo</span>
           </button>
           <div class="dialog-actions">
-            <button nz-button class="pill finish-button" type="button" (click)="cancel()">
+            <button nz-button class="pill finish-button" type="button" (click)="close()">
               Cancelar
             </button>
           </div>
@@ -247,14 +210,12 @@
           /></span>
         </div>
       }
-      @if (dialog() === 'received' || dialog() === 'saved' || dialog() === 'cancelled') {
+      @if (dialog() === 'received' || dialog() === 'saved') {
         <p role="status">
           {{
-            dialog() === 'cancelled'
-              ? 'Nenhuma informação foi alterada.'
-              : dialog() === 'saved'
-                ? 'As informações foram atualizadas na parceria.'
-                : 'Arquivo enviado à parceria.'
+            dialog() === 'saved'
+              ? 'As informações foram atualizadas na parceria.'
+              : 'Arquivo enviado à parceria.'
           }}
         </p>
         <span class="done-badge"

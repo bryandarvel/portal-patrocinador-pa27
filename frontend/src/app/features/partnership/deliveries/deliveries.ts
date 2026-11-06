@@ -1,9 +1,9 @@
 import { EmptyState } from '../shared/empty-state';
 import { ExecutionStatus } from '../shared/execution-status';
-import { CardHeading } from '../shared/card-heading';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { PortalContext } from '../../../core/portal-context.service';
 import { PartnershipShell } from '../shared/partnership-shell';
 import { DeliveryReport } from '../shared/delivery-report';
@@ -14,14 +14,14 @@ import { DeliveriesPreviewService } from './deliveries-preview.service';
   imports: [
     EmptyState,
     ExecutionStatus,
-    CardHeading,
     PartnershipShell,
     RouterLink,
     NzButtonModule,
+    NzIconModule,
     DeliveryReport,
   ],
   templateUrl: './deliveries.html',
-  styleUrls: ['../shared/partnership-ui.css', './deliveries.css'],
+  styleUrls: ['../shared/partnership-ui.css', './deliveries-sponsor.css'],
 })
 export class PartnershipDeliveries {
   readonly preview = inject(DeliveriesPreviewService);

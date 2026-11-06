@@ -11,3 +11,19 @@
 @media (max-width: 760px) {
   .dialog-actions .pill { max-width: 100%; height: auto; min-height: 44px; white-space: normal; }
 }
+
+.placements-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+.placements-heading app-card-heading {
+  flex: 1 1 300px;
+}
+.placements-heading .edit-button {
+  width: auto;
+  flex: none;
+}

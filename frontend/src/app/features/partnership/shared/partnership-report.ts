@@ -1,4 +1,5 @@
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -11,21 +12,26 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
 import { PortalApi } from '../../../core/portal-api.service';
 import { portalAreaLabel, PortalContext } from '../../../core/portal-context.service';
+import { ExecutionStatus } from './execution-status';
 import { labelPartnershipDialog } from './modal-accessibility';
 import { PartnershipReportPreviewService, ReportFile } from './partnership-report-preview.service';
-import {
-  formatReportDate,
-  reportBenefitLabel,
-  reportExecutionLabel,
-  reportFileLabel,
-} from './report-format';
+import { formatReportDate, reportBenefitLabel, reportFileLabel } from './report-format';
 
 @Component({
   selector: 'app-partnership-report',
-  imports: [NzIconModule, RouterLink, NzButtonModule, NzModalModule],
+  imports: [
+    NgTemplateOutlet,
+    NzIconModule,
+    RouterLink,
+    NzButtonModule,
+    NzCollapseModule,
+    NzModalModule,
+    ExecutionStatus,
+  ],
   templateUrl: './partnership-report.html',
   styleUrls: ['./partnership-ui.css', './material-ui.css', './partnership-report.css'],
 })
@@ -41,13 +47,24 @@ export class PartnershipReport {
   readonly error = signal('');
   readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('dialogHeading');
   readonly formatDate = formatReportDate;
-  readonly executionLabel = reportExecutionLabel;
   readonly fileLabel = reportFileLabel;
   readonly benefitLabel = reportBenefitLabel;
   readonly areaLabel = portalAreaLabel;
   readonly title = computed(() =>
     this.stage() === 'publish' ? 'Publicar relatório complementar' : 'Relatório da parceria',
   );
+  toggleSectionFromKeyboard(event: Event): void {
+    const target = event.target;
+    // O cabeçalho do NzCollapse é um div com role="button" na versão instalada.
+    if (
+      event instanceof KeyboardEvent &&
+      target instanceof HTMLElement &&
+      target.matches('.ant-collapse-header')
+    ) {
+      event.preventDefault();
+      if (!event.repeat) target.click();
+    }
+  }
   file: File | null = null;
   showPublication(): void {
     if (this.admin()) {
@@ -55,6 +72,10 @@ export class PartnershipReport {
       this.stage.set('publish');
       this.focusTitle();
     }
+  }
+  showOverview(): void {
+    this.stage.set('overview');
+    this.focusTitle();
   }
   selectFile(event: Event): void {
     this.file = (event.target as HTMLInputElement).files?.[0] ?? null;

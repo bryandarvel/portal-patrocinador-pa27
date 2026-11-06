@@ -4,21 +4,43 @@
   (nzOnCancel)="close()"
   (nzAfterOpen)="afterOpen(reportModal)"
   [nzTitle]="dialogTitle"
-  [nzFooter]="null"
+  [nzFooter]="stage() === 'overview' ? reportFooter : null"
   [nzCentered]="true"
-  [nzWidth]="840"
+  [nzWidth]="960"
   [nzNoAnimation]="true"
-  nzClassName="pa-profile-dialog"
+  nzClassName="pa-profile-dialog pa-partnership-report-dialog"
   [nzCloseIcon]="closeIcon"
 >
-  <ng-template #dialogTitle
-    ><h2 #dialogHeading tabindex="-1" class="dialog-title" id="partnership-report-title">
+  <ng-template #dialogTitle>
+    <h2 #dialogHeading tabindex="-1" class="dialog-title" id="partnership-report-title">
       {{ title() }}
-    </h2></ng-template
-  >
+    </h2>
+    @if (stage() === 'overview' && context.partnership(); as partnership) {
+      <div class="report-identity">
+        <p>{{ partnership.nome }} · {{ partnership.edicao }}</p>
+        <span>{{ partnership.cota }}</span>
+      </div>
+    }
+  </ng-template>
+  <ng-template #reportFooter>
+    <div class="report-footer">
+      <button nz-button type="button" class="pill" [disabled]="busy()" (click)="close()">
+        Fechar
+      </button>
+      <button
+        nz-button
+        type="button"
+        class="pill primary-button"
+        [disabled]="busy() || !preview.report()"
+        (click)="exportHtml()"
+      >
+        <nz-icon nzType="download" aria-hidden="true" />Gerar e baixar HTML
+      </button>
+    </div>
+  </ng-template>
   <ng-template #closeIcon><nz-icon nzType="close" aria-hidden="true" /></ng-template>
   <ng-container *nzModalContent
-    ><div class="dialog-content">
+    ><div class="dialog-content" [class.report-overview]="stage() === 'overview'">
       @if (stage() === 'publish') {
         <p>O arquivo ficará disponível para {{ sponsorName() }}.</p>
         <label for="report-file">Arquivo complementar</label
@@ -39,40 +61,28 @@
           >
             Publicar arquivo
           </button>
-          <button
-            nz-button
-            type="button"
-            class="pill"
-            [disabled]="busy()"
-            (click)="stage.set('overview')"
-          >
+          <button nz-button type="button" class="pill" [disabled]="busy()" (click)="showOverview()">
             Voltar
           </button>
         </div>
       } @else {
         @if (preview.report(); as report) {
-          <p>
-            {{ report.parceria.nome }} · {{ report.parceria.edicao }} · {{ report.parceria.cota }}
-          </p>
-          <p>Dados registrados no portal até {{ formatDate(report.geradoEm) }}.</p>
           @if (error()) {
             <p role="alert" class="field-error">{{ error() }}</p>
           }
-          <button
-            nz-button
-            type="button"
-            class="pill primary-button download-report"
-            [disabled]="busy()"
-            (click)="exportHtml()"
-          >
-            Gerar e baixar HTML
-          </button>
-          <section class="report-preview" aria-label="Resumo da parceria">
-            <h3>Entregas</h3>
+          <p class="report-timestamp">
+            Dados registrados no portal até {{ formatDate(report.geradoEm) }}.
+          </p>
+          <ng-template #deliveries>
             @for (item of report.entregas; track $index) {
               <article>
-                <h4>{{ item.titulo }}</h4>
-                <p>{{ areaLabel(item.area) }} · {{ executionLabel(item.execucao) }}</p>
+                <div class="report-delivery-title">
+                  <h4>{{ item.titulo }}</h4>
+                  <app-execution-status [state]="item.execucao" />
+                </div>
+                <p>
+                  {{ areaLabel(item.area) }}
+                </p>
                 <p>{{ item.descricao }}</p>
                 @if (item.responsavel) {
                   <p>Responsável: {{ item.responsavel }}</p>
@@ -81,7 +91,8 @@
             } @empty {
               <p>Nenhuma entrega registrada.</p>
             }
-            <h3>Comprovações</h3>
+          </ng-template>
+          <ng-template #proofs>
             @for (item of report.comprovacoes; track $index) {
               <article>
                 <h4>{{ item.entrega }}</h4>
@@ -91,7 +102,8 @@
             } @empty {
               <p>Nenhuma comprovação registrada.</p>
             }
-            <h3>Veiculações</h3>
+          </ng-template>
+          <ng-template #placements>
             @for (item of report.veiculacoes; track $index) {
               <article>
                 <h4>{{ item.canal }}</h4>
@@ -103,13 +115,15 @@
             } @empty {
               <p>Nenhuma veiculação registrada.</p>
             }
-            <h3>Perguntas da pesquisa</h3>
+          </ng-template>
+          <ng-template #survey>
             @for (item of report.perguntas; track $index) {
               <p>{{ item.ordem }}. {{ item.pergunta }}</p>
             } @empty {
               <p>Nenhuma pergunta registrada.</p>
             }
-            <h3>Cortesias</h3>
+          </ng-template>
+          <ng-template #tickets>
             @for (item of report.cortesias; track $index) {
               <p>
                 {{ item.quantidade }} × {{ benefitLabel(item.tipo) }} · {{ item.setor }} ·
@@ -125,7 +139,8 @@
             } @empty {
               <p>Nenhuma cortesia registrada.</p>
             }
-            <h3>Credenciamento</h3>
+          </ng-template>
+          <ng-template #credentials>
             @for (item of report.credenciamento; track $index) {
               <p>
                 {{ item.quantidade }} × {{ benefitLabel(item.tipo) }} · {{ item.setor }} ·
@@ -134,7 +149,8 @@
             } @empty {
               <p>Nenhuma credencial registrada.</p>
             }
-            <h3>Arquivos e resultados publicados</h3>
+          </ng-template>
+          <ng-template #files>
             @for (item of report.arquivos; track item.id) {
               <p>
                 {{ item.nome }} · {{ areaLabel(item.area) }} · {{ fileLabel(item.tipo) }} · versão
@@ -143,30 +159,78 @@
             } @empty {
               <p>Nenhum arquivo publicado.</p>
             }
-          </section>
-          <section class="available-report" aria-labelledby="published-report-title">
-            <h3 id="published-report-title">Relatórios complementares</h3>
-            @for (publication of report.relatoriosPublicados; track publication.id) {
-              <div class="document-card">
-                <span class="document-description"
-                  ><strong>{{ publication.nome }}</strong
-                  ><span
-                    >Versão {{ publication.versao }} · {{ formatDate(publication.criado_em) }}</span
-                  ></span
-                ><button
-                  nz-button
-                  class="pill"
-                  type="button"
-                  [disabled]="busy()"
-                  (click)="download(publication)"
+          </ng-template>
+          @let sections =
+            [
+              { title: 'Entregas', icon: 'carry-out', content: deliveries },
+              { title: 'Comprovações', icon: 'check-circle', content: proofs },
+              { title: 'Veiculações', icon: 'send', content: placements },
+              { title: 'Perguntas da pesquisa', icon: 'bar-chart', content: survey },
+              { title: 'Cortesias', icon: 'gift', content: tickets },
+              { title: 'Credenciamento', icon: 'idcard', content: credentials },
+              { title: 'Arquivos e resultados publicados', icon: 'file-text', content: files },
+            ];
+          <section class="report-preview" aria-label="Resumo da parceria">
+            <nz-collapse
+              class="report-sections"
+              [nzAccordion]="false"
+              [nzBordered]="false"
+              (keydown.enter)="toggleSectionFromKeyboard($event)"
+              (keydown.space)="toggleSectionFromKeyboard($event)"
+            >
+              @for (section of sections; track section.title; let first = $first) {
+                <ng-template #sectionHeading>
+                  <span class="report-section-heading">
+                    <span>
+                      <nz-icon [nzType]="section.icon" aria-hidden="true" />{{ section.title }}
+                    </span>
+                    <nz-icon nzType="right" aria-hidden="true" />
+                  </span>
+                </ng-template>
+                <nz-collapse-panel
+                  [nzHeader]="sectionHeading"
+                  [nzShowArrow]="false"
+                  [nzActive]="first"
                 >
-                  Baixar arquivo
-                </button>
-              </div>
-            } @empty {
-              <p>Nenhum relatório complementar publicado.</p>
-            }
+                  <div class="report-section-content">
+                    <ng-container [ngTemplateOutlet]="section.content" />
+                  </div>
+                </nz-collapse-panel>
+              }
+            </nz-collapse>
           </section>
+          <ng-template #publishedReports>
+            <section class="available-report" aria-labelledby="published-report-title">
+              <h3 id="published-report-title">Relatórios complementares</h3>
+              @for (publication of report.relatoriosPublicados; track publication.id) {
+                <div class="document-card">
+                  <span class="document-icon" aria-hidden="true"
+                    ><nz-icon nzType="file-text"
+                  /></span>
+                  <span class="document-description"
+                    ><strong>{{ publication.nome }}</strong
+                    ><span
+                      >Versão {{ publication.versao }} ·
+                      {{ formatDate(publication.criado_em) }}</span
+                    ></span
+                  ><button
+                    nz-button
+                    class="pill"
+                    type="button"
+                    [disabled]="busy()"
+                    [attr.aria-label]="'Baixar arquivo: ' + publication.nome"
+                    (click)="download(publication)"
+                  >
+                    <nz-icon nzType="download" aria-hidden="true" />
+                    Baixar arquivo
+                  </button>
+                </div>
+              } @empty {
+                <p>Nenhum relatório complementar publicado.</p>
+              }
+            </section>
+          </ng-template>
+          <ng-container [ngTemplateOutlet]="publishedReports" />
           @if (admin()) {
             <div class="dialog-actions">
               <button

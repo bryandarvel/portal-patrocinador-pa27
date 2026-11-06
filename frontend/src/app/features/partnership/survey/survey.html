@@ -6,20 +6,24 @@
 >
   <app-submission-status [open]="preview.submissionsOpen()"> </app-submission-status>
 
-  <div class="survey-panels">
+  <div class="survey-panels sponsor-survey">
     <section class="pa-card survey-card" aria-labelledby="survey-questions-title">
       <app-card-heading
         icon="bar-chart"
         heading="Perguntas personalizadas"
         headingId="survey-questions-title"
       />
-      <p id="survey-questions-help">Envie de uma a três perguntas para a pesquisa da ativação.</p>
+      <p id="survey-questions-help">
+        Envie de uma a três perguntas para a pesquisa da ativação. Preencha pelo menos um dos
+        campos.
+      </p>
       <form
         [formGroup]="form"
         (ngSubmit)="sendQuestions()"
         novalidate
         aria-labelledby="survey-questions-title"
         aria-describedby="survey-questions-help"
+        [attr.aria-busy]="busy()"
       >
         <div class="question-field">
           <label for="survey-question-1">Pergunta 01</label>
@@ -28,10 +32,14 @@
             nz-input
             id="survey-question-1"
             formControlName="question1"
-            rows="1"
+            rows="2"
             [readonly]="!preview.submissionsOpen()"
             [attr.aria-invalid]="submitted() && form.invalid"
-            [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"
+            [attr.aria-describedby]="
+              submitted() && form.invalid
+                ? 'survey-questions-help survey-questions-error'
+                : 'survey-questions-help'
+            "
           ></textarea>
         </div>
         <div class="question-field">
@@ -40,10 +48,14 @@
             nz-input
             id="survey-question-2"
             formControlName="question2"
-            rows="1"
+            rows="2"
             [readonly]="!preview.submissionsOpen()"
             [attr.aria-invalid]="submitted() && form.invalid"
-            [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"
+            [attr.aria-describedby]="
+              submitted() && form.invalid
+                ? 'survey-questions-help survey-questions-error'
+                : 'survey-questions-help'
+            "
           ></textarea>
         </div>
         <div class="question-field">
@@ -52,10 +64,14 @@
             nz-input
             id="survey-question-3"
             formControlName="question3"
-            rows="1"
+            rows="2"
             [readonly]="!preview.submissionsOpen()"
             [attr.aria-invalid]="submitted() && form.invalid"
-            [attr.aria-describedby]="submitted() && form.invalid ? 'survey-questions-error' : null"
+            [attr.aria-describedby]="
+              submitted() && form.invalid
+                ? 'survey-questions-help survey-questions-error'
+                : 'survey-questions-help'
+            "
           ></textarea>
         </div>
         @if (submitted() && form.invalid) {
@@ -69,13 +85,14 @@
             class="pill primary-button send-questions-button"
             type="submit"
             [disabled]="busy()"
+            [nzLoading]="busy()"
           >
-            Enviar perguntas
+            <nz-icon nzType="send" aria-hidden="true" />Enviar perguntas
           </button>
         }
       </form>
     </section>
-    <section class="pa-card survey-card" aria-labelledby="survey-results-title">
+    <section class="pa-card survey-card survey-results" aria-labelledby="survey-results-title">
       <app-card-heading
         icon="bar-chart"
         tone="green"
@@ -88,12 +105,13 @@
           type="button"
           (click)="documentOpen.set(true)"
           aria-label="Abrir Resultados da ativação"
+          aria-haspopup="dialog"
         >
           <span class="document-icon" aria-hidden="true"><nz-icon nzType="file-text" /></span
           ><span class="document-description"
             ><strong>{{ preview.resultsFileName() }}</strong
             ><span>Arquivo publicado pela RBS</span></span
-          ><span class="document-action">Abrir <nz-icon nzType="right" aria-hidden="true" /></span>
+          ><span class="document-action" aria-hidden="true">Abrir <nz-icon nzType="right" /></span>
         </button>
       } @else {
         <p>A RBS ainda não disponibilizou os resultados desta parceria.</p>
@@ -136,7 +154,7 @@
             type="button"
             (click)="download()"
           >
-            Baixar arquivo
+            <nz-icon nzType="download" aria-hidden="true" />Baixar arquivo
           </button>
         </div>
       } @else {

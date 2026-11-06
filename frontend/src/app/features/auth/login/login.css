@@ -29,13 +29,13 @@ h1 { color: var(--color-text); margin: 0; font-family: var(--font-display); font
 form { display: flex; flex-direction: column; gap: 24px; }
 nz-form-item { margin: 0; }
 nz-form-label { font-weight: 500; padding-bottom: 8px; line-height: 20px; }
-input[nz-input], nz-input-wrapper { border-radius: 8px; border-color: var(--color-border); }
+input[nz-input] { border-radius: 8px; border-color: var(--color-border); }
 input[nz-input] { height: 58px; padding: 16px; font-size: 16px; line-height: 24px; }
-nz-input-wrapper { height: 58px; padding: 10px 16px; }
-nz-input-wrapper input[nz-input] { height: 36px; padding: 6px 0; }
+.password-field { position: relative; }
+.password-field input[nz-input] { padding-right: 68px; }
 input::placeholder { color: var(--color-muted); }
 .field-error { margin: 8px 0 0; font-size: 12px; line-height: 18px; color: #b42318; }
-.password-toggle { display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 0; width: 36px; height: 36px; border-radius: 4px; color: var(--color-muted); cursor: pointer; font-size: 18px; }
+.password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 0; width: 36px; height: 36px; border-radius: 4px; color: var(--color-muted); cursor: pointer; font-size: 18px; }
 .password-toggle:hover { color: var(--color-accent-text); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; }
 .dark-button, .dark-button:not(:disabled):is(:hover, :focus, :active) { background: var(--color-text); border-color: var(--color-text); color: #fff; box-shadow: none; }
@@ -72,8 +72,6 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--color-accen
   h1 { font-size: 36px; line-height: 38px; }
   .intro { font-size: 14px; line-height: 20px; }
   input[nz-input] { height: 48px; padding-top: 11px; padding-bottom: 11px; }
-  nz-input-wrapper { height: 48px; padding-top: 5px; padding-bottom: 5px; }
-  nz-input-wrapper input[nz-input] { height: 36px; padding: 6px 0; }
   .festival-slogan { font-size: 60px; line-height: 62px; }
 }
 @media (max-width: 760px) and (max-height: 700px) {

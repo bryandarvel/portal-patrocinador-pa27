@@ -101,7 +101,7 @@
           <nz-form-item>
             <nz-form-label nzFor="password">Senha</nz-form-label>
             <nz-form-control [nzValidateStatus]="showError('password') ? 'error' : ''">
-              <nz-input-wrapper>
+              <div class="password-field">
                 <input
                   nz-input
                   nzSize="large"
@@ -115,7 +115,6 @@
                   [attr.aria-describedby]="showError('password') ? 'password-error' : null"
                 />
                 <button
-                  nzInputSuffix
                   class="password-toggle"
                   type="button"
                   (click)="passwordVisible.set(!passwordVisible())"
@@ -127,7 +126,7 @@
                     aria-hidden="true"
                   />
                 </button>
-              </nz-input-wrapper>
+              </div>
               @if (showError('password')) {
                 <p id="password-error" class="field-error" role="alert">Informe sua senha.</p>
               }

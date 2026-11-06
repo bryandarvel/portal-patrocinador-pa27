@@ -4,53 +4,71 @@
   activeArea="deliveries"
   pageUrl="/entregas"
 >
-  <section class="featured-delivery" aria-labelledby="summary-title">
-    <div class="featured-content">
-      <h2>Entregas contratadas</h2>
+  <section class="sponsor-delivery-summary" aria-labelledby="summary-title">
+    <div class="summary-copy">
+      <h2 id="summary-title">Resumo das entregas</h2>
       <p>Consulte materiais, execução e comprovações de cada entrega.</p>
     </div>
-    <section class="pa-card delivery-summary" aria-labelledby="summary-title">
-      <app-card-heading icon="carry-out" heading="Resumo das entregas" headingId="summary-title" />
+    @if (preview.loading()) {
+      <p role="status">Carregando entregas…</p>
+    } @else {
       <dl class="delivery-totals">
         @for (total of preview.totals(); track total.state) {
-          <div [class]="total.state">
+          <div>
             <dt>{{ total.label }}</dt>
             <dd>{{ total.value }}</dd>
           </div>
         }
       </dl>
-    </section>
-  </section>
-  @if (preview.loading()) {
-    <p role="status">Carregando entregas…</p>
-  }
-  <div class="delivery-areas">
-    @for (item of preview.items(); track item.id) {
-      <section class="pa-card delivery-card">
-        <h2>{{ item.titulo }}</h2>
-        <app-execution-status [state]="item.execucao" />
-        <p>{{ item.descricao }}</p>
-        <p>{{ item.responsavel ?? 'Responsável ainda não definido' }}</p>
-        <a nz-button class="pill area-button" [routerLink]="detailLink(item.id)"
-          >Acompanhar entrega</a
-        ><button
-          nz-button
-          class="pill"
-          type="button"
-          (click)="selectedId.set(item.id); reportOpen.set(true)"
-        >
-          Prévia do relatório
-        </button>
-      </section>
-    } @empty {
-      @if (!preview.loading()) {
-        <app-empty-state
-          icon="carry-out"
-          heading="Nenhuma entrega cadastrada"
-          description="As entregas cadastradas pela RBS aparecerão aqui para acompanhamento."
-        />
-      }
     }
-  </div>
+  </section>
+  <section class="delivery-list" aria-labelledby="delivery-list-title">
+    <h2 id="delivery-list-title">Entregas contratadas</h2>
+    @if (preview.items().length) {
+      <div class="delivery-areas">
+        @for (item of preview.items(); track item.id) {
+          <article class="pa-card delivery-card" [attr.aria-labelledby]="'delivery-' + item.id">
+            <header class="delivery-card-header">
+              <h3 [id]="'delivery-' + item.id">{{ item.titulo }}</h3>
+              <app-execution-status [state]="item.execucao" />
+            </header>
+            @if (item.descricao) {
+              <p>{{ item.descricao }}</p>
+            }
+            <dl class="delivery-owner">
+              <dt>Responsável</dt>
+              <dd>{{ item.responsavel ?? 'Ainda não definido' }}</dd>
+            </dl>
+            <div class="delivery-actions">
+              <a
+                nz-button
+                class="pill primary-button"
+                [routerLink]="detailLink(item.id)"
+                [attr.aria-label]="'Acompanhar entrega: ' + item.titulo"
+              >
+                Acompanhar entrega <nz-icon nzType="right" aria-hidden="true" />
+              </a>
+              <button
+                nz-button
+                class="pill"
+                type="button"
+                aria-haspopup="dialog"
+                [attr.aria-label]="'Prévia do relatório: ' + item.titulo"
+                (click)="selectedId.set(item.id); reportOpen.set(true)"
+              >
+                <nz-icon nzType="file-text" aria-hidden="true" />Prévia do relatório
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (!preview.loading()) {
+      <app-empty-state
+        icon="carry-out"
+        heading="Nenhuma entrega cadastrada"
+        description="As entregas cadastradas pela RBS aparecerão aqui para acompanhamento."
+      />
+    }
+  </section>
 </app-partnership-shell>
 <app-delivery-report [(open)]="reportOpen" [deliveryId]="selectedId()" />

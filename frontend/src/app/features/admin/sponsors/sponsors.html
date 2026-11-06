@@ -18,16 +18,21 @@
         </div>
       </div>
     </div>
-    <div class="search-and-register">
+    <div class="search-and-register sponsor-toolbar">
       <form class="search-form field" role="search" (submit)="$event.preventDefault(); search()">
-        <label for="sponsor-query">Buscar parceria</label
-        ><input
-          nz-input
-          id="sponsor-query"
-          type="search"
-          [formControl]="searchField"
-          placeholder="Nome do patrocinador"
-        />
+        <label for="sponsor-query">Buscar parceria</label>
+        <div class="sponsor-search">
+          @if (admin()) {
+            <nz-icon nzType="search" aria-hidden="true" />
+          }
+          <input
+            nz-input
+            id="sponsor-query"
+            type="search"
+            [formControl]="searchField"
+            placeholder="Nome do patrocinador"
+          />
+        </div>
       </form>
       @if (admin()) {
         <button
@@ -36,16 +41,16 @@
           type="button"
           (click)="openRegistration()"
         >
-          Cadastrar patrocinador
+          <nz-icon nzType="plus" aria-hidden="true" />Cadastrar patrocinador
         </button>
       }
     </div>
     @if (admin()) {
       <div class="search-and-register">
         <button nz-button class="pill" type="button" (click)="openQuotas()">
-          Cotas e benefícios</button
+          <nz-icon nzType="gift" aria-hidden="true" />Cotas e benefícios</button
         ><button nz-button class="pill" type="button" (click)="dialog.set('team')">
-          Convidar equipe
+          <nz-icon nzType="user-add" aria-hidden="true" />Convidar equipe
         </button>
       </div>
     }
@@ -55,59 +60,98 @@
     @if (api.pending() > 0) {
       <p role="status">Carregando dados...</p>
     }
-    <div
-      class="table-scroll"
-      role="region"
-      aria-label="Lista de parcerias"
-      tabindex="0"
-      [attr.aria-busy]="api.pending() > 0"
-    >
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Patrocinador</th>
-            <th scope="col">Cota</th>
-            <th scope="col">Edição</th>
-            <th scope="col">Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of preview.sponsors(); track s.id) {
+    @if (admin()) {
+      <section
+        class="sponsor-results"
+        aria-label="Lista de patrocinadores"
+        [attr.aria-busy]="api.pending() > 0"
+      >
+        @if (sponsorCards().length) {
+          <ul class="sponsor-grid">
+            @for (s of sponsorCards(); track s.id) {
+              @let brand = demoBrand(s.id, s.name, s.edition);
+              <li>
+                <a class="sponsor-card" [routerLink]="['/rbs/parcerias', s.id, 'perfil']">
+                  @if (brand) {
+                    <app-demo-pa27-brand [logos]="brand.logos" />
+                  } @else {
+                    <span class="sponsor-mark" aria-hidden="true">{{
+                      s.name.trim().charAt(0).toLocaleUpperCase('pt-BR')
+                    }}</span>
+                  }
+                  <strong translate="no">{{ brand?.displayName ?? s.name }}</strong>
+                  @if (s.quota) {
+                    <span class="sponsor-quota">{{
+                      brand && s.quota === brand.quota + ' (demo PA27)' ? brand.quota : s.quota
+                    }}</span>
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        } @else if (api.pending() === 0 && !api.error()) {
+          <app-empty-state
+            icon="bank"
+            heading="Nenhuma parceria encontrada"
+            description="Tente outro nome ou limpe a busca para consultar suas parcerias."
+          />
+        }
+      </section>
+    } @else {
+      <div
+        class="table-scroll"
+        role="region"
+        aria-label="Lista de parcerias"
+        tabindex="0"
+        [attr.aria-busy]="api.pending() > 0"
+      >
+        <table>
+          <thead>
             <tr>
-              <th scope="row">
-                <div class="sponsor-identity">
-                  <span class="initial yellow" aria-hidden="true">{{
-                    s.name.charAt(0).toLocaleUpperCase('pt-BR')
-                  }}</span
-                  ><span>{{ s.name }}</span>
-                </div>
-              </th>
-              <td class="quota-cell">{{ s.quota }}</td>
-              <td>{{ s.edition }}</td>
-              <td>
-                <a
-                  nz-button
-                  class="pill open-button"
-                  [routerLink]="(admin() ? '/rbs/parcerias/' : '/parcerias/') + s.id + '/perfil'"
-                  [attr.aria-label]="'Abrir parceria de ' + s.name"
-                  >Abrir parceria</a
-                >
-              </td>
+              <th scope="col">Patrocinador</th>
+              <th scope="col">Cota</th>
+              <th scope="col">Edição</th>
+              <th scope="col">Ação</th>
             </tr>
-          } @empty {
-            <tr>
-              <td colspan="4" role="status">
-                <app-empty-state
-                  icon="bank"
-                  heading="Nenhuma parceria encontrada"
-                  description="Tente outro nome ou limpe a busca para consultar suas parcerias."
-                />
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            @for (s of preview.sponsors(); track s.id) {
+              <tr>
+                <th scope="row">
+                  <div class="sponsor-identity">
+                    <span class="initial yellow" aria-hidden="true">{{
+                      s.name.charAt(0).toLocaleUpperCase('pt-BR')
+                    }}</span
+                    ><span>{{ s.name }}</span>
+                  </div>
+                </th>
+                <td class="quota-cell">{{ s.quota }}</td>
+                <td>{{ s.edition }}</td>
+                <td>
+                  <a
+                    nz-button
+                    class="pill open-button"
+                    [routerLink]="'/parcerias/' + s.id + '/perfil'"
+                    [attr.aria-label]="'Abrir parceria de ' + s.name"
+                    >Abrir parceria</a
+                  >
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" role="status">
+                  <app-empty-state
+                    icon="bank"
+                    heading="Nenhuma parceria encontrada"
+                    description="Tente outro nome ou limpe a busca para consultar suas parcerias."
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
     @if (preview.total() > 50) {
       <div class="search-and-register">
         <button
@@ -118,7 +162,7 @@
           [disabled]="preview.page() === 0 || api.pending() > 0"
         >
           Anterior</button
-        ><span>Página {{ preview.page() + 1 }} · {{ preview.total() }} parcerias</span
+        ><span>Página {{ preview.page() + 1 }}@if (!admin()) { · {{ preview.total() }} parcerias }</span
         ><button
           nz-button
           class="pill"
@@ -328,7 +372,14 @@
                 (input)="changeDelivery($index, 'descricao', $any($event.target).value)"
                 maxlength="2000"
               ></textarea
-              ><button type="button" (click)="removeDelivery($index)">Remover entrega</button>
+              ><button
+                nz-button
+                class="pill remove-draft-button"
+                type="button"
+                (click)="removeDelivery($index)"
+              >
+                Remover entrega
+              </button>
             </fieldset>
           }
           <button nz-button class="pill" type="button" (click)="addDelivery()">
@@ -393,7 +444,14 @@
                 [value]="b.quantidade"
                 (input)="changeBenefit($index, 'quantidade', $any($event.target).value)"
                 required
-              /><button type="button" (click)="removeBenefit($index)">Remover benefício</button>
+              /><button
+                nz-button
+                class="pill remove-draft-button"
+                type="button"
+                (click)="removeBenefit($index)"
+              >
+                Remover benefício
+              </button>
             </fieldset>
           }
           <button nz-button class="pill" type="button" (click)="addBenefit()">

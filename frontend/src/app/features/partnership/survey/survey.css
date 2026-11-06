@@ -3,8 +3,8 @@
 form { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; width: 100%; }
 .question-field { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .question-field label { font-size: 14px; font-weight: 500; line-height: 20px; }
-.question-field textarea { width: 100%; min-height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; color: var(--color-muted); font: 16px/24px var(--font-body); resize: vertical; }
-.question-field textarea:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; }
+.question-field textarea { width: 100%; min-height: 58px; padding: 16px; border: 1px solid var(--color-border); border-radius: var(--radius-control); color: var(--color-text); font: 16px/24px var(--font-body); resize: vertical; }
+.question-field textarea:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 .question-field textarea[aria-invalid="true"] { border-color: var(--color-error); }
 .file-error { font-size: 14px; line-height: 20px; }
 .submission-status.is-closed > p:first-child { color: var(--color-error); }
@@ -13,4 +13,20 @@ form { display: flex; flex-direction: column; align-items: flex-start; gap: 16px
 @media (max-width: 760px) {
   .survey-card { padding: 20px; }
   .question-field textarea { min-height: 106px; }
+}
+
+/* Ajustes da edição pelo patrocinador; este arquivo também é importado pela RBS. */
+.sponsor-survey .survey-card > p { font-size: 15px; line-height: 22px; }
+.sponsor-survey form { gap: 24px; }
+.sponsor-survey .question-field label { font-size: 15px; line-height: 22px; }
+.sponsor-survey .question-field textarea { padding: 12px 16px; }
+.sponsor-survey .question-field textarea[readonly] { color: var(--color-muted); }
+.sponsor-survey .send-questions-button { max-width: 100%; min-height: 48px; height: auto; padding: 12px 22px; white-space: normal; }
+.sponsor-survey .survey-results .document-card { flex-wrap: wrap; gap: 12px; }
+.sponsor-survey .survey-results .document-description { flex: 1 1 150px; }
+.sponsor-survey .survey-results .document-action { margin-left: auto; }
+.sponsor-survey .file-error { width: 100%; margin: 0; }
+
+@media (min-width: 761px) {
+  .sponsor-survey .question-field textarea { min-height: 96px; }
 }

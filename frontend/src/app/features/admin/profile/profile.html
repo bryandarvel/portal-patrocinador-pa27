@@ -14,21 +14,44 @@
           <label for="rbs-sponsor-name">Nome do patrocinador</label
           ><input
             nz-input
+            #nameInput
             id="rbs-sponsor-name"
             name="name"
             [(ngModel)]="name"
             required
             maxlength="200"
+            [attr.aria-invalid]="profileSubmitted() && !name.trim()"
+            [attr.aria-describedby]="profileSubmitted() && !name.trim() ? 'rbs-name-error' : null"
           />
+          @if (profileSubmitted() && !name.trim()) {
+            <p id="rbs-name-error" class="field-error" role="alert">
+              Informe o nome do patrocinador.
+            </p>
+          }
         </div>
         <div class="profile-field">
           <label for="rbs-sponsor-quota">Cota / plano comercial</label
-          ><select id="rbs-sponsor-quota" name="quota" [(ngModel)]="cotaId" required>
+          ><select
+            #quotaInput
+            id="rbs-sponsor-quota"
+            name="quota"
+            [(ngModel)]="cotaId"
+            required
+            [attr.aria-invalid]="profileSubmitted() && !cotaId"
+            [attr.aria-describedby]="
+              profileSubmitted() && !cotaId ? 'rbs-quota-error rbs-quota-help' : 'rbs-quota-help'
+            "
+          >
             @for (cota of preview.quotas(); track cota.id) {
               <option [value]="cota.id">{{ cota.nome }}</option>
             }
           </select>
-          <p>A troca de cota preserva os direitos já contratados.</p>
+          @if (profileSubmitted() && !cotaId) {
+            <p id="rbs-quota-error" class="field-error" role="alert">
+              Selecione a cota da parceria.
+            </p>
+          }
+          <p id="rbs-quota-help">A troca de cota preserva os direitos já contratados.</p>
         </div>
         <div class="profile-field">
           <label>Acessos autorizados</label>
@@ -77,7 +100,9 @@
           ><span class="document-description"
             ><strong>{{ document.nome }}</strong
             ><span>Versão {{ document.versao }}</span></span
-          ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
+          ><span class="document-action"
+            >Baixar <nz-icon nzType="download" aria-hidden="true"
+          /></span>
         </button>
       } @empty {
         <app-empty-state
@@ -96,124 +121,187 @@
     </section>
   </div>
   <section class="pa-card profile-card rights-card" aria-labelledby="rights-title">
-    <app-card-heading
-      icon="check-circle"
-      tone="green"
-      heading="Direitos desta parceria"
-      headingId="rights-title"
-    />
-    <p>
-      A troca de cota não altera áreas e benefícios já contratados. Ajuste-os aqui quando
-      necessário.
-    </p>
-    <button
-      nz-button
-      class="pill"
-      type="button"
-      [attr.aria-expanded]="rightsOpen()"
-      aria-controls="rights-editor"
-      (click)="rightsOpen() ? rightsOpen.set(false) : openRights()"
-    >
-      {{ rightsOpen() ? 'Fechar editor' : 'Editar direitos' }}
-    </button>
+    <div class="rights-heading">
+      <app-card-heading
+        icon="check-circle"
+        tone="green"
+        heading="Direitos desta parceria"
+        headingId="rights-title"
+        description="A troca de cota não altera áreas e benefícios já contratados. Ajuste-os aqui quando necessário."
+      />
+      <button
+        nz-button
+        class="pill"
+        type="button"
+        [attr.aria-expanded]="rightsOpen()"
+        aria-controls="rights-editor"
+        (click)="rightsOpen() ? rightsOpen.set(false) : openRights()"
+      >
+        {{ rightsOpen() ? 'Fechar editor' : 'Editar direitos' }}
+      </button>
+    </div>
     @if (rightsOpen()) {
       <div id="rights-editor">
         <fieldset>
           <legend>Áreas habilitadas</legend>
-          @for (a of areaOptions; track a.key) {
-            <label class="area-choice"
-              ><input
-                #areaCheck
-                type="checkbox"
-                [checked]="areasDraft().includes(a.key)"
-                [disabled]="a.key === 'perfil'"
-                (change)="toggleArea(a.key, areaCheck.checked)"
-              />
-              {{ a.label }}</label
-            >
-          }
-        </fieldset>
-        <button
-          nz-button
-          class="pill primary-button"
-          type="button"
-          [disabled]="api.pending() > 0"
-          (click)="saveAreas()"
-        >
-          Salvar áreas
-        </button>
-        <h3>Limites contratados</h3>
-        @for (b of ctx.partnership()?.beneficios ?? []; track b.id) {
-          <div class="benefit-row">
-            <label [for]="'benefit-quantity-' + b.id"
-              >{{ b.natureza === 'CORTESIA' ? 'Cortesia' : 'Credencial' }} · {{ b.tipo }} ·
-              {{ b.setor }}</label
-            ><input
-              #benefitQuantity
-              [id]="'benefit-quantity-' + b.id"
-              type="number"
-              min="0"
-              step="1"
-              [value]="quantityDraft()[b.id]"
-              (input)="setQuantity(b.id, benefitQuantity.value)"
-            /><button
-              nz-button
-              class="pill"
-              type="button"
-              [disabled]="api.pending() > 0"
-              (click)="saveQuantity(b)"
-            >
-              Salvar limite
-            </button>
+          <div class="area-options">
+            @for (a of areaOptions; track a.key) {
+              <label class="area-choice"
+                ><input
+                  #areaCheck
+                  type="checkbox"
+                  [checked]="areasDraft().includes(a.key)"
+                  [disabled]="a.key === 'perfil'"
+                  (change)="toggleArea(a.key, areaCheck.checked)"
+                />
+                {{ a.label }}</label
+              >
+            }
           </div>
-        } @empty {
-          <p>Nenhum benefício contratado.</p>
-        }
-        <h3>Adicionar direito contratual</h3>
-        <div class="benefit-form">
-          <label for="new-benefit-nature">Natureza</label
-          ><select
-            #benefitNature
-            id="new-benefit-nature"
-            [value]="newNature"
-            (change)="changeNature(benefitNature.value)"
-          >
-            <option value="CORTESIA">Cortesia</option>
-            <option value="CREDENCIAL">Credencial</option></select
-          ><label for="new-benefit-type">Tipo</label>
-          @if (newNature === 'CORTESIA') {
-            <select id="new-benefit-type" [(ngModel)]="newType">
-              <option value="passaporte">Passaporte</option>
-              <option value="sexta">Sexta</option>
-              <option value="sabado">Sábado</option>
-            </select>
-          } @else {
-            <input id="new-benefit-type" [(ngModel)]="newType" maxlength="120" required />
-          }
-          <label for="new-benefit-sector">Setor</label
-          ><input id="new-benefit-sector" [(ngModel)]="newSector" maxlength="120" required />
-          @if (newNature === 'CREDENCIAL') {
-            <label for="new-benefit-audience">Público</label
-            ><input id="new-benefit-audience" [(ngModel)]="newAudience" maxlength="120" required />
-          }
-          <label for="new-benefit-quantity">Quantidade</label
-          ><input
-            id="new-benefit-quantity"
-            type="number"
-            min="0"
-            step="1"
-            [(ngModel)]="newQuantity"
-            required
-          /><button
+          <button
             nz-button
             class="pill primary-button"
             type="button"
             [disabled]="api.pending() > 0"
+            (click)="saveAreas()"
+          >
+            Salvar áreas
+          </button>
+        </fieldset>
+        <section class="rights-block" aria-labelledby="contracted-limits-title">
+          <h3 id="contracted-limits-title">Limites contratados</h3>
+          @if (ctx.partnership()?.beneficios?.length) {
+            <div
+              class="rights-table-scroll"
+              role="region"
+              aria-labelledby="contracted-limits-title"
+              tabindex="0"
+            >
+              <table class="rights-table" aria-labelledby="contracted-limits-title">
+                <thead>
+                  <tr>
+                    <th scope="col">Natureza</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Setor</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (b of ctx.partnership()?.beneficios ?? []; track b.id) {
+                    <tr>
+                      <th scope="row">
+                        {{ b.natureza === 'CORTESIA' ? 'Cortesia' : 'Credencial' }}
+                      </th>
+                      <td>{{ benefitLabel(b.tipo) }}</td>
+                      <td>{{ b.setor }}</td>
+                      <td>
+                        <input
+                          #benefitQuantity
+                          [id]="'benefit-quantity-' + b.id"
+                          type="number"
+                          min="0"
+                          step="1"
+                          [value]="quantityDraft()[b.id]"
+                          [attr.aria-label]="
+                            'Quantidade: ' +
+                            benefitLabel(b.tipo) +
+                            ' · ' +
+                            b.setor +
+                            (b.publico ? ' · ' + b.publico : '')
+                          "
+                          (input)="setQuantity(b.id, benefitQuantity.value)"
+                        />
+                      </td>
+                      <td>
+                        <button
+                          nz-button
+                          class="pill"
+                          type="button"
+                          [disabled]="api.pending() > 0"
+                          (click)="saveQuantity(b)"
+                        >
+                          Salvar limite
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p>Nenhum benefício contratado.</p>
+          }
+        </section>
+        <section class="rights-block" aria-labelledby="new-benefit-title">
+          <h3 id="new-benefit-title">Adicionar direito contratual</h3>
+          <div class="benefit-form">
+            <div class="benefit-field">
+              <label for="new-benefit-nature">Natureza</label
+              ><select
+                #benefitNature
+                id="new-benefit-nature"
+                [value]="newNature"
+                (change)="changeNature(benefitNature.value)"
+              >
+                <option value="CORTESIA">Cortesia</option>
+                <option value="CREDENCIAL">Credencial</option>
+              </select>
+            </div>
+            <div class="benefit-field">
+              <label for="new-benefit-type">Tipo</label>
+              @if (newNature === 'CORTESIA') {
+                <select id="new-benefit-type" [(ngModel)]="newType">
+                  <option value="passaporte">Passaporte</option>
+                  <option value="sexta">Sexta</option>
+                  <option value="sabado">Sábado</option>
+                </select>
+              } @else {
+                <input id="new-benefit-type" [(ngModel)]="newType" maxlength="120" required />
+              }
+            </div>
+            <div class="benefit-field">
+              <label for="new-benefit-sector">Setor</label>
+              <input
+                id="new-benefit-sector"
+                [(ngModel)]="newSector"
+                maxlength="120"
+                required
+              />
+            </div>
+            @if (newNature === 'CREDENCIAL') {
+              <div class="benefit-field">
+                <label for="new-benefit-audience">Público</label>
+              <input
+                  id="new-benefit-audience"
+                  [(ngModel)]="newAudience"
+                  maxlength="120"
+                  required
+                />
+              </div>
+            }
+            <div class="benefit-field">
+              <label for="new-benefit-quantity">Quantidade</label
+              ><input
+                id="new-benefit-quantity"
+                type="number"
+                min="0"
+                step="1"
+                [(ngModel)]="newQuantity"
+                required
+              />
+            </div>
+          </div>
+          <button
+            nz-button
+            class="pill primary-button add-right"
+            type="button"
+            [disabled]="api.pending() > 0"
             (click)="addBenefit()"
           >
-            Adicionar direito
+            <nz-icon nzType="plus" aria-hidden="true" />Adicionar direito
           </button>
-        </div>
+        </section>
         @if (rightsError()) {
           <p role="alert" class="field-error">{{ rightsError() }}</p>
         }
@@ -248,14 +336,17 @@
     ><div class="dialog-content">
       @if (dialog() === 'access') {
         <p>Selecione as contas que terão acesso a esta parceria.</p>
-        <label for="access-search">Buscar conta cadastrada</label
-        ><input
-          nz-input
-          id="access-search"
-          [(ngModel)]="search"
-          type="search"
-          placeholder="Nome ou e-mail"
-        /><button nz-button class="pill" type="button" (click)="find()">Buscar</button>
+        <div class="dialog-field">
+          <label for="access-search">Buscar conta cadastrada</label
+          ><input
+            nz-input
+            id="access-search"
+            [(ngModel)]="search"
+            type="search"
+            placeholder="Nome ou e-mail"
+          />
+        </div>
+        <button nz-button class="pill" type="button" (click)="find()">Buscar</button>
         @for (user of searchResults(); track user.id) {
           <label class="access-option"
             ><input
@@ -269,31 +360,42 @@
           >
         }
         <h3>Convidar nova conta</h3>
-        <label for="invite-name">Nome</label
-        ><input
-          nz-input
-          id="invite-name"
-          [(ngModel)]="inviteName"
-          (ngModelChange)="inviteCreated.set(false)"
-          maxlength="120"
-        /><label for="invite-email">E-mail</label
-        ><input
-          nz-input
-          id="invite-email"
-          [(ngModel)]="inviteEmail"
-          (ngModelChange)="inviteCreated.set(false)"
-          type="email"
-          maxlength="254"
-        /><label for="invite-password">Senha inicial</label
-        ><input
-          nz-input
-          id="invite-password"
-          [(ngModel)]="invitePassword"
-          type="password"
-          minlength="12"
-          maxlength="128"
-        />
+        <div class="dialog-field">
+          <label for="invite-name">Nome</label
+          ><input
+            nz-input
+            id="invite-name"
+            [(ngModel)]="inviteName"
+            (ngModelChange)="inviteCreated.set(false)"
+            maxlength="120"
+          />
+        </div>
+        <div class="dialog-field">
+          <label for="invite-email">E-mail</label
+          ><input
+            nz-input
+            id="invite-email"
+            [(ngModel)]="inviteEmail"
+            (ngModelChange)="inviteCreated.set(false)"
+            type="email"
+            maxlength="254"
+          />
+        </div>
+        <div class="dialog-field">
+          <label for="invite-password">Senha inicial</label
+          ><input
+            nz-input
+            id="invite-password"
+            [(ngModel)]="invitePassword"
+            type="password"
+            minlength="12"
+            maxlength="128"
+          />
+        </div>
         <p>O convite exige ativação por e-mail. Após criar a conta, salve os acessos.</p>
+        @if (notice()) {
+          <p class="access-notice" role="status">{{ notice() }}</p>
+        }
         <div class="dialog-actions">
           <button
             nz-button
@@ -316,14 +418,16 @@
       }
       @if (dialog() === 'publish') {
         <p>Selecione um documento comercial real para disponibilizar nesta parceria.</p>
-        <label for="profile-file">Arquivo</label
-        ><input
-          #profileFile
-          id="profile-file"
-          type="file"
-          (change)="selectFile(profileFile)"
-          required
-        />
+        <div class="dialog-field">
+          <label for="profile-file">Arquivo</label
+          ><input
+            #profileFile
+            id="profile-file"
+            type="file"
+            (change)="selectFile(profileFile)"
+            required
+          />
+        </div>
         <p>{{ file()?.name ?? 'Nenhum arquivo selecionado' }}</p>
         <div class="dialog-actions">
           <button
@@ -338,7 +442,7 @@
         </div>
       }
       @if (error()) {
-        <p role="alert">{{ error() }}</p>
+        <p class="field-error" role="alert">{{ error() }}</p>
       }
       @if (dialog() === 'saved') {
         <p role="status">As informações foram atualizadas na parceria.</p>

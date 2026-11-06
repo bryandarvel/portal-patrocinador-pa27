@@ -22,7 +22,9 @@
           ><span class="document-description"
             ><strong>Contrato versão {{ v.numero }}</strong
             ><span>Publicado em {{ v.criado_em | date: 'dd/MM/yyyy HH:mm' }}</span></span
-          ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
+          ><span class="document-action"
+            >Baixar <nz-icon nzType="download" aria-hidden="true"
+          /></span>
         </button>
         @if (v.comentario) {
           <div class="adjustment-note">
@@ -92,7 +94,9 @@
         ><span class="document-description"
           ><strong>Contrato assinado</strong
           ><span>Publicado em {{ signed.criado_em | date: 'dd/MM/yyyy HH:mm' }}</span></span
-        ><span class="document-action">Baixar <nz-icon nzType="right" aria-hidden="true" /></span>
+        ><span class="document-action"
+          >Baixar <nz-icon nzType="download" aria-hidden="true"
+        /></span>
       </button>
     } @else {
       <p>O arquivo será disponibilizado após a assinatura externa.</p>

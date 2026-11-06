@@ -23,7 +23,12 @@ import { labelPartnershipDialog } from '../shared/modal-accessibility';
     NzModalModule,
   ],
   templateUrl: './contract.html',
-  styleUrls: ['../shared/partnership-ui.css', '../shared/material-ui.css', './contract.css'],
+  styleUrls: [
+    '../shared/partnership-ui.css',
+    '../shared/material-ui.css',
+    './contract.css',
+    './contract-sponsor.css',
+  ],
 })
 export class PartnershipContract {
   readonly materialLabel = reportMaterialLabel;

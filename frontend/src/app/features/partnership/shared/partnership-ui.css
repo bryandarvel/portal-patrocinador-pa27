@@ -45,7 +45,6 @@ h3 {
   border-color: var(--color-primary);
   background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 6px 16px #0b6bf238;
 }
 .primary-button:not([aria-disabled]):not(:disabled):hover {
   border-color: var(--color-primary-hover);

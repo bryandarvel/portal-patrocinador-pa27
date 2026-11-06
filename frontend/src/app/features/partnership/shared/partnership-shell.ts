@@ -1,20 +1,27 @@
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  signal,
+  TemplateRef,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDrawerModule } from 'ng-zorro-antd/drawer';
+import { NzDrawerModule, NzDrawerRef, NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzModalComponent, NzModalModule } from 'ng-zorro-antd/modal';
-import { PortalApi } from '../../../core/portal-api.service';
+import { apiError, PortalApi } from '../../../core/portal-api.service';
 import { PORTAL_AREAS, PortalContext } from '../../../core/portal-context.service';
 import { AuthService } from '../../../core/session.service';
 import { ApiStatus } from '../../../shared/api-status';
+import { DemoPa27Brand, demoBrand } from '../../../shared/demo-pa27-brand';
 import { PortalHeader } from '../../../shared/portal-header';
 import { registerPortalIcons } from '../../../shared/portal-icons';
-import { labelPartnershipDialog } from './modal-accessibility';
 import { PartnershipReport } from './partnership-report';
 
 interface Notification {
@@ -24,6 +31,8 @@ interface Notification {
   descricao: string;
   criado_em: string;
 }
+
+const notificationDayFormat = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 
 const AREA_ICONS: Record<string, string> = {
   perfil: 'user',
@@ -40,29 +49,18 @@ const AREA_ICONS: Record<string, string> = {
   imports: [
     RouterLink,
     NgTemplateOutlet,
-    NzAvatarModule,
     NzButtonModule,
     NzDrawerModule,
     NzIconModule,
-    NzModalModule,
     NzTagModule,
     DatePipe,
     PartnershipReport,
     ApiStatus,
     PortalHeader,
+    DemoPa27Brand,
   ],
   templateUrl: './partnership-shell.html',
-  styleUrls: ['./partnership-ui.css', './partnership-shell.css'],
-  styles: `
-    .api-notifications {
-      list-style: none;
-      padding: 0;
-    }
-    .api-notifications li {
-      padding: 16px 0;
-      border-bottom: 1px solid #ddd;
-    }
-  `,
+  styleUrls: ['./partnership-ui.css', './partnership-shell.css', './partnership-notifications.css'],
 })
 export class PartnershipShell {
   readonly title = input.required<string>();
@@ -75,8 +73,13 @@ export class PartnershipShell {
   readonly api = inject(PortalApi);
   readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly document = inject(DOCUMENT);
+  private readonly drawerService = inject(NzDrawerService);
+  private notificationsDrawer?: NzDrawerRef;
+  private notificationsClosing = false;
   constructor() {
     registerPortalIcons();
+    inject(DestroyRef).onDestroy(() => this.closeNotifications());
     // Consulta silenciosa: PortalApi limparia a mensagem de erro exibida pela página.
     effect(() => {
       const id = this.context.id();
@@ -88,46 +91,103 @@ export class PartnershipShell {
     });
   }
   readonly profile = this.context.partnership;
-  readonly user = this.context.session.user;
-  readonly areas = computed(() => [
-    ...PORTAL_AREAS.filter((area) => this.context.enabled(area.key)).map((area) => ({
-      key: area.key,
-      number: area.number,
-      label: area.label,
-      icon: AREA_ICONS[area.key],
-      active: area.number as string,
-      url: this.context.link(area.path),
-    })),
-    {
-      key: 'entregas',
-      number: '08',
-      label: 'Entregas da parceria',
-      icon: 'carry-out',
-      active: 'deliveries',
-      url: this.context.link('entregas'),
-    },
-  ]);
+  readonly demoBrand = computed(() => {
+    const profile = this.profile();
+    return profile ? demoBrand(profile.id, profile.nome, profile.edicao) : undefined;
+  });
+  readonly areas = computed(() => {
+    const areas = [
+      ...PORTAL_AREAS.filter((area) => area.key !== 'perfil' && this.context.enabled(area.key)).map(
+        (area) => ({
+          key: area.key,
+          number: area.number,
+          label: area.label,
+          icon: AREA_ICONS[area.key],
+          active: area.number as string,
+          url: this.context.link(area.path),
+        }),
+      ),
+      {
+        key: 'entregas',
+        number: '08',
+        label: 'Entregas da parceria',
+        icon: 'carry-out',
+        active: 'deliveries',
+        url: this.context.link('entregas'),
+      },
+    ];
+    return areas.map((area, index) => ({
+      ...area,
+      number: String(index + 1).padStart(2, '0'),
+    }));
+  });
   readonly menuOpen = signal(false);
   readonly hasNotifications = signal(false);
-  readonly dialog = signal<'notifications' | null>(null);
   readonly reportOpen = signal(false);
   readonly notifications = signal<Notification[]>([]);
-  async openNotifications(): Promise<void> {
+  readonly notificationGroups = computed(() => {
+    const groups = new Map<string, Notification[]>();
+    for (const notification of this.notifications()) {
+      const date = new Date(notification.criado_em);
+      const day = Number.isNaN(date.getTime())
+        ? 'Data não informada'
+        : notificationDayFormat.format(date);
+      const items = groups.get(day);
+      if (items) items.push(notification);
+      else groups.set(day, [notification]);
+    }
+    return Array.from(groups, ([day, items]) => ({ day, items }));
+  });
+  readonly notificationsLoading = signal(false);
+  readonly notificationsError = signal('');
+  openNotifications(content: TemplateRef<{ $implicit: unknown; drawerRef: NzDrawerRef }>): void {
+    if (this.notificationsDrawer) return;
+    const drawer = this.drawerService.create<object, unknown>({
+      nzContent: content,
+      nzPlacement: 'right',
+      nzWidth: 'min(440px, 100vw)',
+      nzClosable: false,
+      nzBodyStyle: { padding: '0', display: 'flex', overflow: 'hidden' },
+      nzWrapClassName: 'pa-notifications-drawer',
+      nzNoAnimation:
+        this.document.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches ?? false,
+      nzOnCancel: async () => {
+        this.closeNotifications();
+        return false;
+      },
+    });
+    this.notificationsDrawer = drawer;
+    drawer.afterClose.subscribe(() => {
+      this.notificationsDrawer = undefined;
+      this.notificationsClosing = false;
+    });
+    void this.loadNotifications();
+  }
+  closeNotifications(): void {
+    if (!this.notificationsDrawer || this.notificationsClosing) return;
+    this.notificationsClosing = true;
+    this.notificationsDrawer.close();
+  }
+  async loadNotifications(): Promise<void> {
+    if (this.notificationsLoading()) return;
     this.notifications.set([]);
-    this.dialog.set('notifications');
+    this.notificationsError.set('');
+    this.notificationsLoading.set(true);
     try {
       const values = await this.api.get<Notification[]>('/api/notificacoes');
       this.notifications.set(values.filter((value) => value.parceria_id === this.context.id()));
-    } catch {}
+    } catch (error) {
+      this.notificationsError.set(apiError(error));
+    } finally {
+      this.notificationsLoading.set(false);
+    }
   }
-  notificationLink(area: string): string {
-    return this.context.link(PORTAL_AREAS.find((item) => item.key === area)?.path ?? 'perfil');
+  notificationArea(area: string) {
+    const match = PORTAL_AREAS.find((item) => item.key === area);
+    return match ? { label: match.label, icon: AREA_ICONS[match.key], path: match.path } : null;
   }
   openReport(): void {
     this.menuOpen.set(false);
     this.reportOpen.set(true);
-  }
-  labelDialog(modal: NzModalComponent): void {
-    labelPartnershipDialog(modal, 'shell-dialog-title');
   }
 }

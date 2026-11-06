@@ -1,3 +1,4 @@
+import { MediaPlacements, MediaPublications } from '../../partnership/media/media-records';
 import { EmptyState } from '../../partnership/shared/empty-state';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { SubmissionStatus } from '../../partnership/shared/submission-status';
@@ -24,7 +25,6 @@ type MediaDialog =
   | 'upload'
   | 'progress'
   | 'received'
-  | 'cancelled'
   | 'history'
   | 'document'
   | 'briefing'
@@ -38,6 +38,8 @@ type MediaDialog =
 @Component({
   selector: 'app-rbs-media',
   imports: [
+    MediaPlacements,
+    MediaPublications,
     EmptyState,
     CardHeading,
     SubmissionStatus,
@@ -98,8 +100,6 @@ export class RbsMedia {
         return 'Enviando material';
       case 'received':
         return 'Material recebido';
-      case 'cancelled':
-        return 'Operação cancelada';
       case 'history':
         return 'Histórico · Mídia';
       case 'briefing':
@@ -210,14 +210,6 @@ export class RbsMedia {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  cancel(): void {
-    if (this.busy()) return;
-    this.selected.set(null);
-    this.inputError.set('');
-    this.dialog.set('cancelled');
-    this.focusDialogTitle();
   }
 
   close(): void {
