@@ -41,6 +41,8 @@ O exemplo de rádio da Renner registra 10 inserções contratadas e 9 entregues 
 - Processo limitado a 512 MB executado com heap de 192 MB. Após os checks com duas exportações simultâneas, consumo observado de cerca de 435 MB, sem encerramento por falta de memória. É uma verificação pontual, não um teste de carga.
 - API publicada no Render no commit 5259613: health HTTPS respondeu 200/UP. Pela URL pública passaram os três logins, oito marcas, isolamento, origens privadas, relatório individual publicado, comprovação PDF e as duas exportações simultâneas. O arquivo de persistência criado antes do deploy também foi baixado pela API pública.
 - Cinco testes da identificação do seed passaram, incluindo nome editado pela RBS, paginação, outra edição e vínculo ambíguo. A busca pela conta evita criar uma parceria duplicada quando o nome muda.
+- Frontend publicado em https://portal-patrocinador-pa27.vercel.app. Login e fallback de rota interna responderam HTTP 200; health via proxy respondeu UP. Os checks de três perfis, isolamento e relatórios também passaram através da origem Vercel.
+- No Chrome do site publicado passaram login RBS/patrocinador, oito cards com nove logos, foco por teclado, arquivo fora do modelo, reenvio idempotente, downloads DOCX/XLSX, largura de 900 pixels, comprovação e datas de acesso. Não houve exceção JavaScript capturada nessa execução. A primeira chamada da API teve timeout antes de o Render voltar a responder; o ensaio deve considerar essa retomada.
 
 Esses são testes técnicos com contas fictícias. A validação deste lote pela RBS e por usuários reais precisa ser registrada separadamente.
 
@@ -60,7 +62,9 @@ Uma revisão substitui os valores da mesma combinação de parceria, mês, veíc
 
 Os impactos são recebidos da fonte. O sistema não mede a atribuição de acessos a uma campanha. Métricas diferentes não são somadas em um total.
 
-Banco e anexos da demonstração estão no Supabase, e a API está publicada e verificada em https://portal-patrocinador-pa27-1.onrender.com. A publicação e a validação do frontend na Vercel continuam pendentes. O health da API não substitui os testes da interface publicada. Render Free suspende após inatividade e pode demorar para voltar. A versão local em Docker é a contingência preparada.
+Banco e anexos da demonstração estão no Supabase, a API está publicada em https://portal-patrocinador-pa27-1.onrender.com e o portal está em https://portal-patrocinador-pa27.vercel.app/login. Os testes públicos de API e navegador descritos acima passaram. Após o deploy de configuração informado por Bryan, a API voltou a responder UP e os logins, arquivos persistidos, isolamento e relatórios foram conferidos novamente via Vercel. Render Free suspende após inatividade e pode demorar para voltar. A versão local em Docker é a contingência preparada.
+
+Os arquivos baixados da interface publicada foram abertos com openpyxl e python-docx: vendas preservou 10 contratados e 9 entregues; veiculação preservou 100 mil acessos fictícios da Renner e o impacto de TV ausente do Banrisul. O DOCX possui uma tabela de nove colunas. A biblioteca aplicou um estilo padrão ao XLSX por ausência de estilo nomeado; os dados foram lidos. Isso não é uma conferência visual nos aplicativos Microsoft Office.
 
 Os acessos restaurados estão ativados. Convites novos por e-mail na nuvem ficam pendentes de um serviço de envio; a demonstração local mantém Mailpit. O portal não deve ser apresentado como uso operacional da RBS.
 

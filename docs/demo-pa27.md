@@ -66,7 +66,7 @@ A RBS pode exportar Vendas e Veiculação em XLSX de uma parceria ou de todas, c
 
 A combinação aprovada é Vercel Hobby para Angular, Render Free para Java e Supabase Free para PostgreSQL e anexos privados. Use apenas o repositório `bryandarvel/portal-patrocinador-pa27`, branch `demo-pa27`. O produto original não participa desta publicação.
 
-Estado verificado em 07/11/2026: banco e anexos migrados para o projeto Supabase `bmiqtzpoabfxzyhitfea`; API publicada em https://portal-patrocinador-pa27-1.onrender.com, commit 5259613. O frontend na Vercel ainda aguarda publicação e testes. Os passos de restauração abaixo servem para um destino novo e vazio; a migração deste projeto já foi concluída.
+Estado verificado em 07/11/2026: banco e anexos migrados para o projeto Supabase `bmiqtzpoabfxzyhitfea`; API publicada em https://portal-patrocinador-pa27-1.onrender.com, commit 5259613. Frontend publicado e testado em https://portal-patrocinador-pa27.vercel.app/login. Após o deploy de configuração informado por Bryan, a API voltou a responder UP e os checks de logins, arquivos persistidos e relatórios passaram novamente via Vercel. Os passos de restauração abaixo servem para um destino novo e vazio; a migração deste projeto já foi concluída.
 
 Render Free suspende o serviço após 15 minutos sem tráfego; a próxima inicialização pode levar cerca de um minuto. Seu disco é temporário, por isso o backend usa Supabase Storage. Supabase Free inclui 500 MB de banco e 1 GB de arquivos, com suspensão após uma semana sem atividade. Confira as franquias no painel; não ative planos pagos. Para a apresentação, abra o portal antes do ensaio e mantenha a contingência local disponível.
 
