@@ -1,4 +1,4 @@
-import { reportBenefitLabel } from '../../partnership/shared/report-format';
+import { formatReportDate, reportBenefitLabel } from '../../partnership/shared/report-format';
 import { EmptyState } from '../../partnership/shared/empty-state';
 import { CardHeading } from '../../partnership/shared/card-heading';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -35,6 +35,7 @@ import { RbsProfilePreviewService, SponsorUser } from './profile-preview.service
   ],
 })
 export class RbsProfile {
+  readonly accessDate = formatReportDate;
   readonly benefitLabel = reportBenefitLabel;
   readonly preview = inject(RbsProfilePreviewService);
   readonly ctx = inject(PortalContext);

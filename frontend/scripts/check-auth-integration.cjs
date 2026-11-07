@@ -3,8 +3,10 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const API = 'http://localhost:8080';
-const WEB = 'http://localhost:4200';
+const API = `http://127.0.0.1:${process.env.BACKEND_PORT || '8080'}`;
+const WEB = `http://localhost:${process.env.FRONTEND_PORT || '4200'}`;
+const MAIL = `http://127.0.0.1:${process.env.MAILPIT_PORT || '8025'}`;
+const OUT = process.env.PORTAL_E2E_OUTPUT || path.join(require('node:os').tmpdir(), 'rbs-front-e2e');
 
 function totp(secret) {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -42,7 +44,7 @@ async function run() {
     await page.waitForURL('**/rbs/patrocinadores');
     await page.reload();
     await page.getByRole('heading', { name: 'Patrocinadores', exact: true }).waitFor();
-    await page.getByRole('link', { name: 'Minha conta', exact: true }).click();
+    await page.goto(`${WEB}/conta`);
     await page.getByRole('heading', { name: 'Minha conta', exact: true }).waitFor();
     await page.getByRole('link', { name: 'Voltar ao portal', exact: true }).click();
     const admin = await page.evaluate(() => sessionStorage.getItem('portal.access'));
@@ -106,11 +108,11 @@ async function run() {
     assert(rights.areas.some(area => area.area === 'credenciamento' && area.habilitada));
     assert(rights.beneficios.some(benefit => benefit.natureza === 'CORTESIA' && benefit.quantidade === 4));
     assert(rights.beneficios.some(benefit => benefit.natureza === 'CREDENCIAL' && benefit.quantidade === 2));
-    fs.mkdirSync('/tmp/rbs-front-e2e', { recursive: true });
-    await page.screenshot({ path: '/tmp/rbs-front-e2e/direitos-desktop.png', fullPage: true });
+    fs.mkdirSync(OUT, { recursive: true });
+    await page.screenshot({ path: path.join(OUT, 'direitos-desktop.png'), fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Direitos da parceria com overflow no celular');
-    await page.screenshot({ path: '/tmp/rbs-front-e2e/direitos-mobile.png', fullPage: true });
+    await page.screenshot({ path: path.join(OUT, 'direitos-mobile.png'), fullPage: true });
     await page.setViewportSize({ width: 1440, height: 900 });
     const email = `e2e-auth-${crypto.randomUUID()}@example.test`;
     const response = await fetch(`${API}/api/auth/cadastro`, { method: 'POST', headers: { Authorization: `Bearer ${admin}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ nome: 'E2E Autenticação', email, senha: password }) });
@@ -121,13 +123,14 @@ async function run() {
     await page.locator('.access-option').filter({ hasText: email }).locator('input').check();
     await page.getByRole('button', { name: 'Salvar acessos', exact: true }).click();
     await page.getByRole('button', { name: 'Concluir', exact: true }).click();
-    const messages = await (await fetch('http://localhost:8025/api/v1/messages')).json();
+    const messages = await (await fetch(`${MAIL}/api/v1/messages`)).json();
     const message = messages.messages.find(item => item.To?.some(to => to.Address === email));
     assert(message, 'Convite sintético não chegou ao Mailpit');
-    const detail = await (await fetch(`http://localhost:8025/api/v1/message/${message.ID}`)).json();
+    const detail = await (await fetch(`${MAIL}/api/v1/message/${message.ID}`)).json();
     const activation = /token=([a-zA-Z0-9-]+)/.exec(detail.Text || '')?.[1];
     assert(activation);
-    await page.getByRole('button', { name: 'Sair', exact: true }).click();
+    await page.getByRole('complementary', { name: 'Navegação da parceria' })
+      .getByRole('button', { name: 'Sair', exact: true }).click();
     await page.waitForURL('**/login');
     assert.equal(await page.evaluate(() => sessionStorage.getItem('portal.access')), null);
     await page.goto(`${WEB}/verificar?token=${activation}`);
@@ -152,7 +155,7 @@ async function run() {
     await page.reload();
     await page.getByText('Autenticação em duas etapas configurada.', { exact: true }).waitFor();
     assert.equal(await page.getByRole('button', { name: 'Configurar autenticador', exact: true }).count(), 0);
-    await page.getByRole('button', { name: 'Sair', exact: true }).click();
+    await page.getByRole('main').getByRole('button', { name: 'Sair', exact: true }).click();
     await page.locator('#email').fill(email);
     await page.locator('#password').fill(password);
     await page.getByRole('button', { name: 'Entrar no portal', exact: true }).click();

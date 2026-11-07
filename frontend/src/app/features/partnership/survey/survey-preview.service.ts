@@ -26,6 +26,8 @@ export class SurveyPreviewService {
   readonly versions = signal<SurveyView['versoes']>([]);
   readonly results = signal<PortalArquivo[]>([]);
   readonly deadline = signal<string | null>(null);
+  private readonly loadedId = signal<string | null>(null);
+  readonly submissionsReady = computed(() => this.loadedId() === this.ctx.id());
   private readonly submissionsOpenState = signal(false);
   readonly submissionsOpen = this.submissionsOpenState.asReadonly();
   readonly resultsPublished = computed(() => this.results().length > 0);
@@ -37,6 +39,7 @@ export class SurveyPreviewService {
       this.savedQuestions.set({ question1: '', question2: '', question3: '' });
       this.versions.set([]);
       this.results.set([]);
+      this.loadedId.set(null);
       this.submissionsOpenState.set(false);
       if (id) void this.load(id).catch(() => {});
     });
@@ -53,6 +56,7 @@ export class SurveyPreviewService {
     this.versions.set(view.versoes);
     this.results.set(view.resultados);
     this.deadline.set(view.recebimento.prazo);
+    this.loadedId.set(id);
     this.submissionsOpenState.set(
       view.recebimento.aberto &&
         (!view.recebimento.prazo || Date.parse(view.recebimento.prazo) > Date.now()),

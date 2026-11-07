@@ -1,0 +1,92 @@
+<section class="pa-card report-panel" aria-labelledby="sector-reports-heading">
+  <app-card-heading
+    icon="bar-chart"
+    heading="Relatórios setoriais"
+    headingId="sector-reports-heading"
+    description="Importe os dados de TV, rádio, digital e jornal para gerar os relatórios de vendas e veiculação."
+  />
+
+  <section class="sheets-list" aria-labelledby="sector-import-heading">
+    <h3 id="sector-import-heading">Importar dados da parceria</h3>
+    <p id="sector-import-help">
+      Use um modelo de demonstração em Word ou Excel, com até 1 MB e 500 linhas.
+      Arquivos fora do modelo podem ser guardados em Arquivos de origem.
+    </p>
+    <div class="sector-actions">
+      <button type="button" nz-button class="pill" (click)="downloadModel('docx')">
+        <nz-icon nzType="download" aria-hidden="true" /> Modelo Word
+      </button>
+      <button type="button" nz-button class="pill" (click)="downloadModel('xlsx')">
+        <nz-icon nzType="download" aria-hidden="true" /> Modelo Excel
+      </button>
+    </div>
+    <input #source hidden type="file" accept=".docx,.xlsx" (change)="choose(source)" />
+    <div class="sector-actions">
+      <button #pick type="button" class="pill" aria-describedby="sector-import-help"
+        [disabled]="busy()" (click)="source.click()">Selecionar modelo preenchido</button>
+      @if (selected(); as file) {
+        <span class="sector-filename" role="status">{{ file.name }}</span>
+        <button type="button" nz-button class="pill primary-button" [nzLoading]="busy()"
+          [disabled]="busy()" (click)="importFile(pick)">Importar dados</button>
+        <button type="button" nz-button class="pill" [disabled]="busy()"
+          (click)="selected.set(null); pick.focus()">Remover da seleção</button>
+      }
+    </div>
+    <p>Uma nova versão substitui os valores do mesmo mês, veículo e formato. O arquivo e os valores anteriores ficam no histórico.</p>
+    @if (feedback()) { <p role="status">{{ feedback() }}</p> }
+  </section>
+
+  <section class="sheets-list" aria-labelledby="sector-export-heading">
+    <h3 id="sector-export-heading">Baixar relatórios em Excel</h3>
+    <div class="sector-actions sector-filters">
+      <label>
+        Escopo
+        <select #scope name="sector-scope" [value]="allPartnerships() ? 'todas' : 'atual'"
+          (change)="allPartnerships.set(scope.value === 'todas')">
+          <option value="atual">Esta parceria</option>
+          <option value="todas">Todas as parcerias</option>
+        </select>
+      </label>
+      <label>
+        Mês (opcional)
+        <input #period name="sector-month" type="month" autocomplete="off"
+          [value]="month()" (change)="month.set(period.value)" />
+      </label>
+    </div>
+    <div class="sector-actions">
+      <button type="button" nz-button class="pill" (click)="exportReport('vendas')">
+        <nz-icon nzType="download" aria-hidden="true" /> Vendas
+      </button>
+      <button type="button" nz-button class="pill" (click)="exportReport('veiculacao')">
+        <nz-icon nzType="download" aria-hidden="true" /> Veiculação de mídia
+      </button>
+    </div>
+  </section>
+
+  @if (error()) { <p role="alert" class="field-error">{{ error() }}</p> }
+
+  <section class="sheets-list" aria-labelledby="sector-history-heading">
+    <h3 id="sector-history-heading">Histórico de importações</h3>
+    @if (loading()) {
+      <p role="status">Carregando histórico…</p>
+    } @else if (historyError()) {
+      <p role="alert" class="field-error">{{ historyError() }}</p>
+      <button type="button" nz-button class="pill" (click)="loadHistory()">Recarregar histórico</button>
+    } @else if (!history().length) {
+      <p>Nenhum modelo importado nesta parceria.</p>
+    } @else {
+      @for (item of history(); track item.id) {
+        <div class="document-card">
+          <span class="document-description">
+            <strong>{{ item.arquivo }}</strong>
+            <span>Lote {{ item.id }} · {{ item.linhas }} {{ item.linhas === 1 ? 'linha' : 'linhas' }} · {{ formatDate(item.importadoEm) }}</span>
+          </span>
+          <button type="button" nz-button class="pill" (click)="downloadSource(item)"
+            [attr.aria-label]="'Baixar arquivo original do lote ' + item.id">
+            <nz-icon nzType="download" aria-hidden="true" /> Baixar original
+          </button>
+        </div>
+      }
+    }
+  </section>
+</section>

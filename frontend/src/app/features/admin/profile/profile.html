@@ -59,6 +59,11 @@
             <p>
               {{ user.nome }} · {{ user.email }} {{ user.ativo ? '' : '(aguardando ativação)' }}
             </p>
+            @if (user.primeiro_acesso && user.ultimo_acesso) {
+              <p>Primeiro acesso registrado: {{ accessDate(user.primeiro_acesso) }} · Último: {{ accessDate(user.ultimo_acesso) }}</p>
+            } @else {
+              <p>Nenhum acesso registrado.</p>
+            }
           } @empty {
             <p>Nenhuma conta vinculada.</p>
           }

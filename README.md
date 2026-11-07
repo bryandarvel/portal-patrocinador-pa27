@@ -4,13 +4,15 @@ Projeto do **Desafio GC 2026**, desenvolvido pelas trilhas **Java** e **IA & Dad
 
 O portal busca centralizar o acompanhamento das parcerias entre a RBS e os patrocinadores do Planeta Atlântida, do fechamento do contrato ao pós-evento. O objetivo é reunir informações, materiais, comprovações e relatórios, oferecendo autonomia aos patrocinadores e reduzindo a consolidação manual do time B2B.
 
+Na branch `demo-pa27`, use o [guia da demonstração PA27](docs/demo-pa27.md) para subir a stack isolada, carregar as oito marcas fictícias e testar os relatórios setoriais.
+
 ## Estado atual
 
 Atualização em **28/10/2026**. O backend foi implementado e validado localmente conforme o [TAP e planos comerciais](docs/regras-negocio/README.md). O [plano de integração](docs/integracao-backend.md) registra contratos, verificações e limites da entrega.
 
 | Componente | Situação encontrada |
 | --- | --- |
-| Frontend | Login e áreas de patrocinador/RBS em prévia. Ainda usam estado em memória; integração Angular com as novas APIs permanece pendente. |
+| Frontend | Login e áreas de patrocinador/RBS integrados às APIs do portal. |
 | Backend | Módulos de identidade, cotas/parcerias/acessos, arquivos, áreas operacionais, contratos, entregas, histórico e relatório automático. |
 | Autenticação | BCrypt, ativação de conta, JWT configurável, desafio MFA e cadastro de acessos pela RBS. Chaves e credenciais são locais, fora do código versionado. |
 | Banco | PostgreSQL 17 no Compose; Flyway aplica migrações versionadas preservando as tabelas existentes. H2 é usado apenas no teste de contexto. |
@@ -47,7 +49,7 @@ Versões identificadas nos arquivos da base analisada:
 | Segurança e recursos auxiliares | Spring Security, JJWT, TOTP, JavaMail e GeoIP2 | [backend/pom.xml](backend/pom.xml) |
 | Ambiente e colaboração | Docker Compose, Maven Wrapper, npm, Git e GitHub | Configurações na raiz e nas aplicações |
 
-O Angular ainda precisa consumir essas APIs. As rotas e exemplos de contratos ficam no Swagger em `http://localhost:8080/swagger-ui/index.html`.
+As rotas e exemplos de contratos ficam no Swagger em `http://localhost:8080/swagger-ui/index.html` quando a API usa a porta padrão.
 
 ## Como executar
 

@@ -1,3 +1,4 @@
+import { SectorReports } from './sector-reports';
 import { EmptyState } from '../../partnership/shared/empty-state';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { formatReportDate } from '../../partnership/shared/report-format';
@@ -10,7 +11,7 @@ import { SourceSheetsPreviewService } from './source-sheets-preview.service';
 
 @Component({
   selector: 'app-rbs-report',
-  imports: [EmptyState, NzIconModule, CardHeading, AdminPartnershipShell, NzButtonModule],
+  imports: [SectorReports, EmptyState, NzIconModule, CardHeading, AdminPartnershipShell, NzButtonModule],
   templateUrl: './report.html',
   styleUrls: [
     '../../partnership/shared/partnership-ui.css',

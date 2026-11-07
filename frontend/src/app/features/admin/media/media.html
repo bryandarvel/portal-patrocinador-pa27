@@ -9,6 +9,7 @@
       nz-button
       class="pill submission-button"
       type="button"
+      [disabled]="!preview.submissionsReady()"
       (click)="openSubmissionDialog()"
     >
       {{ preview.submissionsOpen() ? 'Encerrar envio' : 'Reabrir envio' }}

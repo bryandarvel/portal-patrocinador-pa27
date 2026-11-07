@@ -92,7 +92,7 @@ public class AuthService {
                 || !passwords.matches(senha, user.getSenha()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, INVALID_LOGIN);
         if (user.isMfaEnabled()) return new LoginResult("MFA_REQUIRED", null, tokens.gerarDesafioMfa(user));
-        return new LoginResult("AUTHENTICATED", tokens.gerarToken(user), null);
+        return new LoginResult("AUTHENTICATED", emitirSessao(user), null);
     }
 
     public String validarMfa(String challenge, String code) {
@@ -101,7 +101,13 @@ public class AuthService {
         if (user == null || !userId.equals(user.getId()) || !user.isAtivo() || !user.isMfaEnabled() || user.getMfaSecret() == null ||
                 code == null || !mfa.verifyCode(user.getMfaSecret(), code))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, INVALID_LOGIN);
-        return tokens.gerarToken(user);
+        return emitirSessao(user);
+    }
+
+    private String emitirSessao(Usuario user) {
+        String token = tokens.gerarToken(user);
+        usuarios.registrarAcesso(user.getId());
+        return token;
     }
 
     public record LoginResult(String status, String token, String challenge) {}

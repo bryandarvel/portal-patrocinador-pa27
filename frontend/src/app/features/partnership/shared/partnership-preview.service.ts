@@ -81,6 +81,8 @@ export class PartnershipPreviewService {
   readonly currentMiv = computed(() => this.versionsState()[0] ?? null);
   readonly publications = signal<readonly BrandPublication[]>([]);
   readonly deadline = signal<string | null>(null);
+  private readonly loadedId = signal<string | null>(null);
+  readonly submissionsReady = computed(() => this.loadedId() === this.ctx.id());
   private readonly brandOpenState = signal(false);
   readonly brandSubmissionsOpen = this.brandOpenState.asReadonly();
 
@@ -91,6 +93,7 @@ export class PartnershipPreviewService {
       this.versionsState.set([]);
       this.publications.set([]);
       this.documentsState.set([]);
+      this.loadedId.set(null);
       this.brandOpenState.set(false);
       if (id) {
         if (brandEnabled) void this.load(id).catch(() => {});
@@ -115,6 +118,7 @@ export class PartnershipPreviewService {
     );
     this.publications.set(view.publicacoes);
     this.deadline.set(view.recebimento.prazo);
+    this.loadedId.set(id);
     this.brandOpenState.set(
       view.recebimento.aberto &&
         (!view.recebimento.prazo || Date.parse(view.recebimento.prazo) > Date.now()),

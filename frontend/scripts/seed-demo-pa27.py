@@ -33,11 +33,11 @@ CREDENTIALS = {
 
 SCENARIOS = {
     'renner': 'material de exemplo aprovado e comprovação fictícia',
-    'coca-cola': 'envio aberto e documento de exemplo',
+    'coca-cola': 'envio aberto, entrega pronta para demonstrar e documento de exemplo',
     'banrisul': 'envio de exemplo e histórico de MIV',
     'monster': 'material recebido, aguardando análise',
     'mastercard': 'briefing enviado, sem veiculação',
-    'absolut-sprite': 'sem material enviado',
+    'absolut-sprite': 'sem material enviado e recebimento de marca encerrado',
     'aperol': 'duas versões e ajuste solicitado',
     'claro-jbl': 'material conjunto enviado, sem publicação',
 }
@@ -129,6 +129,60 @@ def populate_media(seed, admin, sponsor, admin_id, path, brand):
          files=material('Comprovação fictícia'))
 
 
+def complete_scenarios(seed, admin, path, key):
+    call = seed['call']
+    if key == 'coca-cola':
+        title = 'Logo no telão principal'
+        deliveries = call('GET', path + '/entregas', admin)['itens']
+        if not any(item['titulo'] == title for item in deliveries):
+            call('POST', path + '/entregas', admin, body={
+                'area': 'marca', 'titulo': title,
+                'descricao': 'Envie um material fictício para apresentar o fluxo de aprovação e comprovação.',
+            })
+        return
+    if key != 'renner':
+        return
+
+    profile = call('GET', path, admin)
+    enabled = [area['area'] for area in profile['areas'] if area['habilitada']]
+    missing = [area for area in ('pesquisa', 'contrato') if area not in enabled]
+    if missing:
+        call('PUT', path + '/areas', admin, body={'areas': enabled + missing})
+
+    faqs = [
+        ('Materiais', 'Onde envio o manual de identidade visual?',
+         'Acesse Aplicações de marca. O histórico mantém as versões enviadas à RBS.'),
+        ('Entregas', 'Onde encontro a comprovação de uma entrega?',
+         'Abra Entregas da parceria e selecione a entrega realizada. Se a RBS já publicou a comprovação, ela aparece no detalhe.'),
+        ('Credenciamento', 'Onde faço o credenciamento da minha equipe?',
+         'Consulte as credenciais da parceria no portal e use o link da área de Credenciamento para abrir o Open Staff.'),
+    ]
+    existing = {item['pergunta'] for item in call('GET', path + '/faq', admin)}
+    for category, question, answer in faqs:
+        if question not in existing:
+            call('POST', path + '/faq', admin, body={'categoria': category, 'pergunta': question, 'resposta': answer})
+
+    sponsor_email = 'renner.pa27@example.test'
+    sponsor = seed['login'](sponsor_email)
+    research = call('GET', path + '/pesquisa', admin)
+    if not research['versoes']:
+        if not research['recebimento']['aberto']:
+            call('PATCH', path + '/pesquisa/recebimento', admin, body={'aberto': True, 'prazo': None})
+        call('PUT', path + '/pesquisa/perguntas', sponsor, body={'perguntas': [
+            'Em qual área do festival você encontrou a ativação?',
+            'Como você avaliaria a experiência na ativação?',
+        ]})
+    contract = call('GET', path + '/contrato', admin)
+    if not contract['versoes']:
+        if not contract['signatarios']:
+            call('PUT', path + '/contrato/signatarios', sponsor, body={'signatarios': [
+                {'nome': 'Contato Renner (demo)', 'email': sponsor_email, 'cargo': 'Representante'},
+            ]})
+        title = 'Minuta de demonstração PA27'
+        call('POST', path + '/contrato/versoes', admin,
+             files=seed['arquivo'](title + '.pdf', seed['pdf'](title), seed['PDF']))
+
+
 def apply():
     backend_scripts = FRONTEND.parent / 'backend/scripts'
     sys.dont_write_bytecode = True
@@ -151,12 +205,18 @@ def apply():
     admin = session.get('token')
     if not admin:
         raise SystemExit('O login local do bootstrap não retornou uma sessão para a carga.')
-    admin_id, _ = seed['usuario'](admin, 'Equipe RBS PA27 (demo)', 'rbs.pa27@example.test', 'ADMIN_RBS')
+    demo_admin_email = 'rbs.pa27@example.test'
+    if env['PORTAL_BOOTSTRAP_EMAIL'].strip().lower() == demo_admin_email:
+        admin_id = call('GET', '/api/auth/me', admin)['id']
+    else:
+        admin_id, _ = seed['usuario'](admin, 'Equipe RBS PA27 (demo)', demo_admin_email, 'ADMIN_RBS')
 
     for brand in BRANDS['brands']:
         name, key = brand['name'] + ' (demo)', brand['key']
         found = call('GET', '/api/parcerias?busca=' + quote(name), admin)['itens']
-        if any(item['nome'] == name and item['edicao'] == BRANDS['edition'] for item in found):
+        existing = next((item for item in found if item['nome'] == name and item['edicao'] == BRANDS['edition']), None)
+        if existing:
+            complete_scenarios(seed, admin, '/api/parcerias/' + existing['id'], key)
             print(f'= {name}: já existe. Confira se a carga anterior foi concluída.')
             continue
         try:
@@ -186,7 +246,8 @@ def apply():
                 'versao': 0, 'itens': items, 'urlOpenStaff': OPEN_STAFF,
             })
             for area in ('marca', 'midia'):
-                call('PATCH', path + f'/{area}/recebimento', admin, body={'aberto': True, 'prazo': None})
+                opened = not (key == 'absolut-sprite' and area == 'marca')
+                call('PATCH', path + f'/{area}/recebimento', admin, body={'aberto': opened, 'prazo': None})
             if key == 'renner':
                 benefit = {'tipo': 'passaporte', 'setor': 'Arena', 'publico': '', 'quantidade': 12}
                 updated = call('POST', path + '/beneficios', admin,
@@ -206,6 +267,7 @@ def apply():
             populate_media(seed, admin, sponsor, admin_id, path, brand)
             if reference := REFERENCES.get(key):
                 call('POST', path + '/midia/publicacoes', admin, body=reference)
+            complete_scenarios(seed, admin, path, key)
             print(f'+ {name}: {partnership["id"]} · {email}')
         except (seed['ApiError'], OSError, AssertionError, StopIteration) as error:
             detail = f'HTTP {error.status}' if isinstance(error, seed['ApiError']) else type(error).__name__

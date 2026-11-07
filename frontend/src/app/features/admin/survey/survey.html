@@ -9,6 +9,7 @@
       class="pill submission-button"
       type="button"
       aria-haspopup="dialog"
+      [disabled]="!preview.submissionsReady()"
       (click)="openSubmissionDialog()"
     >
       {{ preview.submissionsOpen() ? 'Encerrar envio' : 'Reabrir envio' }}

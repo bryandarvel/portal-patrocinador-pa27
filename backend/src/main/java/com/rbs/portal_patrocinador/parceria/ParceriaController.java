@@ -116,7 +116,11 @@ public class ParceriaController {
         var result=new LinkedHashMap<>(jdbc.queryForMap("select p.id,p.nome,p.edicao,p.cota_id,c.nome as cota,p.versao,p.criado_em from portal_parcerias p join portal_cotas c on c.id=p.cota_id where p.id=?",id));
         result.put("areas",jdbc.queryForList("select area,habilitada,recebimento_aberto,prazo from portal_areas where parceria_id=? order by area",id));
         result.put("beneficios",jdbc.queryForList("select id,natureza,tipo,setor,publico,quantidade,versao from portal_beneficios where parceria_id=? order by natureza,setor,tipo",id));
-        if(access.isAdmin()) result.put("acessos",jdbc.queryForList("select u.id,u.nome,u.email,u.ativo from usuarios u join portal_acessos a on a.usuario_id=u.id where a.parceria_id=? order by u.nome",id));
+        if (access.isAdmin()) result.put("acessos", jdbc.queryForList("""
+                select u.id, u.nome, u.email, u.ativo, u.primeiro_acesso, u.ultimo_acesso
+                from usuarios u join portal_acessos a on a.usuario_id = u.id
+                where a.parceria_id = ? order by u.nome
+                """, id));
         return result;
     }
 

@@ -6,10 +6,10 @@ const path = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const ROOT = path.resolve(__dirname, '../..');
-const API = 'http://localhost:8080';
-const WEB = 'http://localhost:4200';
-const MAIL = 'http://localhost:8025';
-const OUT = '/tmp/rbs-front-e2e';
+const API = `http://127.0.0.1:${process.env.BACKEND_PORT || '8080'}`;
+const WEB = `http://localhost:${process.env.FRONTEND_PORT || '4200'}`;
+const MAIL = `http://127.0.0.1:${process.env.MAILPIT_PORT || '8025'}`;
+const OUT = process.env.PORTAL_E2E_OUTPUT || path.join(require('node:os').tmpdir(), 'rbs-front-e2e');
 const areas = ['perfil', 'marca', 'midia', 'cortesias', 'credenciamento', 'pesquisa', 'contrato'];
 const suffix = crypto.randomUUID().slice(0, 8);
 const pdf = { name: `E2E-${suffix}.pdf`, mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF') };
@@ -87,7 +87,12 @@ function pageFor(browser, token, viewport = { width: 1440, height: 900 }) {
 }
 async function visit(page, url, heading) {
   await page.goto(WEB + url);
-  await page.getByRole('heading', { name: heading, exact: true }).first().waitFor();
+  try {
+    await page.getByRole('heading', { name: heading, exact: true }).first().waitFor();
+  } catch (error) {
+    const displayed = await page.locator('h1').allTextContents();
+    throw new Error(`Ao abrir ${url}, a página ficou em ${new URL(page.url()).pathname}. Títulos: ${displayed.join(', ') || 'nenhum'}`, { cause: error });
+  }
   assert(!page.url().includes('/login'), `Rota redirecionou ao login: ${url}`);
   const broken = await page.locator('img:visible').evaluateAll(async images => { await Promise.all(images.map(image => image.decode().catch(() => {}))); return images.filter(image => image.naturalWidth === 0).map(image => image.getAttribute('src')); });
   assert.deepEqual(broken, [], `Imagem não carregou em ${url}`);
@@ -227,7 +232,7 @@ async function run() {
     await rbs.page.locator('#event-day').fill('2027-01-29');
     await button(rbs.page, 'Salvar cortesia');
     await visit(pat.page, `${p}/cortesias`, 'Cortesias');
-    await button(pat.page, 'Destinar');
+    await pat.page.getByRole('button', { name: /^Destinar cortesias:/ }).first().click();
     await pat.page.locator('#destination-quantity').fill('1');
     await pat.page.locator('#destination-name').fill(`E2E destino ${suffix}`);
     await button(pat.page, 'Confirmar destinação');
@@ -276,14 +281,18 @@ async function run() {
 
     await visit(rbs.page, `${a}/relatorio-da-parceria`, 'Relatório da parceria');
     await upload(rbs.page.locator('#source-sheets-file'));
-    await button(rbs.page, 'Enviar planilhas');
+    await button(rbs.page, 'Enviar arquivo');
     await rbs.page.getByText(txt.name).first().waitFor();
     await button(rbs.page, 'Abrir relatório');
     await rbs.page.getByRole('heading', { name: 'Relatório da parceria' }).last().waitFor();
     await button(rbs.page, 'Publicar complemento');
     await upload(rbs.page.locator('#report-file'), pdf);
+    const publication = rbs.page.waitForResponse(response =>
+      response.request().method() === 'POST' &&
+      response.url().endsWith(`/api/parcerias/${data.first.id}/relatorio/publicacoes`));
     await button(rbs.page, 'Publicar arquivo');
-    await rbs.page.getByText(pdf.name).last().waitFor();
+    assert.equal((await publication).status(), 201);
+    await rbs.page.locator('#report-file').waitFor({ state: 'hidden' });
     const report = await request('GET', `/api/parcerias/${data.first.id}/relatorio`, undefined, data.sponsor);
     assert(report.perguntas.some(item => item.pergunta.includes(suffix)));
     assert(report.comprovacoes.some(item => item.descricao.includes(suffix)));

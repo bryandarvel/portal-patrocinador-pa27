@@ -99,3 +99,37 @@
     justify-self: start;
   }
 }
+
+.sector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.sector-actions + .sector-actions {
+  margin-block-start: 12px;
+}
+
+.sector-filters label {
+  display: grid;
+  gap: 6px;
+  min-width: min(100%, 180px);
+}
+
+.sector-filename {
+  overflow-wrap: anywhere;
+}
+
+.sector-filters input,
+.sector-filters select {
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}

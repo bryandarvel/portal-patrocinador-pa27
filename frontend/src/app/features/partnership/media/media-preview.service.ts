@@ -44,6 +44,8 @@ export class MediaPreviewService {
   private readonly briefingState = signal('');
   private readonly submissionsOpenState = signal(false);
   readonly deadline = signal<string | null>(null);
+  private readonly loadedId = signal<string | null>(null);
+  readonly submissionsReady = computed(() => this.loadedId() === this.ctx.id());
   readonly placements = signal<readonly Placement[]>([]);
   readonly placementsVersion = signal(0);
   readonly publications = signal<readonly MediaPublication[]>([]);
@@ -57,6 +59,7 @@ export class MediaPreviewService {
       const id = this.ctx.id();
       this.versionsState.set([]);
       this.briefingState.set('');
+      this.loadedId.set(null);
       this.submissionsOpenState.set(false);
       this.placements.set([]);
       this.publications.set([]);
@@ -83,6 +86,7 @@ export class MediaPreviewService {
     this.placementsVersion.set(view.veiculacoesVersao);
     this.publications.set(view.publicacoes);
     this.deadline.set(view.recebimento.prazo);
+    this.loadedId.set(id);
     this.submissionsOpenState.set(
       view.recebimento.aberto &&
         (!view.recebimento.prazo || Date.parse(view.recebimento.prazo) > Date.now()),

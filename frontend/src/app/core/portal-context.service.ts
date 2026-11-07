@@ -26,7 +26,14 @@ export interface Parceria {
   versao: number;
   areas: PortalArea[];
   beneficios: Beneficio[];
-  acessos?: { id: string; nome: string; email: string; ativo: boolean }[];
+  acessos?: {
+    id: string;
+    nome: string;
+    email: string;
+    ativo: boolean;
+    primeiro_acesso: string | null;
+    ultimo_acesso: string | null;
+  }[];
 }
 export const PORTAL_AREAS = [
   { key: 'perfil', number: '01', label: 'Perfil do cliente', path: 'perfil' },
