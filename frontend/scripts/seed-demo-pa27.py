@@ -183,6 +183,32 @@ def complete_scenarios(seed, admin, path, key):
              files=seed['arquivo'](title + '.pdf', seed['pdf'](title), seed['PDF']))
 
 
+def existing_partnership(call, admin, name, email, edition):
+    """Reutiliza a parceria mesmo que a RBS tenha editado seu nome de exibição."""
+    matches = call('GET', '/api/parcerias?busca=' + quote(name), admin)['itens']
+    exact = [item for item in matches if item['nome'] == name and item['edicao'] == edition]
+    if len(exact) > 1:
+        raise SystemExit(f'{name}: mais de uma parceria corresponde ao cenário. Nenhum registro foi criado.')
+    if exact:
+        return exact[0]
+    matches = []
+    page = 0
+    while True:
+        result = call('GET', '/api/parcerias?pagina=' + str(page), admin)
+        for item in result['itens']:
+            if item['edicao'] != edition:
+                continue
+            profile = call('GET', '/api/parcerias/' + item['id'], admin)
+            if any(access['email'].strip().lower() == email.lower() for access in profile['acessos']):
+                matches.append(item)
+        page += 1
+        if not result['itens'] or page * 50 >= result['total']:
+            break
+    if len(matches) > 1:
+        raise SystemExit(f'{name}: a conta está vinculada a mais de uma parceria desta edição. Confira os acessos antes de repetir a carga.')
+    return matches[0] if matches else None
+
+
 def apply():
     backend_scripts = FRONTEND.parent / 'backend/scripts'
     sys.dont_write_bytecode = True
@@ -213,8 +239,7 @@ def apply():
 
     for brand in BRANDS['brands']:
         name, key = brand['name'] + ' (demo)', brand['key']
-        found = call('GET', '/api/parcerias?busca=' + quote(name), admin)['itens']
-        existing = next((item for item in found if item['nome'] == name and item['edicao'] == BRANDS['edition']), None)
+        existing = existing_partnership(call, admin, name, f'{key}.pa27@example.test', BRANDS['edition'])
         if existing:
             complete_scenarios(seed, admin, '/api/parcerias/' + existing['id'], key)
             print(f'= {name}: já existe. Confira se a carga anterior foi concluída.')

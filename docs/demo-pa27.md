@@ -2,7 +2,7 @@
 
 Use a branch `demo-pa27` do repositório `bryandarvel/portal-patrocinador-pa27`. A demonstração usa marcas reais como referência e dados operacionais fictícios. O projeto `portal-pa27-demo` usa banco e arquivos separados da stack anterior.
 
-O Angular acessa a API do Spring Boot por `/api`. O PostgreSQL guarda as parcerias, permissões, histórico, metadados dos anexos e lotes importados. Um volume separado guarda os arquivos. O backend verifica o vínculo com a parceria antes de servir dados ou arquivos. A RBS consulta o primeiro e o último acesso de cada conta vinculada no perfil da parceria. As datas passam a ser registradas a partir da migração V8, depois de um login concluído.
+O Angular acessa a API do Spring Boot por `/api`. O PostgreSQL guarda as parcerias, permissões, histórico, metadados dos anexos e lotes importados. Um volume separado guarda os arquivos locais; na nuvem, um bucket privado do Supabase guarda os anexos. O backend verifica o vínculo com a parceria antes de servir dados ou arquivos. A RBS consulta o primeiro e o último acesso de cada conta vinculada no perfil da parceria. As datas passam a ser registradas a partir da migração V8, depois de um login concluído.
 
 ## Iniciar no Windows
 
@@ -33,7 +33,7 @@ python -X utf8 frontend/scripts/seed-demo-pa27.py --aplicar
 python -X utf8 backend/scripts/check-relatorios-pa27.py
 ```
 
-O segundo comando carrega exemplos de rádio e TV nas parcerias fictícias, valida os XLSX e publica uma cópia individual de vendas para a Renner. Use `--somente-verificar` para reler a carga sem criar importações. O seed preserva parcerias existentes e preenche os cenários complementares quando ausentes. Se uma marca foi criada apenas em parte, identifique o registro faltante antes de repetir qualquer operação.
+O segundo comando carrega exemplos de rádio e TV nas parcerias fictícias, valida os XLSX e publica uma cópia individual de vendas para a Renner. Use `--somente-verificar` para reler a carga sem criar importações. O seed preserva parcerias existentes e preenche os cenários complementares quando ausentes. Ele reconhece a parceria pelo nome ou pela conta fictícia vinculada à mesma edição, preservando nomes alterados pela RBS. Se a mesma conta estiver vinculada a mais de uma parceria dessa edição, a carga é interrompida para conferência. Se uma marca foi criada apenas em parte, identifique o registro faltante antes de repetir qualquer operação.
 
 Entre em dois perfis separados do navegador. Use a conta RBS acima e `renner.pa27@example.test` ou `coca-cola.pa27@example.test` como patrocinador. Consulte as duas senhas geradas no seu `.env` local. As contas fictícias são ativadas pelo Mailpit em http://localhost:8027. Para parar e preservar os dados, use `docker compose -p portal-pa27-demo stop`.
 
@@ -65,6 +65,8 @@ A RBS pode exportar Vendas e Veiculação em XLSX de uma parceria ou de todas, c
 ## Publicação da demonstração
 
 A combinação aprovada é Vercel Hobby para Angular, Render Free para Java e Supabase Free para PostgreSQL e anexos privados. Use apenas o repositório `bryandarvel/portal-patrocinador-pa27`, branch `demo-pa27`. O produto original não participa desta publicação.
+
+Estado verificado em 07/11/2026: banco e anexos migrados para o projeto Supabase `bmiqtzpoabfxzyhitfea`; API publicada em https://portal-patrocinador-pa27-1.onrender.com, commit 5259613. O frontend na Vercel ainda aguarda publicação e testes. Os passos de restauração abaixo servem para um destino novo e vazio; a migração deste projeto já foi concluída.
 
 Render Free suspende o serviço após 15 minutos sem tráfego; a próxima inicialização pode levar cerca de um minuto. Seu disco é temporário, por isso o backend usa Supabase Storage. Supabase Free inclui 500 MB de banco e 1 GB de arquivos, com suspensão após uma semana sem atividade. Confira as franquias no painel; não ative planos pagos. Para a apresentação, abra o portal antes do ensaio e mantenha a contingência local disponível.
 
@@ -133,6 +135,8 @@ node frontend/scripts/configure-vercel.mjs https://DOMINIO-REAL.onrender.com
 ```
 
 O gerador valida a origem e cria `frontend/vercel.json` sem sobrescrever arquivo existente. Revise o arquivo, faça commit/push e importe o repositório como projeto Vercel separado, com raiz `frontend`, preset Angular, Node 24, instalação `npm ci`, build `npm run build` e saída `dist/portal-patrocinador/browser`. Configure `demo-pa27` como branch de produção. Não reutilize o projeto Vercel do produto anterior.
+
+No painel atual, a branch de produção fica em Settings > Environments > Production > Branch Tracking. Em Deployments > Create Deployment, informe `demo-pa27` para publicar a referência desejada. Uma importação que assuma `main` precisa desse ajuste, pois o código da demonstração está na branch `demo-pa27`.
 
 As rotas `/api` passam pelo backend externo e as demais rotas usam o fallback do Angular. Não há chave do Supabase nas variáveis do frontend. Após obter a URL final da Vercel, ajuste `PORTAL_FRONTEND_URL` no Render e publique essa configuração.
 

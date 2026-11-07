@@ -39,6 +39,8 @@ O exemplo de rádio da Renner registra 10 inserções contratadas e 9 entregues 
 - Oito testes Java de armazenamento e três de rollback/limpeza acrescentados; os 17 testes da área de operações e armazenamento passaram. A execução completa anterior tinha 28 testes aprovados; os três adicionais foram executados na seleção afetada.
 - Sete testes Python da migração passaram. Restauração ensaiada em QA, incluindo recusa de segunda carga sobre banco preenchido, sem perder registros.
 - Processo limitado a 512 MB executado com heap de 192 MB. Após os checks com duas exportações simultâneas, consumo observado de cerca de 435 MB, sem encerramento por falta de memória. É uma verificação pontual, não um teste de carga.
+- API publicada no Render no commit 5259613: health HTTPS respondeu 200/UP. Pela URL pública passaram os três logins, oito marcas, isolamento, origens privadas, relatório individual publicado, comprovação PDF e as duas exportações simultâneas. O arquivo de persistência criado antes do deploy também foi baixado pela API pública.
+- Cinco testes da identificação do seed passaram, incluindo nome editado pela RBS, paginação, outra edição e vínculo ambíguo. A busca pela conta evita criar uma parceria duplicada quando o nome muda.
 
 Esses são testes técnicos com contas fictícias. A validação deste lote pela RBS e por usuários reais precisa ser registrada separadamente.
 
@@ -58,7 +60,7 @@ Uma revisão substitui os valores da mesma combinação de parceria, mês, veíc
 
 Os impactos são recebidos da fonte. O sistema não mede a atribuição de acessos a uma campanha. Métricas diferentes não são somadas em um total.
 
-Banco e anexos da demonstração já estão no Supabase. A publicação da API no Render Free e do frontend na Vercel ainda depende do envio do novo commit e da execução dos passos de hospedagem por Bryan. A aplicação foi testada em container local conectado ao Supabase; isso não comprova um deploy público no Render ou na Vercel. Render Free suspende após inatividade e pode demorar para voltar. A versão local em Docker é a contingência preparada.
+Banco e anexos da demonstração estão no Supabase, e a API está publicada e verificada em https://portal-patrocinador-pa27-1.onrender.com. A publicação e a validação do frontend na Vercel continuam pendentes. O health da API não substitui os testes da interface publicada. Render Free suspende após inatividade e pode demorar para voltar. A versão local em Docker é a contingência preparada.
 
 Os acessos restaurados estão ativados. Convites novos por e-mail na nuvem ficam pendentes de um serviço de envio; a demonstração local mantém Mailpit. O portal não deve ser apresentado como uso operacional da RBS.
 
