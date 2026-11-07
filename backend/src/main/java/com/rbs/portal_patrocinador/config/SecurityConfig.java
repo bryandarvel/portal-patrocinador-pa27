@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .accessDeniedHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_FORBIDDEN)))
             .authorizeHttpRequests(auth -> auth
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                .requestMatchers("/api/auth/login", "/api/auth/validar-mfa", "/api/auth/verificar",
+                .requestMatchers("/api/health", "/api/auth/login", "/api/auth/validar-mfa", "/api/auth/verificar",
                         "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN_RBS")
                 .anyRequest().authenticated())

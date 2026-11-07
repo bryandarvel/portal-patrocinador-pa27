@@ -5,7 +5,7 @@ let api;
 try {
   api = new URL(input);
 } catch {
-  throw new Error('Informe a URL pública HTTPS da API Railway.');
+  throw new Error('Informe a URL pública HTTPS da API no Render.');
 }
 
 if (api.protocol !== 'https:' || api.username || api.password || api.search || api.hash || api.pathname !== '/') {

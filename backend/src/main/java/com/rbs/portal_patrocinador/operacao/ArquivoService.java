@@ -3,7 +3,6 @@ package com.rbs.portal_patrocinador.operacao;
 import com.rbs.portal_patrocinador.parceria.PortalAccess;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -38,15 +36,14 @@ public class ArquivoService {
 
     private final JdbcTemplate jdbc;
     private final PortalAccess access;
-    private final Path directory;
+    private final ArquivoStorage storage;
     private final long maxBytes;
 
-    public ArquivoService(JdbcTemplate jdbc, PortalAccess access,
-                          @Value("${portal.storage.directory:/data/arquivos}") String directory,
+    public ArquivoService(JdbcTemplate jdbc, PortalAccess access, ArquivoStorage storage,
                           @Value("${portal.storage.max-bytes:20971520}") long maxBytes) {
         this.jdbc = jdbc;
         this.access = access;
-        this.directory = Paths.get(directory).toAbsolutePath().normalize();
+        this.storage = storage;
         this.maxBytes = maxBytes;
     }
 
@@ -62,12 +59,12 @@ public class ArquivoService {
         if (!CONTENT_TYPES.contains(contentType)) throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Tipo de arquivo não permitido.");
         String nome = limparNome(arquivo.getOriginalFilename());
         UUID id = UUID.randomUUID();
-        Path destino = directory.resolve(id.toString()).normalize();
-        if (!destino.startsWith(directory)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Arquivo inválido.");
+        Path temporario = null;
+        boolean armazenamentoIniciado = false;
         long tamanho;
         try {
-            Files.createDirectories(directory);
-            try (InputStream in = arquivo.getInputStream(); var out = Files.newOutputStream(destino)) {
+            temporario = Files.createTempFile("portal-upload-", ".tmp");
+            try (InputStream in = arquivo.getInputStream(); var out = Files.newOutputStream(temporario)) {
                 byte[] buffer = new byte[8192];
                 long total = 0;
                 int lidos;
@@ -79,26 +76,30 @@ public class ArquivoService {
                 tamanho = total;
             }
             if (tamanho == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Arquivo vazio.");
+            armazenamentoIniciado = true;
+            storage.salvar(id.toString(), temporario, contentType);
             Integer versao = jdbc.queryForObject("select coalesce(max(versao), 0) + 1 from portal_arquivos where parceria_id = ? and area = ? and tipo = ?", Integer.class, parceriaId, area, tipo);
             jdbc.update("insert into portal_arquivos(id, parceria_id, area, tipo, interno, nome, tamanho, content_type, storage_key, versao, criado_por) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     id, parceriaId, area, tipo, interno, nome, tamanho, contentType, id.toString(), versao, access.userId());
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                     @Override public void afterCompletion(int status) {
-                        if (status != STATUS_COMMITTED) apagar(destino);
+                        if (status != STATUS_COMMITTED) storage.apagar(id.toString());
                     }
                 });
             }
             return new ArquivoView(id, nome, tamanho, contentType, versao, Instant.now());
         } catch (ResponseStatusException e) {
-            apagar(destino);
+            if (armazenamentoIniciado) storage.apagar(id.toString());
             throw e;
         } catch (IOException e) {
-            apagar(destino);
+            if (armazenamentoIniciado) storage.apagar(id.toString());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao armazenar arquivo.");
         } catch (RuntimeException e) {
-            apagar(destino);
+            if (armazenamentoIniciado) storage.apagar(id.toString());
             throw e;
+        } finally {
+            if (temporario != null) apagar(temporario);
         }
     }
 
@@ -115,12 +116,10 @@ public class ArquivoService {
                 arquivoId, parceriaId);
         if (m == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Arquivo não encontrado.");
         access.requireArea(parceriaId, m.area, m.interno);
-        Path path = directory.resolve(m.storageKey).normalize();
         try {
-            if (!path.startsWith(directory) || !Files.isRegularFile(path)) throw new IOException("missing");
-            return new Download(m.nome, new UrlResource(path.toUri()));
+            return new Download(m.nome, storage.baixar(m.storageKey));
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Arquivo não encontrado.");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Falha ao consultar arquivo. Tente novamente.");
         }
     }
 

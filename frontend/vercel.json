@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "angular",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/portal-patrocinador/browser",
+  "routes": [
+    {
+      "src": "^/api(?:/(.*))?$",
+      "dest": "https://portal-patrocinador-pa27-1.onrender.com/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/.*$",
+      "dest": "/index.html"
+    }
+  ]
+}

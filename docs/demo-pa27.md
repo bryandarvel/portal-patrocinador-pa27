@@ -64,19 +64,17 @@ A RBS pode exportar Vendas e Veiculação em XLSX de uma parceria ou de todas, c
 
 ## Publicação da demonstração
 
-A conta Railway precisa ter créditos suficientes para dois serviços e volumes. A documentação oferece US$ 5 no trial para novos usuários por até 30 dias e US$ 1 mensal no Free. Confira no painel se os créditos se aplicam à conta e quanto dura a demonstração planejada. A Railway limita volumes Free/Trial a 0,5 GB e pode remover volumes após a expiração. A Vercel permite Hobby para uso pessoal ou não comercial. Use a alternativa local se a elegibilidade ou os créditos impedirem a publicação sem pagamento.
+A combinação aprovada é Vercel Hobby para Angular, Render Free para Java e Supabase Free para PostgreSQL e anexos privados. Use apenas o repositório `bryandarvel/portal-patrocinador-pa27`, branch `demo-pa27`. O produto original não participa desta publicação.
 
-1. Após revisar, commitar e enviar para `demo-pa27`, crie um projeto Railway exclusivo para a demonstração. Adicione PostgreSQL 17 com volume. Se for copiar os dados locais, restaure o backup antes do primeiro start do backend. Mantenha o banco na rede privada.
-2. Adicione o backend do novo repositório, branch `demo-pa27`, raiz `/backend`. Railway detecta o Dockerfile. Monte um volume em `/data/arquivos`. Gere um domínio HTTPS para o backend. O processo usa `PORT` quando Railway o injeta e 8080 no Docker local.
-3. Configure `PORTAL_DATABASE_URL` com `jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}`, `PORTAL_DATABASE_USER` com `${{Postgres.PGUSER}}` e `PORTAL_DATABASE_PASSWORD` com `${{Postgres.PGPASSWORD}}`. Ajuste Postgres ao nome exato do serviço. Gere um `PORTAL_JWT_SECRET` exclusivo. Use `PORTAL_STORAGE_DIRECTORY=/data/arquivos`, `PORTAL_MAIL_ENABLED=false` e a origem da Vercel em `PORTAL_FRONTEND_URL`. Com o backup completo, mantenha bootstrap desligado. O e-mail local por Mailpit serve apenas ao ambiente local.
-4. Na raiz do clone, rode `node frontend/scripts/configure-vercel.mjs https://DOMINIO-DA-API`. Revise e publique o `frontend/vercel.json` gerado. Ele mantém `/api` na mesma origem para o navegador e encaminha o restante para os arquivos estáticos ou o Angular.
-5. Importe o repositório na Vercel como projeto separado. Defina raiz `frontend`, branch de produção `demo-pa27` e Node 24. Após publicar, teste login, recarga de uma rota interna, upload pequeno, comprovação e XLSX nos dois perfis. Repita após novo deploy com os mesmos volumes.
+Render Free suspende o serviço após 15 minutos sem tráfego; a próxima inicialização pode levar cerca de um minuto. Seu disco é temporário, por isso o backend usa Supabase Storage. Supabase Free inclui 500 MB de banco e 1 GB de arquivos, com suspensão após uma semana sem atividade. Confira as franquias no painel; não ative planos pagos. Para a apresentação, abra o portal antes do ensaio e mantenha a contingência local disponível.
 
-Com `PORTAL_MAIL_ENABLED=false`, os acessos de demonstração restaurados continuam utilizáveis. Novos convites que exigem ativação por e-mail precisam de um serviço de envio configurado. O Mailpit local permite demonstrar esse fluxo sem envio a destinatários reais.
+### 1. Supabase e cópia dos dados
 
-### Copiar os dados fictícios e os anexos
+Crie um projeto Free exclusivo e um bucket privado `portal-arquivos`, com limite de 20 MB por arquivo. O backend usa a chave secreta exclusivamente no servidor e recusa um bucket público. A autenticação continua no Spring; não é necessário cadastrar as contas no Supabase Auth.
 
-Faça a cópia quando ninguém estiver escrevendo no portal local. Execute na raiz do novo clone. Os backups contêm contas fictícias com hashes de senhas e devem ficar fora do Git.
+Copie `.env.cloud.example` para `.env.cloud` somente se esse arquivo ainda não existir. Preencha `PGHOST`, `PGPORT=5432`, `PGDATABASE=postgres`, `PGUSER`, `PGPASSWORD`, `PGSSLMODE=require`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` e `SUPABASE_STORAGE_BUCKET=portal-arquivos`. O host e o usuário vêm de Connect > Session pooler. A Secret key começa por `sb_secret_`; a Publishable key não atende a esse uso. Preserve senhas fora do Git e do chat.
+
+Faça o backup quando ninguém estiver gravando no portal local:
 
 ```powershell
 New-Item -ItemType Directory -Force backups
@@ -86,25 +84,62 @@ docker compose -p portal-pa27-demo exec -T backend tar -czf /tmp/pa27-arquivos.t
 docker compose -p portal-pa27-demo cp backend:/tmp/pa27-arquivos.tgz backups/pa27-arquivos.tgz
 ```
 
-Use Railway SSH com sua chave registrada e SCP por SFTP. Na Railway, identifique o ID da instância de cada serviço no projeto da demonstração. Use OpenSSH 9 ou superior.
+Os backups também ficam ignorados pelo Git. O script usa Python padrão e o cliente PostgreSQL em Docker, sem instalar bibliotecas. Primeiro inspecione sem gravar:
 
 ```powershell
-scp backups/pa27.dump ID-DA-INSTANCIA-POSTGRES@ssh.railway.com:/tmp/pa27.dump
-scp backups/pa27-arquivos.tgz ID-DA-INSTANCIA-BACKEND@ssh.railway.com:/tmp/pa27-arquivos.tgz
+python -X utf8 backend/scripts/migrate-supabase-pa27.py --conferir-conexao
+python -X utf8 backend/scripts/migrate-supabase-pa27.py --arquivos backups/pa27-arquivos.tgz --banco backups/pa27.dump
 ```
 
-No shell SSH do Postgres, em um banco vazio e antes de iniciar o backend:
+No projeto novo confirmado, copie os anexos e depois o banco:
 
-```sh
-pg_restore --exit-on-error --single-transaction --no-owner --no-privileges --dbname="$PGDATABASE" /tmp/pa27.dump
+```powershell
+python -X utf8 backend/scripts/migrate-supabase-pa27.py --arquivos backups/pa27-arquivos.tgz --aplicar
+python -X utf8 backend/scripts/migrate-supabase-pa27.py --banco backups/pa27.dump --aplicar --verificar
+python -X utf8 backend/scripts/migrate-supabase-pa27.py --preparar-render
 ```
 
-No shell SSH do backend, após montar o volume:
+Os arquivos mantêm a mesma chave UUID. A cópia confere SHA-256 e não sobrescreve conteúdo diferente. Reexecutar a cópia de anexos preserva os já existentes. O banco é restaurado em uma transação e exige schema public vazio; não repita a restauração em um banco já preenchido. A mesma transação habilita RLS e revoga acesso às tabelas para anon/authenticated. O backend conecta como dono das tabelas e continua verificando perfis e parceria. O script não modifica os schemas auth/storage do Supabase.
 
-```sh
-tar -xzf /tmp/pa27-arquivos.tgz -C /data/arquivos
+O arquivo `.env.render` gerado também é ignorado pelo Git e nunca é sobrescrito. Ele contém as variáveis do backend, um segredo JWT próprio e a origem temporária local do frontend. Não compartilhe seu conteúdo.
+
+### 2. Render
+
+Após revisar os arquivos e enviar o novo commit para `demo-pa27`, no painel Render use New > Web Service e conecte o repositório pessoal. A criação e a publicação são feitas por Bryan.
+
+| Campo | Valor |
+| --- | --- |
+| Branch | `demo-pa27` |
+| Language/runtime | Docker |
+| Root Directory | `backend` |
+| Dockerfile Path | `./Dockerfile` |
+| Docker Build Context | `.` |
+| Instance Type | Free |
+| Auto-Deploy | Off, para controlar o checkpoint |
+| Health Check Path | `/api/health` |
+
+Em Environment, use Add from .env e importe o conteúdo de `.env.render`. O `render.yaml` na raiz registra os mesmos parâmetros como alternativa Blueprint. Não adicione disco persistente ou banco Render.
+
+O perfil cloud limita o pool PostgreSQL a quatro conexões e os threads do Tomcat a 20. O processo Java usa heap máximo de 192 MB. A porta é fornecida pelo Render em `PORT`.
+
+Publique o Web Service e aguarde o health check responder `{"status":"UP"}` no domínio HTTPS mostrado pelo próprio Render. O health check consulta o banco e não exibe detalhes da conexão. Informe a URL pública da API para preparar o frontend; ela não é segredo.
+
+### 3. Vercel
+
+Na raiz do clone, substitua o endereço pelo domínio real do backend:
+
+```powershell
+node frontend/scripts/configure-vercel.mjs https://DOMINIO-REAL.onrender.com
 ```
 
-Confirme o download de um arquivo conhecido antes de compartilhar o endereço. Os passos de nuvem dependem dos projetos e créditos disponíveis na sua conta.
+O gerador valida a origem e cria `frontend/vercel.json` sem sobrescrever arquivo existente. Revise o arquivo, faça commit/push e importe o repositório como projeto Vercel separado, com raiz `frontend`, preset Angular, Node 24, instalação `npm ci`, build `npm run build` e saída `dist/portal-patrocinador/browser`. Configure `demo-pa27` como branch de produção. Não reutilize o projeto Vercel do produto anterior.
 
-Fontes: [Railway Trial](https://docs.railway.com/pricing/free-trial), [volumes Railway](https://docs.railway.com/volumes/reference), [Railway SSH e SCP](https://docs.railway.com/cli/ssh), [termos da Vercel](https://vercel.com/legal/terms).
+As rotas `/api` passam pelo backend externo e as demais rotas usam o fallback do Angular. Não há chave do Supabase nas variáveis do frontend. Após obter a URL final da Vercel, ajuste `PORTAL_FRONTEND_URL` no Render e publique essa configuração.
+
+### 4. Conferir a publicação
+
+Entre como RBS e como patrocinador em perfis separados. Verifique as oito marcas, a recarga de uma rota interna, os históricos e o download de uma comprovação já migrada. Faça um upload fictício autorizado, registre a execução, publique a comprovação e confira no patrocinador. Baixe os modelos e os dois XLSX. Após um reinício e um novo deploy, confira novamente o mesmo arquivo e os dados persistidos.
+
+As contas fictícias e as senhas do ambiente local foram preservadas pelo backup. Com `PORTAL_MAIL_ENABLED=false`, os acessos já ativados funcionam; novos convites que dependem de e-mail ficam pendentes de um serviço de envio. Render Free bloqueia as portas SMTP usuais. O Mailpit local continua disponível para demonstrar ativação sem destinatários reais.
+
+Fontes: [Render Free](https://render.com/docs/free), [configuração Render](https://render.com/docs/blueprint-spec), [Supabase Free](https://supabase.com/pricing), [conexão PostgreSQL](https://supabase.com/docs/guides/database/connecting-to-postgres), [chaves Supabase](https://supabase.com/docs/guides/getting-started/api-keys), [termos Vercel](https://vercel.com/legal/terms).

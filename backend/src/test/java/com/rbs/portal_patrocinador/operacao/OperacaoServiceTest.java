@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -122,7 +124,8 @@ class OperacaoServiceTest {
         UUID parceria = UUID.randomUUID();
         MockMultipartFile arquivo = new MockMultipartFile("arquivo", "material.pdf", "application/pdf", new byte[5]);
         Path storage = tempDir.resolve("storage");
-        ArquivoService service = new ArquivoService(jdbc, access, storage.toString(), 4);
+        ArquivoService service = new ArquivoService(jdbc, access,
+                new ArquivoStorage("filesystem", storage.toString(), "", "", "portal-arquivos", 4), 4);
         when(jdbc.query(anyString(), any(ResultSetExtractor.class), eq(parceria), eq("midia"))).thenAnswer(call -> {
             ResultSet rs = mock(ResultSet.class);
             when(rs.next()).thenReturn(true);
@@ -136,5 +139,54 @@ class OperacaoServiceTest {
         verify(access).requireArea(parceria, "midia", false);
         verify(jdbc, never()).update(anyString(), any(Object[].class));
         assertFalse(Files.exists(storage));
+    }
+
+    private UUID areaComUpload() throws Exception {
+        UUID parceria = UUID.randomUUID();
+        when(jdbc.query(anyString(), any(ResultSetExtractor.class), eq(parceria), eq("midia"))).thenAnswer(call -> {
+            ResultSet rs = mock(ResultSet.class);
+            when(rs.next()).thenReturn(true);
+            return ((ResultSetExtractor<?>) call.getArgument(1)).extractData(rs);
+        });
+        when(jdbc.queryForObject(anyString(), eq(Integer.class), eq(parceria), eq("midia"), eq("material"))).thenReturn(1);
+        return parceria;
+    }
+
+    @Test
+    void removeAnexoSeBancoFalharENaoDeixaTemporario() throws Exception {
+        UUID parceria = areaComUpload();
+        ArquivoStorage storage = mock(ArquivoStorage.class);
+        ArquivoService files = new ArquivoService(jdbc, access, storage, 20);
+        var temporary = org.mockito.ArgumentCaptor.forClass(Path.class);
+        when(jdbc.update(startsWith("insert into portal_arquivos"), any(Object[].class))).thenThrow(new IllegalStateException("Falha simulada"));
+        assertThrows(IllegalStateException.class, () -> files.salvar(parceria,
+                new MockMultipartFile("arquivo", "exemplo.pdf", "application/pdf", new byte[]{1}), "midia", "material", false));
+        verify(storage).salvar(anyString(), temporary.capture(), eq("application/pdf"));
+        assertFalse(Files.exists(temporary.getValue()));
+        verify(storage).apagar(anyString());
+    }
+
+    @Test
+    void removeAnexoQuandoTransacaoExternaReverte() throws Exception {
+        conferirFinalizacaoUpload(TransactionSynchronization.STATUS_ROLLED_BACK);
+    }
+
+    @Test
+    void preservaAnexoQuandoTransacaoConfirma() throws Exception {
+        conferirFinalizacaoUpload(TransactionSynchronization.STATUS_COMMITTED);
+    }
+
+    private void conferirFinalizacaoUpload(int status) throws Exception {
+        UUID parceria = areaComUpload();
+        ArquivoStorage storage = mock(ArquivoStorage.class);
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            var file = new ArquivoService(jdbc, access, storage, 20).salvar(parceria,
+                    new MockMultipartFile("arquivo", "exemplo.pdf", "application/pdf", new byte[]{1}), "midia", "material", false);
+            for (var synchronization : TransactionSynchronizationManager.getSynchronizations()) synchronization.afterCompletion(status);
+            verify(storage, status == TransactionSynchronization.STATUS_COMMITTED ? never() : times(1)).apagar(file.id().toString());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 }

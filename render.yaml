@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: portal-pa27-api
+    runtime: docker
+    plan: free
+    region: virginia
+    branch: demo-pa27
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: "off"
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: cloud
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xms64m -Xmx192m -XX:MaxMetaspaceSize=128m -XX:MaxDirectMemorySize=16m -XX:ReservedCodeCacheSize=32m -Xss512k
+      - key: PORTAL_STORAGE_PROVIDER
+        value: supabase
+      - key: SUPABASE_STORAGE_BUCKET
+        value: portal-arquivos
+      - key: PORTAL_MAIL_ENABLED
+        value: "false"
+      - key: PORTAL_BOOTSTRAP_ENABLED
+        value: "false"
+      - key: PORTAL_DATABASE_URL
+        sync: false
+      - key: PORTAL_DATABASE_USER
+        sync: false
+      - key: PORTAL_DATABASE_PASSWORD
+        sync: false
+      - key: PORTAL_JWT_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: PORTAL_FRONTEND_URL
+        sync: false
