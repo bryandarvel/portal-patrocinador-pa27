@@ -1,5 +1,7 @@
 # Validação da demonstração PA27
 
+> Este é o registro técnico da demonstração. A revisão posterior da [matriz da Entrega 3](entrega-3-matriz.md) separa aceite técnico, evidência histórica e homologação humana pendente; não declara a Entrega 3 concluída.
+
 Registro de 07/11/2026. Escopo: demonstração educacional com dados operacionais fictícios, oito marcas de referência e contas de teste. A validação operacional pela RBS e um piloto com usuários reais constituem etapas posteriores.
 
 ## Endereços e execução

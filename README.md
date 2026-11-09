@@ -1,184 +1,92 @@
-# Portal do Patrocinador - Planeta Atlântida
+# Portal do Patrocinador — Planeta Atlântida
 
-Projeto do **Desafio GC 2026**, desenvolvido pelas trilhas **Java** e **IA & Dados** para o **Grupo RBS**.
+MVP do Desafio Geração Caldeira 2026, desenvolvido pelas trilhas Java e IA & Dados para o desafio do Grupo RBS. Centraliza materiais, acompanhamento, comprovações e relatórios das parcerias.
 
-O portal busca centralizar o acompanhamento das parcerias entre a RBS e os patrocinadores do Planeta Atlântida, do fechamento do contrato ao pós-evento. O objetivo é reunir informações, materiais, comprovações e relatórios, oferecendo autonomia aos patrocinadores e reduzindo a consolidação manual do time B2B.
+**Esta é a demonstração PA27**, no repositório `bryandarvel/portal-patrocinador-pa27`, branch `demo-pa27`. Usa marcas reais como referência e dados operacionais fictícios. Não é uma implantação operacional ou homologada pela RBS.
 
-Na branch `demo-pa27`, use o [guia da demonstração PA27](docs/demo-pa27.md) para subir a stack isolada, carregar as oito marcas fictícias e testar os relatórios setoriais.
+- [Abrir o portal](https://portal-patrocinador-pa27.vercel.app/login)
+- [Matriz da Entrega 3](docs/entrega-3-matriz.md): requisitos, evidências e pendências.
+- [Guia de execução e acessos](docs/demo-pa27.md)
+- [Arquitetura](docs/arquitetura-demo-pa27.md)
+- [Validação e limitações](docs/validacao-final-pa27.md)
+- [Roteiro de vídeo até 2min50s](docs/entrega-3-video.md)
+- [Estado para o pitch](docs/estado-para-pitch.md)
 
-## Estado atual
+## Executar uma cópia nova
 
-Atualização em **28/10/2026**. O backend foi implementado e validado localmente conforme o [TAP e planos comerciais](docs/regras-negocio/README.md). O [plano de integração](docs/integracao-backend.md) registra contratos, verificações e limites da entrega.
+Requer Git e Docker Desktop com containers Linux. Java, Node, PostgreSQL e Mailpit são fornecidos pelo Docker; Node ou Angular CLI globais não são necessários para executar a stack.
 
-| Componente | Situação encontrada |
+```powershell
+git clone --branch demo-pa27 --single-branch https://github.com/bryandarvel/portal-patrocinador-pa27.git
+Set-Location portal-patrocinador-pa27
+if (!(Test-Path .env)) { Copy-Item .env.demo.example .env }
+```
+
+Preencha localmente `PORTAL_JWT_SECRET` (pelo menos 32 bytes aleatórios), `PORTAL_BOOTSTRAP_PASSWORD` e `PORTAL_SEED_PASSWORD` no `.env`. Use senhas distintas, de pelo menos 12 caracteres e até 72 bytes UTF-8. Não altere um `.env` existente sem conferir sua configuração. O template da demonstração usa portas 4217, 8087 e 8027.
+
+```powershell
+docker compose -p portal-pa27-demo up -d
+docker compose -p portal-pa27-demo ps
+```
+
+Aguarde [o health local](http://localhost:8087/api/health) responder UP. Para ver logs, use `docker compose -p portal-pa27-demo logs --tail 50 backend frontend`, sem publicar saídas que contenham segredos. Um container ativo não comprova prontidão.
+
+Para carregar as oito marcas em uma instalação local nova, os scripts exigem Python 3 no host, sem bibliotecas adicionais:
+
+```powershell
+python -X utf8 frontend/scripts/seed-demo-pa27.py
+python -X utf8 frontend/scripts/seed-demo-pa27.py --aplicar
+python -X utf8 backend/scripts/check-relatorios-pa27.py
+```
+
+O primeiro comando apenas mostra o plano. Os outros criam dados fictícios pela API e usam Mailpit para ativação. O verificador de relatórios importa exemplos, publica um Excel individual e pode completar fontes ausentes; leia o guia antes de executá-lo em uma base preparada. Não execute o seed legado de três marcas sobre esta demonstração.
+
+| Serviço local | Endereço |
 | --- | --- |
-| Frontend | Login e áreas de patrocinador/RBS integrados às APIs do portal. |
-| Backend | Módulos de identidade, cotas/parcerias/acessos, arquivos, áreas operacionais, contratos, entregas, histórico e relatório automático. |
-| Autenticação | BCrypt, ativação de conta, JWT configurável, desafio MFA e cadastro de acessos pela RBS. Chaves e credenciais são locais, fora do código versionado. |
-| Banco | PostgreSQL 17 no Compose; Flyway aplica migrações versionadas preservando as tabelas existentes. H2 é usado apenas no teste de contexto. |
-| Regras comerciais | Capacidades, modelos de entrega e direitos quantitativos são cadastrados e aplicados por parceria. Os PDFs de exemplo não são importados automaticamente. |
+| Portal | http://localhost:4217/login |
+| API / health | http://localhost:8087/api/health |
+| Swagger | http://localhost:8087/swagger-ui/index.html |
+| Mailpit | http://localhost:8027 |
+| PostgreSQL | `db:5432`, somente na rede Docker |
 
-As validações antigas da base foram preservadas em [Histórico de configuração](docs/historico-configuracao.md), com suas datas e limitações.
+Os endereços seguem o `.env`; ajuste se essas portas estiverem ocupadas. Use sempre `-p portal-pa27-demo`: o nome legado no Compose é histórico e não deve selecionar a stack do projeto original. Para parar preservando dados: `docker compose -p portal-pa27-demo stop`. Não é necessário apagar volumes para executar ou avaliar o MVP.
 
-## Escopo do produto
+## Acessos de demonstração
 
-O TAP prevê dois perfis: **Admin RBS**, que gerencia informações e acessos, e **Admin Patrocinador**, utilizado por clientes e agências. Cada patrocinador deve acessar apenas as informações da própria parceria.
+Admin RBS: `rbs.pa27@example.test`. Patrocinadores: `renner.pa27@example.test`, `coca-cola.pa27@example.test`, `banrisul.pa27@example.test`, `monster.pa27@example.test`, `mastercard.pa27@example.test`, `absolut-sprite.pa27@example.test`, `aperol.pa27@example.test` e `claro-jbl.pa27@example.test`.
 
-As áreas previstas são:
+Na instalação local criada pelo template, o administrador usa `PORTAL_BOOTSTRAP_PASSWORD` e os patrocinadores usam `PORTAL_SEED_PASSWORD`. As contas públicas já ativadas usam as credenciais fornecidas pelo responsável pela demonstração, por canal privado. Clonar o repositório não fornece acesso ao banco público nem suas senhas. Nunca importe `.env.render` ou `.env.cloud` na Vercel.
 
-- Perfil do cliente.
-- Mídia e conteúdo.
-- Pesquisa da ativação.
-- Aplicações de marca no evento.
-- Cortesias.
-- Credenciamento.
-- Contrato.
+RBS gerencia parcerias e direitos; patrocinadores entram no contexto autorizado. Master, Subcota G e Subcota M têm cenários demonstrativos distintos. Renner apresenta as sete áreas; Claro + JBL é uma parceria com duas marcas. Perfil é acessado pelo card da parceria, não por um oitavo item duplicado no menu.
 
-Os materiais comerciais orientam os benefícios de cada parceria. A profundidade de cada área, as exceções por contrato e as integrações devem seguir as decisões registradas com a equipe e o PO. O detalhamento do produto está em [PRODUCT.md](PRODUCT.md) e nos materiais do desafio.
+## Stack e organização
 
-## Tecnologias
+Angular 22.2.1, NG-ZORRO 22.1.1 e TypeScript 6.0.3 estão travados no lockfile; Node 24.15.0 no Compose; Java 21, Spring Boot 4.1.1 e Apache POI 6.0.0 no Maven; PostgreSQL 17 e Flyway. O backend usa PostgreSQL por padrão; H2 é exclusivo do teste de contexto.
 
-Versões identificadas nos arquivos da base analisada:
+- `frontend/`: apresentação, rotas, serviços HTTP e assets PA27.
+- `backend/`: API, autorização, transações, arquivos, relatórios e testes.
+- `docs/`: execução, arquitetura, regras, evidências e histórico.
+- `openspec/`: histórico anterior; não é requisito para executar a demonstração.
 
-| Parte | Tecnologia | Fonte |
-| --- | --- | --- |
-| Backend | Java 21 e Spring Boot 4.1.1 | [backend/pom.xml](backend/pom.xml) |
-| Persistência | Spring Data JPA; PostgreSQL 17 no Docker | [backend/pom.xml](backend/pom.xml) e [compose.yaml](compose.yaml) |
-| Frontend | Angular 22.2.1, NG-ZORRO 22.1.1 e TypeScript 6.0.3 | [frontend/package-lock.json](frontend/package-lock.json) |
-| Runtime do frontend no Docker | Node.js 24.15.0 | [compose.yaml](compose.yaml) |
-| Segurança e recursos auxiliares | Spring Security, JJWT, TOTP, JavaMail e GeoIP2 | [backend/pom.xml](backend/pom.xml) |
-| Ambiente e colaboração | Docker Compose, Maven Wrapper, npm, Git e GitHub | Configurações na raiz e nas aplicações |
+Vercel serve o frontend e encaminha `/api` para Render. Banco e anexos privados ficam no Supabase. A [arquitetura](docs/arquitetura-demo-pa27.md) explica os dois relatórios e o controle de acesso.
 
-As rotas e exemplos de contratos ficam no Swagger em `http://localhost:8080/swagger-ui/index.html` quando a API usa a porta padrão.
+## Verificações e limites
 
-## Como executar
-
-### Obter o projeto
-
-Com Git instalado e acesso ao repositório:
+Os relatórios locais Java registram 31 testes sem falhas. Há scripts de API e Playwright com resultados anteriores documentados; não constituem homologação humana. Os [registros de validação](docs/validacao-final-pa27.md) separam local/QA, publicação e conferência de arquivos por bibliotecas.
 
 ```powershell
-git clone https://github.com/gbarceloz/Desafio-GC-RBS.git
-cd Desafio-GC-RBS
+docker compose -p portal-pa27-demo exec -T backend sh ./mvnw -B -ntp test
+docker compose -p portal-pa27-demo exec -T frontend npm run test:proxy
+python -X utf8 backend/scripts/test_migrate_supabase_pa27.py
+python -X utf8 frontend/scripts/seed-demo-pa27.test.py
 ```
 
-Se já possui um clone, use a pasta existente. Para iniciar uma contribuição, siga o [CONTRIBUTING.md](CONTRIBUTING.md).
+Os testes de API/Chrome que criam registros sintéticos devem ser executados em QA isolado, não na base pública preparada. Consulte os requisitos de Playwright em `frontend/scripts` e no guia de integração; não há instalação automática de ferramentas.
 
-### Frontend local
+Render Free pode demorar para retomar após inatividade. Convites novos por e-mail na nuvem dependem de serviço de envio. DOCX/XLSX são processados apenas no modelo demonstrativo, até 500 linhas e 1 MB; outros tipos permitidos podem ser armazenados. Impactos são informados na fonte, sem atribuição causal medida. A matriz registra homologação, modelos oficiais, conferência visual no Office e demais pendências.
 
-Requer uma versão de Node compatível com o lockfile: `^22.22.3`, `^24.15.0` ou `>=26.0.0`. O Docker do projeto fixa Node **24.15.0**. Não é necessário instalar Angular CLI globalmente.
+## Origem e colaboração
 
-No PowerShell do Windows:
+O projeto deriva do trabalho colaborativo em [gbarceloz/Desafio-GC-RBS](https://github.com/gbarceloz/Desafio-GC-RBS), desenvolvido por três integrantes da trilha Java e dois de IA & Dados. O histórico e os créditos foram preservados. O repositório original e sua infraestrutura não são dependências para executar esta cópia.
 
-```powershell
-cd frontend
-npm.cmd ci
-npm.cmd start
-```
-
-Acesse **http://localhost:4200/login**. Use `Ctrl+C` para encerrar. Em WSL, Linux ou macOS, use `npm` no lugar de `npm.cmd`.
-
-O login autentica no backend e encaminha conforme o perfil e as parcerias autorizadas. Ativação de conta e MFA também estão conectados. As credenciais locais do administrador estão no `.env`, em `PORTAL_BOOTSTRAP_EMAIL` e `PORTAL_BOOTSTRAP_PASSWORD`.
-
-### Ambiente completo com Docker
-
-Requer Docker Desktop com containers Linux e Docker Compose. As imagens fornecem Java, Node e PostgreSQL; o backend utiliza Maven Wrapper.
-
-O Compose configura URL, driver, usuário, senha e dialeto PostgreSQL por variáveis de ambiente, substituindo a configuração H2 de `backend/src/main/resources/application.properties` apenas nos containers. O envio de e-mails depende de configuração válida para o ambiente utilizado. Veja o [registro da execução local](docs/execucao-docker.md) para evidências e limites da validação.
-
-Na raiz do repositório:
-
-```powershell
-if (!(Test-Path .env)) { Copy-Item .env.example .env }
-# Preencha .env com chave JWT exclusiva (mínimo 32 bytes) e senha inicial (mínimo 12 caracteres).
-docker compose up -d
-docker compose ps
-docker compose logs --tail 50 backend frontend
-```
-
-| Serviço | Acesso |
-| --- | --- |
-| Frontend | http://localhost:4200/login |
-| Backend | http://localhost:8080 — disponibilidade das rotas depende da configuração e da inicialização |
-| PostgreSQL | `db:5432`, acessível pela rede interna do Docker |
-| E-mails de desenvolvimento | http://localhost:8025, caixa local Mailpit; nenhuma entrega externa é feita pelo Compose |
-
-O primeiro início instala dependências. Aguarde os logs de inicialização: um container ativo não comprova que a aplicação está pronta. As portas locais 4200, 8025 e 8080 precisam estar livres; se alguma já estiver em uso, defina `FRONTEND_PORT`, `MAILPIT_PORT` ou `BACKEND_PORT` no `.env` e acesse os serviços nas portas escolhidas. Os scripts de `backend/scripts/` leem as mesmas variáveis.
-
-Para parar os serviços, preservando os volumes:
-
-```powershell
-docker compose stop
-```
-
-Para remover os containers e a rede deste projeto, preservando os volumes:
-
-```powershell
-docker compose down
-```
-
-O Compose é destinado ao desenvolvimento local. Cada máquina mantém seus próprios dados e caches. Consulte os arquivos de configuração para as variáveis locais; não use essas configurações como ambiente de produção.
-
-Em Linux/macOS, use `cp .env.example .env` somente se ainda não houver `.env`. Não sobrescreva credenciais existentes. O primeiro administrador é criado apenas quando o bootstrap está habilitado e suas credenciais foram preenchidas. Após a primeira criação, desabilite `PORTAL_BOOTSTRAP_ENABLED` na implantação. O volume `portal-files` preserva os arquivos enviados.
-
-Para validar as APIs localmente, com backend, banco e Mailpit ativos e as credenciais do bootstrap no `.env`:
-
-```sh
-python3 backend/scripts/check-portal-api.py
-```
-
-Esse teste cria contas e parcerias sintéticas com prefixo `Smoke`, verifica caminhos válidos/negados e não remove registros anteriores.
-
-Para popular a base com dados de demonstração em todas as áreas (três parcerias, uma por cota, com contatos e um segundo Admin RBS já ativados):
-
-```sh
-python3 backend/scripts/seed-portal.py
-```
-
-O comando usa somente a API, não duplica dados ao rodar de novo e cria nomes marcados `(demo)` com e-mails `@example.test`. Os usuários criados entram com `PORTAL_SEED_PASSWORD` ou, se vazia, com a senha do bootstrap.
-
-Para limpar a base (dados e arquivos enviados; schema e migrações são mantidos):
-
-```sh
-backend/scripts/reset-portal.sh --confirmar
-```
-
-Antes de apagar, o comando salva `backups/portal-<data>.sql` e `backups/arquivos-<data>.tar.gz`. Depois, o backend reinicia e o bootstrap recria o primeiro Admin RBS. Para voltar a um backup: `backend/scripts/reset-portal.sh --restaurar <data>`.
-
-O `compose.yaml` fixa o nome do projeto (`desafio-gc-rbs-local`): qualquer cópia do repositório na mesma máquina controla a mesma stack, e os comandos acima atuam nela. Para uma stack isolada de testes, defina no `.env` dessa cópia `COMPOSE_PROJECT_NAME` e portas próprias. O relatório automático está disponível em JSON em `/api/parcerias/{id}/relatorio` e como HTML baixável/imprimível em `/api/parcerias/{id}/relatorio/exportar`.
-
-As telas usam os IDs reais retornados pela API. RBS entra em `/rbs/patrocinadores`; patrocinadores acessam suas parcerias em `/parcerias`. Consulte o [inventário de telas e rotas](frontend/docs/telas-portal.md) e a [validação da integração](docs/integracao-backend.md#integração-angular-solicitada). Os roteiros locais em `frontend/scripts/check-auth-integration.cjs` e `check-portal-integration.cjs` usam Playwright já instalado, Chromium e os serviços Docker ativos. Defina `PLAYWRIGHT_MODULE` para o módulo disponível e, se necessário, `PLAYWRIGHT_CHROMIUM_EXECUTABLE` para o navegador. Eles criam somente dados sintéticos `E2E` e não removem registros anteriores.
-
-### Comunicação entre as aplicações
-
-O proxy de desenvolvimento do Angular encaminha `/api/**` preservando o caminho. No host, o destino padrão é `http://127.0.0.1:8080`; no Docker, `API_PROXY_TARGET` seleciona `http://backend:8080`. O proxy não realiza autenticação.
-
-O PostgreSQL do Compose não publica porta no host. Executar o backend fora do Docker exige um banco acessível e a configuração correspondente.
-
-## Organização e documentação
-
-| Local | Conteúdo |
-| --- | --- |
-| `backend/` | Aplicação Spring Boot, Maven Wrapper, configurações e testes. |
-| `frontend/` | Aplicação Angular, dependências, proxy e assets. |
-| `docs/` | Documentação de funcionalidades e registros históricos. |
-| `openspec/` | Histórico de mudanças antigas. O processo deixou de ser usado em 22/10/2026. |
-| [Regras de negócio](docs/regras-negocio/README.md) | TAP, planos comerciais e aplicabilidade por edição. |
-| [Integração do backend](docs/integracao-backend.md) | Inventário, contratos, decisões, tarefas e evidências da implementação. |
-| [API e operação](docs/backend-api.md) | Autenticação, parametrização, DTOs e comandos da API local. |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Fluxo de colaboração, padrões de desenvolvimento, commits, PRs e verificações. |
-| [PRODUCT.md](PRODUCT.md) | Contexto e limites do produto. |
-| [DESIGN.md](DESIGN.md) | Identidade visual, paleta PA27 e decisões de interface. |
-| [frontend/README.md](frontend/README.md) | Execução isolada do frontend e detalhes do proxy. |
-| [docs/login.md](docs/login.md) | Requisitos e histórico da tela de login. |
-| [docs/historico-configuracao.md](docs/historico-configuracao.md) | Evidências antigas da reorganização, biblioteca de interface e tema. |
-
-A paleta é implementada em `frontend/src/styles.less`. A origem das imagens está em [frontend/public/images/README.md](frontend/public/images/README.md). Os assets necessários estão versionados; os PDFs originais não são necessários para executar o frontend.
-
-A implementação atual usa a documentação de tarefas do projeto, sem criar mudanças OpenSpec.
-
-## Como contribuir
-
-Leia o [guia de colaboração](CONTRIBUTING.md) para abrir uma Issue, trabalhar em uma branch, executar as verificações relevantes e preparar um Pull Request.
-
-O time reúne três pessoas da trilha Java e duas da trilha IA & Dados. Frontend, banco e contratos entre componentes exigem alinhamento conjunto; a distribuição individual das tarefas é combinada pela equipe.
+[PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), [regras de negócio](docs/regras-negocio/README.md) e [integração histórica](docs/integracao-backend.md) registram as decisões. [CONTRIBUTING.md](CONTRIBUTING.md) conserva o fluxo da equipe original; para esta revisão, commit, push e publicação são feitos por Bryan após conferir o diff. A preparação técnica não comprova que todos os critérios da Entrega 3 foram aceitos pela banca.

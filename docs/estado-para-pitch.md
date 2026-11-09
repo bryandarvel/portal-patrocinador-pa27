@@ -1,5 +1,7 @@
 # Estado técnico para o pitch
 
+> Revisão de entrega em 07/11/2026: use a [matriz da Entrega 3](entrega-3-matriz.md) e o [roteiro de vídeo](entrega-3-video.md). A plataforma demonstrável e os testes técnicos não comprovam homologação por RBS/patrocinadores reais, nem a conclusão do pitch, vídeo e submissão. A matriz mantém esses itens pendentes.
+
 Registro de 7 de novembro de 2026. A versão de trabalho está na branch demo-pa27 do repositório bryandarvel/portal-patrocinador-pa27. O prazo atualizado por Bryan é 7 de novembro às 3h, horário de Brasília.
 
 ## Necessidade documentada

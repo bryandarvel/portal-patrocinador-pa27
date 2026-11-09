@@ -1,12 +1,14 @@
 # Inventário das telas e proposta de integração com o backend
 
+> Registro histórico iniciado em 28/10/2026. Para a demonstração atual, use [README](../README.md), [arquitetura PA27](arquitetura-demo-pa27.md) e [matriz da Entrega 3](entrega-3-matriz.md). As referências abaixo a ausência de deploy, armazenamento apenas local ou planilhas sem processamento descrevem aquela data; a versão PA27 possui hospedagem Vercel/Render/Supabase e importação dos modelos DOCX/XLSX. Os resultados antigos não constituem homologação atual da RBS.
+
 Inventário e implementação de 28/10/2026. O backend foi implementado e validado localmente após o usuário indicar o TAP/planos como fonte autoritativa e confirmar a consolidação automática dos dados do portal. As tabelas iniciais de proposta foram preservadas como contexto; o contrato atual está em [backend-api.md](backend-api.md) e o resultado verificável ao final deste documento.
 
 ## Objetivo e alcance
 
 Conectar as telas existentes a autenticação, dados persistentes e operações reais. Inventariar navegação e ações, reutilizar os endpoints existentes e identificar contratos ausentes. Critério deste levantamento: cobrir as rotas Angular declaradas, as geradas por cliente e os fluxos de seus componentes e serviços de prévia.
 
-Fontes: [rotas principais](../frontend/src/app/app.routes.ts), [rotas por cliente](../frontend/src/app/features/admin/client-areas/client-preview.routes.ts), componentes e serviços em `frontend/src/app/features/`, controllers e serviços em `backend/src/main/java/com/rbs/portal_patrocinador/`.
+Fontes: [rotas principais atuais](../frontend/src/app/app.routes.ts), componentes e serviços em `frontend/src/app/features/`, controllers e serviços em `backend/src/main/java/com/rbs/portal_patrocinador/`. O antigo arquivo `features/admin/client-areas/client-preview.routes.ts` citado no levantamento foi substituído; seu caminho é mantido aqui somente como referência histórica.
 
 - [x] Inventariar telas e variações.
 - [x] Levantar operações e endpoints existentes.
